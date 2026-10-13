@@ -12,6 +12,7 @@ import qs.Ui as Ui
 import "views"
 import "sources"
 import "IslandModel.js" as Model
+import "views/GlassMath.js" as GlassMath
 import "bridge" as Bridge
 
 // Tusche Island: a theme-native activity island for Omarchy.
@@ -111,7 +112,7 @@ Item {
     // accent, so the palette signals below would not fire between them
     onLoaded: { materialFile.reload(); themeColorsFile.reload() }
   }
-  readonly property var material: barOptions.edge === "theme" ? themeMaterial : null
+  readonly property var material: barOptions.edge === "theme" ? GlassMath.material(themeMaterial, barOptions.glass, barOptions.glassMotion) : null
   property bool configLoaded: false
 
   FileView {

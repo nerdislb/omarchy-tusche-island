@@ -31,6 +31,8 @@ Item {
   property bool bloom: false
   property var material: null           // theme material (bar-material.json) or null
   readonly property var mat: !bloom && !bubble && material && material.card ? material.card : null
+  readonly property var glassSpec: mat && material.glass ? material.glass : null
+  readonly property bool glassOn: !!glassSpec && glassSpec.enabled !== false
   property real textIn: 1               // bloom: text opacity
   property bool first: false            // hangs from the island (bubble: notch)
   property bool active: false           // the open card, not a waiting row
@@ -87,9 +89,21 @@ Item {
     width: card.shapeW
     height: Math.max(0, card.visibleH - card.notchH)
     radius: card.bubble ? island.s(10) : 0
-    color: island.surface
-    borderSpec: (card.critical && !card.mat) || !card.active ? Border.flat(card.frameColor, card.frame) : island.frameSpec
+    color: card.glassOn ? "transparent" : island.surface
+    borderSpec: card.glassOn ? Border.flat("transparent", card.frame) : (card.critical && !card.mat) || !card.active ? Border.flat(card.frameColor, card.frame) : island.frameSpec
   }
+  GlassSurface {
+    id: glass
+    z: -0.5
+    visible: card.glassOn && card.visible && card.height > 0
+    active: visible
+    spec: card.glassSpec
+    x: surface.x; y: surface.y
+    width: surface.width; height: surface.height
+    radius: surface.radius
+    onVisibleChanged: if (visible && card.active) play()
+  }
+  onActiveChanged: { if (active && glass.visible) glass.play(); else glass.stop() }
   // material: a critical note's one signal stripe on the left edge; in a
   // Lavur bloom a brushed stroke inside the bloom that comes and goes with
   // the text (the bloom is still a drop before the text fades in)

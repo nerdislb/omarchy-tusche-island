@@ -364,7 +364,7 @@ Item {
           MetalShape {
             id: noteMetal
             z: 2
-            visible: !!column.metal && slot.height > 1 && !column.bloom
+            visible: !!column.metal && slot.height > 1 && !column.bloom && !(column.material && column.material.glass && column.material.glass.enabled !== false)
             spec: column.metal
             pad: 3
             x: -pad

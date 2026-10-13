@@ -65,6 +65,13 @@ In the bar, notifications roll out of the bar's bottom edge right under the isla
 
 **Theme material.** With the Tusche Bar's `edge` option set to `theme` and a theme that ships `bar-material.json` (Tusche & Papier), notes and the island popup take the theme's card instead of `noteStyle`: the theme's frame with its hard ink shadow (Papier) or halo (Tusche), soft controls, no title bar; a critical note keeps its text in the theme's colours and carries one narrow signal stripe. On the Lavur themes (material `card.bloom`) notes bloom out of the bar instead, each its own sheet of wet paper (`views/InkSheet.qml`): ink fills it, the water clears it, and the pigment dries into a rim at its calm edge. The island follows theme switches.
 
+**Frost / Smoke glass.** With the matching Tusche Bar glass themes, notes and
+the Island popup use Bevel Lens glass without changing their frame geometry.
+Glass and popup spring motion follow the Bar's independent `glass` and
+`glassMotion` options. Reduced Motion suppresses travelling light and springs.
+Shared material sources and shader/QSB must match the Bar; see its
+`docs/glass-material.md` for capture boundaries and verification limitations.
+
 **Failures.** A systemd unit (user or system) that fails, or a program that dumps core, is announced once as an ordinary notification in the urgent tone; a click opens the journal or the core dump details in a terminal. `failures: false` turns this off.
 
 **Agent completions.** A working → idle transition after at least 20 seconds of work shows both the bar announcement and a normal notification popout. It uses the existing themed column, queue, hover pause and DND policy, without taking keyboard focus. Click to focus the agent (OpenClaw agents open the local Control UI). `agentDone: false` disables both completion announcements. Short status flickers and the initial agent snapshot remain silent; idle means the agent stopped working, not that its result passed verification.
