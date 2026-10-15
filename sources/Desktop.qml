@@ -9,8 +9,9 @@ import "../IslandModel.js" as Model
 //   Flux (fluxd socket)       agent sessions working or idle (herdr and
 //                             OpenClaw), the paired phone's battery
 //   Omarchy agent usage       subscription limits close to running out
+//   Hermes turn markers      live Desktop/TUI turns (read-only, one home)
 //
-// Nothing is written or sent anywhere; the only call is Flux's "subscribe".
+// No chat bodies or credentials leave Hermes. Flux only receives "subscribe".
 Item {
   id: desk
 
@@ -18,7 +19,8 @@ Item {
 
   function on(key) { return island ? island.setting(key, true) !== false : true }
   readonly property bool fluxEnabled: on("flux")
-  readonly property bool agentsEnabled: fluxEnabled && on("agents")
+  readonly property bool agentsEnabled: on("agents")
+  readonly property bool hermesEnabled: agentsEnabled && on("hermes")
   readonly property bool agentDoneEnabled: agentsEnabled && on("agentDone")
   readonly property bool phoneEnabled: fluxEnabled && on("phone")
   readonly property bool limitsEnabled: on("aiLimits")
@@ -78,11 +80,40 @@ Item {
     }
   }
 
-  // ---- agents
-  readonly property var agents: {
-    var h = fluxState.herdr
-    return agentsEnabled && h && h.running && Array.isArray(h.agents) ? h.agents : []
+  // Hermes collector is a child of this source, not an independent service.
+  // It reads the existing turn marker and title metadata; no REST token needed.
+  readonly property string hermesHome: String(island ? island.setting("hermesHome", "") : "")
+    || Quickshell.env("HERMES_HOME") || (Quickshell.env("HOME") + "/.hermes")
+  property var hermesState: ({})
+  property double hermesReceived: 0
+  function handleHermes(line) {
+    var next
+    try { next = JSON.parse(line) } catch (e) { next = {} }
+    hermesReceived = Date.now()
+    if (JSON.stringify(next) !== JSON.stringify(hermesState)) hermesState = next
   }
+  Process {
+    id: hermesProcess
+    command: ["python3", decodeURIComponent(Qt.resolvedUrl("../bin/hermes-status.py").toString().replace(/^file:\/\//, "")),
+              "--home", desk.hermesHome, "--watch"]
+    running: desk.hermesEnabled
+    stdout: SplitParser { onRead: data => desk.handleHermes(data) }
+    onRunningChanged: if (!running) { desk.hermesState = ({}); desk.hermesReceived = 0 }
+  }
+  onHermesEnabledChanged: hermesProcess.running = hermesEnabled
+  onHermesHomeChanged: { hermesProcess.running = false; hermesState = ({}) }
+  Timer {
+    interval: 2000
+    repeat: true
+    running: desk.hermesEnabled
+    onTriggered: {
+      if (!hermesProcess.running) hermesProcess.running = true
+      else if (desk.hermesReceived && Date.now() - desk.hermesReceived > 8000) hermesProcess.running = false
+    }
+  }
+
+  // ---- agents
+  readonly property var agents: Model.desktopAgents(fluxState, hermesState, agentsEnabled, fluxEnabled, hermesEnabled)
   readonly property var working: agents.filter(function(a) { return a && a.status === "working" })
   // Agents waiting for input or approval (herdr "blocked"), minus the ones
   // snoozed from the requester ("Later", 10 minutes).
@@ -101,13 +132,12 @@ Item {
     s[String(pane)] = Date.now() + 10 * 60000
     snoozed = s
   }
-  // Bring the waiting agent to the front: herdr panes by id; OpenClaw
-  // sessions (pane "oc:…") in the OpenClaw Control UI.
+  // User-initiated focus: Hermes raises its existing window; other sources
+  // retain their own destinations. No untrusted strings are shell-evaluated.
   function focusAgent(a) {
     if (!a || !island) return
-    var pane = String(a.pane || "")
-    if (pane.indexOf("oc:") === 0) Quickshell.execDetached(["xdg-open", "http://127.0.0.1:18789/"])
-    else Quickshell.execDetached(["herdr", "agent", "focus", pane])
+    var command = Model.agentFocusCommand(a)
+    if (command.length) Quickshell.execDetached(command)
   }
 
   // pane -> { status, since, title, agent }
@@ -130,7 +160,7 @@ Item {
         island.announceAgentDone(a)
     }
     seen = next
-    if (fluxState.herdr) primed = true
+    if (fluxState.herdr || hermesState.available) primed = true
     syncActivity()
   }
 
@@ -251,6 +281,8 @@ Item {
   function summary() {
     return {
       flux: connected,
+      hermes: hermesEnabled && hermesState.available === true,
+      hermesAgents: hermesEnabled && Array.isArray(hermesState.agents) ? hermesState.agents.length : 0,
       agents: agents.length,
       working: working.map(function(a) { return a.agent + ": " + (a.title || "") }),
       phone: phone,

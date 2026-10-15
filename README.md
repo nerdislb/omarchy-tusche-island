@@ -138,3 +138,17 @@ Run `./dev-install.sh` after every edit (it copies the working tree to `~/.confi
 ## Licence
 
 MIT (`LICENSE`), based on [omarchy-dynamic-island](https://github.com/Arjun010011/omarchy-dynamic-island) by Arjun010011 and contributors.
+
+### Hermes turn status
+
+The existing desktop source can also observe local Hermes Desktop/TUI turn
+markers (`hermes: true`, alongside `agents: true`). `hermesHome` selects one
+Hermes home; otherwise `HERMES_HOME` or `~/.hermes` is used. It reads only local
+turn markers and optional session titles, never sends prompts or credentials,
+and opens the existing Hermes window on a user-initiated focus action. Unknown,
+stale or dead writer identities never earn a working badge. Missing/broken
+observability does not announce completion. Disable `hermes` to stop its
+collector; Flux and other agent sources remain independent.
+
+Checks: `node tests/hermes.cjs` and
+`PYTHONDONTWRITEBYTECODE=1 python3 -m unittest discover -s tests -p 'test_hermes_status.py'`.
