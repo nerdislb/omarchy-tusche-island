@@ -5,18 +5,30 @@
 
 // Use the desktop notification path: normal urgency opens a card and respects
 // DND. Keep agent-provided text and focus targets in literal argv, never a shell.
+function desktopAgents(flux, hermes, enabled, fluxEnabled, hermesEnabled) {
+  if (!enabled) return []
+  var h = flux && flux.herdr
+  var list = fluxEnabled && h && h.running && Array.isArray(h.agents) ? h.agents : []
+  return list.concat(hermesEnabled && hermes && hermes.available && Array.isArray(hermes.agents) ? hermes.agents : [])
+}
+
+function agentFocusCommand(agent) {
+  var pane = String((agent || {}).pane || "")
+  if (pane.indexOf("hermes:") === 0)
+    return ["hyprctl", "dispatch", 'hl.dsp.focus({ window = "class:^com[.]nousresearch[.]hermes$" })']
+  if (pane.indexOf("oc:") === 0)
+    return ["xdg-open", "http://127.0.0.1:18789/"]
+  return pane ? ["herdr", "agent", "focus", pane] : []
+}
+
 function agentDoneCommand(agent) {
   var a = agent || {}
   var name = String(a.agent || "Agent")
-  var pane = String(a.pane || "")
   var argv = ["omarchy-notification-send", "--app-name", name,
               "-u", "normal", "-g", "󰄬", "Agent finished",
               "Done · " + String(a.title || name)]
-  if (pane.indexOf("oc:") === 0)
-    return argv.concat(["--exec", "xdg-open", "http://127.0.0.1:18789/"])
-  if (pane)
-    return argv.concat(["--exec", "herdr", "agent", "focus", pane])
-  return argv
+  var focus = agentFocusCommand(a)
+  return focus.length ? argv.concat(["--exec"], focus) : argv
 }
 
 // Base geometry for each view, in unscaled pixels. The island springs between
