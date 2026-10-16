@@ -21,13 +21,46 @@ Item {
   function mix(a, b, t) { return Qt.rgba(a.r + (b.r - a.r) * t, a.g + (b.g - a.g) * t, a.b + (b.b - a.b) * t, 1) }
 
   // ------------------------------------------------------------ head
+  //
+  // The head speaks the theme's material family instead of being a fixed slab:
+  // glass (Smoke, Frost) keeps the panel's translucent surface and separates
+  // with the theme's quiet edge hairline, Lavur drops fill and line (its cards
+  // bring their own halo), Tusche/Papier keep the quiet tonal step with the
+  // card frame colour as the crisp separator, Chrom/Platin get a chrome
+  // hairline. Themes without bar-material.json keep the old bevelled slab.
+  readonly property var material: island ? island.material : null
+  readonly property bool glassHead: !!(material && material.glass && material.glass.enabled !== false)
+  readonly property bool bloomHead: !!(material && material.card && material.card.bloom === true)
+  readonly property var headRule: {
+    if (!material || bloomHead) return null
+    var edge = material.edge || {}
+    if (glassHead && edge.line) return edge.line
+    var frame = material.card ? material.card.frame : null
+    if (frame) return frame
+    var metal = material.metal
+    if (metal && metal.tint) return { color: metal.tint, alpha: 0.5, width: 1 }
+    return null
+  }
+  readonly property int headRuleWidth: headRule && headRule.width ? Math.max(1, Math.round(headRule.width)) : 1
+  readonly property color headRuleColor: headRule
+    ? Util.alpha(headRule.color, headRule.alpha !== undefined ? headRule.alpha : 1)
+    : bevelDark
+
   Rectangle {
     id: head
     width: parent.width
     height: view.headH
-    color: view.mix(island.surface, island.fg, 0.06)
-    Rectangle { width: parent.width; height: 1; color: view.bevelLight }
-    Rectangle { y: parent.height - 1; width: parent.width; height: 1; color: view.bevelDark }
+    color: (view.glassHead || view.bloomHead) ? "transparent" : view.mix(island.surface, island.fg, 0.06)
+    // A solid head keeps its faint top bevel; glass and Lavur have no slab.
+    Rectangle { visible: !view.glassHead && !view.bloomHead; width: parent.width; height: 1; color: view.bevelLight }
+    Rectangle {
+      visible: !view.bloomHead
+      y: parent.height - view.headRuleWidth
+      width: parent.width
+      height: view.headRuleWidth
+      color: view.headRuleColor
+      opacity: view.glassHead ? 0.9 : 1
+    }
     Text {
       x: island.s(12)
       anchors.verticalCenter: parent.verticalCenter
@@ -76,7 +109,12 @@ Item {
       BevelButton { label: "Mark read"; enabled: island.unreadCount > 0; onClicked: island.markAllRead() }
       BevelButton { label: "Clear all"; enabled: view.items.length > 0; onClicked: island.notificationClearInbox() }
     }
-    Rectangle { y: parent.height - 1; width: parent.width; height: 1; color: view.bevelDark }
+    Rectangle {
+      visible: !view.bloomHead
+      y: parent.height - 1; width: parent.width; height: 1
+      // Soft separation for the materials that have no slab edge of their own.
+      color: (view.glassHead || view.bloomHead) ? Util.alpha(island.fg, 0.08) : view.bevelDark
+    }
   }
 
   // ------------------------------------------------------------ rows
