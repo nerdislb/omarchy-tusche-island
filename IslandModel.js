@@ -893,6 +893,15 @@ function unreadCount(inbox) {
   return (inbox || []).filter(function(e) { return e && e.unread !== false }).length
 }
 
+// Unread entries that mean something broke: critical ones, and the failures
+// the island announces itself (a failed systemd unit, a core dump). The bar's
+// companion shows these as an error; ordinary unread entries are only counted.
+function alertCount(inbox) {
+  return (inbox || []).filter(function(e) {
+    return e && e.unread !== false && (e.critical === true || e.app === "systemd" || e.app === "coredump")
+  }).length
+}
+
 // Inbox popup in the bar: head, toolbar, up to five rows, the DND footer.
 var noteInboxRow = 52
 function noteInboxSize(count) {

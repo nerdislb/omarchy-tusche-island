@@ -128,7 +128,7 @@ Target `tusche-island`, e.g. `omarchy-shell tusche-island state`:
 - `timer 25m [label]`, `timerToggle`, `timerCancel`, `stopwatch start|pause|toggle|reset`
 - `activity <id> '<json>'`, `endActivity <id> [message]`, `activities` (live activities for scripts; see `UPSTREAM.md`)
 - `addCalendar <link>`, `removeCalendar <link>`, `addCalendarFromClipboard`, `refreshCalendar`
-- `reserveSpace on|off|toggle`, `state`, `ping`
+- `reserveSpace on|off|toggle`, `state`, `ping`; `state` carries a `companion` object (`unread`, `alerts`, `dnd`, `blocked`, `working`, `doneSerial`: counts and a counter that moves when an agent finishes) that the Tusche Bar's Omi focus seal reads while the bar is hidden
 - Previews: `demo media|paused|recording|mic|split|expanded|volume|brightness|charging|lowbattery|track|notification|inbox|timer|stopwatch|activity|calendar|calendar-view|camera|device|outputs|toast|off`, `noteDemo mail|chat|phone|low|critical|actions|burst|story|many`, `attentionDemo on|off`, `agentDoneDemo`, `failureDemo [unit]`, `flash`
 
 ## Develop

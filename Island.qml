@@ -1271,7 +1271,10 @@ Item {
     return n
   }
 
+  // Counts up for every announced completion; the bar's focus seal reacts to it.
+  property int doneSerial: 0
   function announceAgentDone(agent) {
+    doneSerial++
     toast({ title: agent.title || agent.agent || "Agent", body: "Done · " + (agent.agent || "agent"),
             icon: "󰄬", color: "green", duration: 5000 })
     Quickshell.execDetached(Model.agentDoneCommand(agent))
@@ -1569,6 +1572,16 @@ Item {
           waiting: notifications.waiting.map(function(e) { return e.summary }),
           line: root.noteLine ? root.noteLine.summary : null,
           unread: notifications.unread
+        },
+        // What the bar's focus seal reads while the bar is hidden (its option
+        // `seal: omi`). Counts and a serial only, no text.
+        companion: {
+          unread: notifications.unread,
+          alerts: Model.alertCount(root.inbox),
+          dnd: notifications.doNotDisturb,
+          blocked: root.desktop.blocked.length,
+          working: root.desktop.working.length,
+          doneSerial: root.doneSerial
         },
         screen: win.screen ? win.screen.name : null
       })

@@ -89,6 +89,19 @@ assert.equal(ctx.noteDuration(null, 0), 0);
 // Unread: entries without the flag (old inbox files) count as unread.
 assert.equal(ctx.unreadCount([{ unread: true }, { unread: false }, {}]), 2);
 
+// Alerts: unread critical entries and our own failure notifications only.
+assert.equal(ctx.alertCount([{ unread: true, critical: true }, { unread: false, critical: true }, { app: 'systemd' }, { app: 'coredump', unread: true },
+  { app: 'mail' }, { app: 'systemd', unread: false }, null, undefined, {}]), 3);
+assert.equal(ctx.alertCount(undefined), 0);
+// The IPC state carries the counts the bar's companion reads.
+{
+  const island = fs.readFileSync(path.join(__dirname, '..', 'Island.qml'), 'utf8');
+  const block = island.split('companion: {')[1].split('},')[0];
+  for (const key of ['unread', 'alerts', 'dnd', 'blocked', 'working', 'doneSerial'])
+    assert.ok(new RegExp('\\b' + key + ':').test(block), 'companion.' + key);
+  assert.ok(/function announceAgentDone\(agent\) \{\n\s+doneSerial\+\+/.test(island), 'every completion bumps doneSerial');
+}
+
 // Defaults the plugin writes into its shell.json entry.
 assert.equal(ctx.defaultSettings.noteStyle, 'window');
 // noteStyle: "window" or "bubble"; the window's former name and anything unknown read as "window".
