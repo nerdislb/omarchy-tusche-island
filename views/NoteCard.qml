@@ -10,6 +10,9 @@ import qs.Ui as Ui
 // card body, in Omarchy's popup frame; the body rolls out like a blind.
 // Bubble: a speech bubble whose notch flows out of the bar edge; a strip
 // spreads from the notch, then the body rolls down.
+// Float: a free card under the island with the windows' corners and no
+// connector; it shares the material card's rules (soft controls, a critical
+// note's signal stripe, no red text) without a material of its own.
 // Bloom (a Lavur theme's material, card.bloom): no surface of its own —
 // the column draws the card as a sheet of wet paper; the text sits on it
 // and fades with `textIn`, with the material's rules (one brushed signal
@@ -29,10 +32,13 @@ Item {
   property int moreCount: 0
   property bool bubble: false
   property bool bloom: false
+  property bool floating: false
   property var material: null           // theme material (bar-material.json) or null
   readonly property var mat: !bloom && !bubble && material && material.card ? material.card : null
   readonly property var glassSpec: mat && material.glass ? material.glass : null
   readonly property bool glassOn: !!glassSpec && glassSpec.enabled !== false
+  // material card or float: the same flat rules for text, frame and signal
+  readonly property bool flat: !!mat || floating
   property real textIn: 1               // bloom: text opacity
   property bool first: false            // hangs from the island (bubble: notch)
   property bool active: false           // the open card, not a waiting row
@@ -49,7 +55,7 @@ Item {
 
   readonly property bool critical: !!(entry && entry.critical) && kind === "note"
   // Bubble, bloom and material share the soft controls (no gadget, rounded buttons).
-  readonly property bool soft: bubble || bloom || !!mat
+  readonly property bool soft: bubble || bloom || flat
   readonly property real frame: Math.max(1, island.s(2))
   readonly property real notchH: bubble && first ? island.s(11) : 0
   readonly property real headH: island.s(26)
@@ -59,8 +65,8 @@ Item {
   readonly property real fullH: rowH + bodyH
   readonly property real visibleH: rowH + bodyH * Math.max(0, Math.min(1, openness))
   // material: text stays in the theme's colours, the signal sits on the stripe and the symbol only
-  readonly property color ink: mat || bloom ? (critical ? island.fg : tone) : critical ? island.urgentColor : tone
-  readonly property color frameColor: critical && !mat ? island.urgentColor
+  readonly property color ink: flat || bloom ? (critical ? island.fg : tone) : critical ? island.urgentColor : tone
+  readonly property color frameColor: critical && !flat ? island.urgentColor
     : active ? island.rim : Util.alpha(island.fg, 0.22)
 
   implicitHeight: visibleH
@@ -88,9 +94,9 @@ Item {
     y: card.notchH
     width: card.shapeW
     height: Math.max(0, card.visibleH - card.notchH)
-    radius: card.bubble ? island.s(10) : 0
+    radius: card.bubble ? island.s(10) : card.floating ? Style.cornerRadius : 0
     color: card.glassOn ? "transparent" : island.surface
-    borderSpec: card.glassOn ? Border.flat("transparent", card.frame) : (card.critical && !card.mat) || !card.active ? Border.flat(card.frameColor, card.frame) : island.frameSpec
+    borderSpec: card.glassOn ? Border.flat("transparent", card.frame) : (card.critical && !card.flat) || !card.active ? Border.flat(card.frameColor, card.frame) : island.frameSpec
   }
   GlassSurface {
     id: glass
@@ -108,13 +114,16 @@ Item {
   // Lavur bloom a brushed stroke inside the bloom that comes and goes with
   // the text (the bloom is still a drop before the text fades in)
   Rectangle {
-    visible: (!!card.mat || card.bloom) && card.critical
+    visible: (card.flat || card.bloom) && card.critical
     z: 3
     x: card.bloom ? Math.round(island.s(9)) : card.shapeX
     y: card.notchH + (card.bloom ? Math.round(island.s(12)) : 0)
     width: Math.max(3, Math.round(island.s(4)))
     height: Math.max(0, card.visibleH - card.notchH - (card.bloom ? 2 * Math.round(island.s(12)) : 0))
     radius: card.bloom ? width / 2 : 0
+    // float: follow the card's rounded left corners
+    topLeftRadius: card.floating ? surface.radius : radius
+    bottomLeftRadius: card.floating ? surface.radius : radius
     opacity: card.bloom ? card.textIn : 1
     color: island.urgentColor
   }
@@ -336,7 +345,7 @@ Item {
             renderType: Text.NativeRendering
             font.family: island.fontFamily
             font.pixelSize: island.f(22)
-            color: card.critical && (card.mat || card.bloom) ? island.urgentColor : card.ink
+            color: card.critical && (card.flat || card.bloom) ? island.urgentColor : card.ink
           }
         }
 
@@ -406,7 +415,7 @@ Item {
               font.family: island.fontFamily
               font.pixelSize: island.f(12)
               font.bold: btn.primary
-              color: btn.primary ? island.accentText : btn.modelData.deny && !card.mat && !card.bloom ? island.urgentColor : island.fg
+              color: btn.primary ? island.accentText : btn.modelData.deny && !card.flat && !card.bloom ? island.urgentColor : island.fg
             }
             MouseArea {
               id: btnMouse

@@ -1456,18 +1456,18 @@ Item {
     }
     function show(payloadJson: string): string { root.open(payloadJson); return "ok" }
     function demo(kind: string): string { return root.runDemo(kind) }
-    // Notification look in the bar: noteStyle window|bubble (the former
-    // name "workbench" is stored as "window"), notifications true|false
-    // (take over Omarchy's popups).
+    // Notification look in the bar: noteStyle window|bubble|float (the
+    // former name "workbench" is stored as "window"), notifications
+    // true|false (take over Omarchy's popups).
     function set(key: string, value: string): string {
       var v = String(value || "")
-      if (key === "noteStyle" && (v === "window" || v === "bubble" || v === "workbench")) {
+      if (key === "noteStyle" && (v === "window" || v === "bubble" || v === "float" || v === "workbench")) {
         var style = Model.noteStyle(v)
         root.saveSettings({ noteStyle: style })
         return style
       }
       if (key === "notifications" && (v === "true" || v === "false")) { root.saveSettings({ notifications: v === "true" }); return v }
-      return "usage: set noteStyle window|bubble · set notifications true|false"
+      return "usage: set noteStyle window|bubble|float · set notifications true|false"
     }
     // Sample notifications through the real queue (no sender behind them).
     function noteDemo(kind: string): string { return root.noteDemo(kind) }

@@ -104,8 +104,10 @@ assert.equal(ctx.alertCount(undefined), 0);
 
 // Defaults the plugin writes into its shell.json entry.
 assert.equal(ctx.defaultSettings.noteStyle, 'window');
-// noteStyle: "window" or "bubble"; the window's former name and anything unknown read as "window".
+// noteStyle: "window", "bubble" or "float"; the window's former name and anything unknown read as "window".
 assert.equal(ctx.noteStyle('bubble'), 'bubble');
+assert.equal(ctx.noteStyle('float'), 'float');
+assert.equal(ctx.noteStyle('Float'), 'window');
 assert.equal(ctx.noteStyle('window'), 'window');
 assert.equal(ctx.noteStyle('workbench'), 'window');
 assert.equal(ctx.noteStyle(undefined), 'window');

@@ -16,6 +16,10 @@ import "bridge" as Bridge
 // the head slides out of the edge, then the body unrolls; back the same way.
 // Reduced motion: the same moments, faded instead of moved.
 //
+// Float (noteStyle "float"): free cards a few pixels under the bar with the
+// windows' corners and no connector; each note drops in a little while it
+// fades in and unrolls (eased), and fades out before its row closes.
+//
 // A Lavur theme's bloom (material card.bloom): a drop falls out of the bar,
 // grows into the card, then the text fades in; going back, the text fades,
 // the card shrinks to a drop and is pulled back into the bar, leaving a faint
@@ -45,6 +49,11 @@ Item {
   readonly property color paper: Qt.rgba(Commons.Color.bar.background.r, Commons.Color.bar.background.g, Commons.Color.bar.background.b, 1)
   readonly property bool lightBar: 0.2126 * paper.r + 0.7152 * paper.g + 0.0722 * paper.b > 0.55
   readonly property bool bubble: !material && !!island && island.noteStyle === "bubble"
+  readonly property bool floating: !material && !!island && island.noteStyle === "float"
+  // float: the gap under the bar, between cards, and the drop on arrival
+  readonly property real floatGap: island ? island.s(7) : 7
+  readonly property real floatSpacing: island ? island.s(5) : 5
+  readonly property real floatDrop: island ? island.s(10) : 10
   readonly property real cardW: island ? island.s(480) : 480
   readonly property bool reduced: Style.reduceMotion
 
@@ -201,9 +210,9 @@ Item {
       id: stack
       readonly property real dpr: win.devicePixelRatio > 0 ? win.devicePixelRatio : 1
       x: Math.round(Math.max(0, Math.min(win.width - width, column.anchorX - width / 2)) * dpr) / dpr
-      y: column.bloom ? 2 : 0
+      y: column.bloom ? 2 : column.floating ? column.floatGap : 0
       width: column.cardW
-      spacing: 0
+      spacing: column.floating ? column.floatSpacing : 0
 
       HoverHandler {
         onHoveredChanged: if (column.service) column.service.columnHovered = hovered
@@ -227,6 +236,9 @@ Item {
           // presence: 0 = still inside the bar (or under the row above), 1 = out
           property real presence: 0
           property real openness: 0
+          // float: 1 = still a drop above its place, 0 = in place
+          property real drift: 0
+          transform: Translate { y: -slot.drift * column.floatDrop }
           // Plain values (set once below): switching the style or reduced
           // motion later must not collapse a card that is already out.
           property real spread: 1
@@ -390,6 +402,7 @@ Item {
               kind: slot.kind
               moreCount: column.hiddenCount
               bubble: column.bubble
+              floating: column.floating
               bloom: column.bloom
               material: column.material
               textIn: slot.ink
@@ -422,9 +435,14 @@ Item {
           // have updated yet when onOpenChanged starts the animation.
           function run(anim) {
             arrive.stop(); unroll.stop(); depart.stop(); arriveBloom.stop(); departBloom.stop()
+            // a float arrival cut short (promoted or dismissed while it
+            // drops in) lands at once instead of staying half faded
+            if (arriveFloat.running) { arriveFloat.stop(); fade = 1; drift = 0 }
+            departFloat.stop()
             if (anim === unroll) {
               unroll.to = open ? 1 : 0
               unroll.duration = open ? 220 : 180
+              unroll.easing.type = column.floating ? Easing.OutCubic : Easing.Linear
               // interrupted the bloom's arrival before its text faded in
               if (column.bloom) ink = 1
             }
@@ -470,6 +488,28 @@ Item {
             ScriptAction { script: { slot.arrived = true; slot.run(unroll) } }
           }
           NumberAnimation { id: unroll; target: slot; property: "openness"; easing.type: Easing.Linear }
+          // Float: in place at once, fading in while it drops the last few
+          // pixels; the open card unrolls at the same time (eased).
+          ParallelAnimation {
+            id: arriveFloat
+            NumberAnimation { target: slot; property: "fade"; from: 0; to: 1; duration: 200; easing.type: Easing.OutCubic }
+            NumberAnimation { target: slot; property: "drift"; from: 1; to: 0; duration: 200; easing.type: Easing.OutCubic }
+            SequentialAnimation {
+              PauseAnimation { duration: 0 }
+              ScriptAction { script: { slot.arrived = true; if (slot.open) { unroll.to = 1; unroll.duration = 220; unroll.easing.type = Easing.OutCubic; unroll.start() } } }
+            }
+          }
+          // Float: fade out while it rolls up, then the row closes so the
+          // ones below move up.
+          SequentialAnimation {
+            id: departFloat
+            ParallelAnimation {
+              NumberAnimation { target: slot; property: "fade"; to: 0; duration: 160; easing.type: Easing.InQuad }
+              NumberAnimation { target: slot; property: "openness"; to: 0; duration: 180; easing.type: Easing.OutCubic }
+            }
+            NumberAnimation { target: slot; property: "presence"; to: 0; duration: 140; easing.type: Easing.InOutCubic }
+            ScriptAction { script: column.finishLeave(slot.key) }
+          }
           SequentialAnimation {
             id: depart
             NumberAnimation { target: slot; property: "openness"; to: 0; duration: 180; easing.type: Easing.Linear }
@@ -497,6 +537,9 @@ Item {
             } else if (column.bloom) {
               spread = 0; ink = 0
               run(arriveBloom)
+            } else if (column.floating) {
+              presence = 1; spread = 1; fade = 0; drift = 1
+              run(arriveFloat)
             } else {
               spread = column.bubble ? 0 : 1
               run(arrive)
@@ -512,10 +555,10 @@ Item {
               else { fadeOut.stop(); fade = 1 }
               return
             }
-            if (leaving) run(column.bloom ? departBloom : depart)
+            if (leaving) run(column.bloom ? departBloom : column.floating ? departFloat : depart)
             else {
               // Back before it was gone: finish whatever its arrival left.
-              presence = 1; spread = 1; arrived = true; ink = 1; ghost.opacity = 0
+              presence = 1; spread = 1; arrived = true; ink = 1; ghost.opacity = 0; fade = 1; drift = 0
               run(unroll)
             }
           }

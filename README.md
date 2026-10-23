@@ -61,7 +61,7 @@ In the bar, notifications roll out of the bar's bottom edge right under the isla
 - **Bell** beside the clock: unread count; left click opens the inbox (Mark read, Clear all, do-not-disturb switch), right click toggles do not disturb.
 - A 2 px line in the app's tone under the clock while a card hangs.
 
-`noteStyle` sets the look without a theme material: `window` (a window head over Omarchy's card body, in the Omarchy frame) or `bubble` (a speech bubble whose notch flows out of the bar). With Omarchy's Reduced Motion cards fade instead of moving. Notifications appear on the focused monitor, under the island of that monitor's bar; the inbox and what is on screen survive a shell restart.
+`noteStyle` sets the look without a theme material: `window` (a window head over Omarchy's card body, in the Omarchy frame), `bubble` (a speech bubble whose notch flows out of the bar) or `float` (a free card a few pixels under the bar with the windows' corners and no connector; the island marks it with a short line at its centre, and each card fades in as it drops into place). With Omarchy's Reduced Motion cards fade instead of moving. Notifications appear on the focused monitor, under the island of that monitor's bar; the inbox and what is on screen survive a shell restart.
 
 **Theme material.** With the Tusche Bar's `edge` option set to `theme` and a theme that ships `bar-material.json` (Tusche & Papier), notes and the island popup take the theme's card instead of `noteStyle`: the theme's frame with its hard ink shadow (Papier) or halo (Tusche), soft controls, no title bar; a critical note keeps its text in the theme's colours and carries one narrow signal stripe. On the Lavur themes (material `card.bloom`) notes bloom out of the bar instead, each its own sheet of wet paper (`views/InkSheet.qml`): ink fills it, the water clears it, and the pigment dries into a rim at its calm edge. The island follows theme switches.
 
@@ -99,7 +99,7 @@ Settings live in the island's entry in `~/.config/omarchy/shell.json` (in `bar.l
 | `idle` | `"auto"` | resting island: `auto` only when it has something the bar does not show (agents, a meeting within 12 h, a limit ≥ 90 %, low battery, all-day events, DND), `pill` always, `hidden` never |
 | `idleFace` | `"ticker"` | `ticker` (glances), `clock` or `none` |
 | `notifications` | `false` | take over Omarchy's notifications (see above) |
-| `noteStyle` | `"window"` | `window` or `bubble` (the former value `workbench` reads as `window`) |
+| `noteStyle` | `"window"` | `window`, `bubble` or `float` (the former value `workbench` reads as `window`) |
 | `inbox` | `true` | keep missed notifications in the inbox |
 | `osd` | `false` | take over Omarchy's on-screen display (volume, brightness, … as island HUDs) |
 | `volume`, `brightness` | `false` | HUDs for volume and brightness changes |
@@ -123,7 +123,7 @@ Settings live in the island's entry in `~/.config/omarchy/shell.json` (in `bar.l
 Target `tusche-island`, e.g. `omarchy-shell tusche-island state`:
 
 - `expand`, `collapse`, `toggle`, `calendar`, `show '<json>'`, `toast <title> <body> <icon> <color>`
-- `set noteStyle window|bubble`, `set notifications true|false`
+- `set noteStyle window|bubble|float`, `set notifications true|false`
 - `note open|dismiss|later|next|action:<id>` (the column's buttons, for keybinds), `markRead`
 - `timer 25m [label]`, `timerToggle`, `timerCancel`, `stopwatch start|pause|toggle|reset`
 - `activity <id> '<json>'`, `endActivity <id> [message]`, `activities` (live activities for scripts; see `UPSTREAM.md`)

@@ -697,7 +697,8 @@ var defaultSettings = {
   calendar: true,
   notifications: false,
   // How notifications look when the island serves them in the bar:
-  // "window" (window head + body) or "bubble" (speech bubble with a notch).
+  // "window" (window head + body), "bubble" (speech bubble with a notch) or
+  // "float" (a free card under the island with window corners, no connector).
   noteStyle: "window",
   inbox: true,
   osd: false,
@@ -724,10 +725,11 @@ function missingSettings(settings) {
   return Object.keys(defaultSettings).filter(function(k) { return !(k in s) })
 }
 
-// The noteStyle setting as the island uses it: "bubble" or "window". The
-// window's former name ("workbench") and anything unknown read as "window".
+// The noteStyle setting as the island uses it: "bubble", "float" or "window".
+// The window's former name ("workbench") and anything unknown read as "window".
 function noteStyle(value) {
-  return String(value || "") === "bubble" ? "bubble" : "window"
+  var v = String(value || "")
+  return v === "bubble" || v === "float" ? v : "window"
 }
 
 // Hyprland's modifier mask for a key like "SUPER + ALT + I", and the key.

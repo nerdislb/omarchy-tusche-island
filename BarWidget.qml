@@ -334,24 +334,27 @@ BarWidget {
 
   // A card hangs from the island: a 2 px line in its tone along the bottom
   // of the clock; it runs in from the left when a card comes (not with
-  // reduced motion).
+  // reduced motion). Float notes: only a short mark at the island's centre,
+  // above the card, fading in with it.
   Item {
     id: toneLine
     readonly property var entry: root.live && root.island.columnNotes ? root.island.noteCurrent : null
     readonly property int key: entry ? entry.key : -1
+    readonly property bool mark: !!root.island && !root.island.material && root.island.noteStyle === "float"
     property real run: 1
-    x: button.x + Style.space(4)
-    width: button.width - Style.space(8)
+    width: mark ? Math.round(root.island.s(16)) : button.width - Style.space(8)
+    x: mark ? Math.round(button.x + (button.width - width) / 2) : button.x + Style.space(4)
     height: Math.max(1, Style.space(2))
     anchors.bottom: button.bottom
     visible: entry !== null
     onKeyChanged: if (key >= 0) { run = Style.reduceMotion ? 1 : 0; if (!Style.reduceMotion) runAnim.restart() }
-    NumberAnimation { id: runAnim; target: toneLine; property: "run"; to: 1; duration: 380; easing.type: Easing.Linear }
+    NumberAnimation { id: runAnim; target: toneLine; property: "run"; to: 1; duration: toneLine.mark ? 200 : 380; easing.type: toneLine.mark ? Easing.OutCubic : Easing.Linear }
     Rectangle {
-      width: parent.width * toneLine.run
+      width: toneLine.mark ? parent.width : parent.width * toneLine.run
       height: parent.height
+      radius: toneLine.mark ? height / 2 : 0
       color: root.island ? root.island.noteTone(toneLine.entry) : Commons.Color.accent
-      opacity: 0.95
+      opacity: toneLine.mark ? 0.95 * toneLine.run : 0.95
     }
   }
 
