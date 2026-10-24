@@ -5,7 +5,9 @@ import Quickshell.Wayland
 import Quickshell.Hyprland
 import qs.Commons
 import qs.Commons as Commons
+import qs.Ui as Ui
 import "views"
+import "views/GlassMath.js" as GlassMath
 import "IslandModel.js" as Model
 import "bridge" as Bridge
 
@@ -17,8 +19,12 @@ import "bridge" as Bridge
 // Reduced motion: the same moments, faded instead of moved.
 //
 // Float (noteStyle "float"): free cards a few pixels under the bar with the
-// windows' corners and no connector; each note drops in a little while it
-// fades in and unrolls (eased), and fades out before its row closes.
+// windows' corners and no connector. A note grows out of the island's lower
+// edge (the first) or out of the note above, like the Dynamic Island: its
+// plate morphs on a spring (response 0.38 s, damping 0.70) and may overshoot
+// by up to 6 px, the text fades in late at its own size and settles 4 px; it
+// unrolls (eased) at the same time. Going, it shrinks back the same way
+// without a bounce and the rows below move up with it (24.10.2026, "04 Mix").
 //
 // A Lavur theme's bloom (material card.bloom): a drop falls out of the bar,
 // grows into the card, then the text fades in; going back, the text fades,
@@ -54,6 +60,11 @@ Item {
   readonly property real floatGap: island ? island.s(7) : 7
   readonly property real floatSpacing: island ? island.s(5) : 5
   readonly property real floatDrop: island ? island.s(10) : 10
+  // float morph: Apple's spring (response, damping fraction) and the overshoot cap
+  readonly property real morphResponse: 0.38
+  readonly property real morphDamping: 0.70
+  readonly property real morphCloseResponse: 0.26
+  readonly property real morphCap: island ? island.s(6) : 6
   readonly property real cardW: island ? island.s(480) : 480
   readonly property bool reduced: Style.reduceMotion
 
@@ -134,6 +145,20 @@ Item {
     if (rows.count > 0) latchAnchor()
   }
 
+  // Float morph: a rect from `a` to `b` at m (0..1); past 1 each edge keeps
+  // going the way it moved, softly capped at `cap` pixels.
+  function softOver(over, cap) { return over <= 0 ? over : cap * Math.tanh(over / cap) }
+  function morphRect(a, b, m, cap) {
+    if (m <= 1) {
+      var k = Math.max(0, m)
+      return { x: a.x + (b.x - a.x) * k, y: a.y + (b.y - a.y) * k, w: a.w + (b.w - a.w) * k, h: a.h + (b.h - a.h) * k }
+    }
+    var over = m - 1
+    function past(from, to) { var d = to - from; return to + (d > 0 ? 1 : d < 0 ? -1 : 0) * softOver(over * Math.abs(d), cap) }
+    var l = past(a.x, b.x), r = past(a.x + a.w, b.x + b.w), t = past(a.y, b.y), bt = past(a.y + a.h, b.y + b.h)
+    return { x: l, y: t, w: r - l, h: bt - t }
+  }
+
   // A row has rolled away completely.
   function finishLeave(key) {
     var i = indexOfKey(key)
@@ -149,6 +174,7 @@ Item {
     return island ? island.targetScreen : (screens.length ? screens[0] : null)
   }
   property real anchorX: -1
+  property real anchorW: 0
   property var latchedScreen: null
   // Screen and x are taken together when the first card comes, so the
   // column stays put (on its monitor, under its island) while the queue
@@ -162,6 +188,7 @@ Item {
     for (var i = 0; i < list.length; i++) if (list[i] && list[i].screenName === name) pick = list[i]
     if (!pick && list.length) pick = list[0]
     anchorX = pick && typeof pick.anchorX === "function" ? pick.anchorX() : (latchedScreen ? latchedScreen.width / 2 : 960)
+    anchorW = pick && typeof pick.anchorWidth === "function" ? pick.anchorWidth() : (island ? island.s(120) : 120)
   }
   Connections {
     target: rows
@@ -239,6 +266,40 @@ Item {
           // float: 1 = still a drop above its place, 0 = in place
           property real drift: 0
           transform: Translate { y: -slot.drift * column.floatDrop }
+          // float: the morph (0 = the edge it grows from, 1 = the card, past 1
+          // the overshoot); at rest the card draws itself again
+          property real morph: 1
+          property real morphVelocity: 0
+          property real morphTarget: 1
+          property bool morphRunning: false
+          readonly property bool morphing: column.floating && (morphRunning || morph < 0.999)
+          readonly property real morphK: Math.max(0, Math.min(1, morph))
+          // where it grows from, in this row's coordinates: the island's lower
+          // edge (the first row) or a sliver under the row above
+          readonly property var morphFrom: index === 0
+            ? { x: column.anchorX - column.anchorW / 2 - stack.x, y: -(stack.y + slot.y), w: column.anchorW, h: column.island.s(4) }
+            : { x: column.cardW / 2 - column.island.s(40), y: -column.floatSpacing, w: column.island.s(80), h: column.island.s(4) }
+          readonly property var plateRect: column.morphRect(morphFrom, { x: 0, y: 0, w: column.cardW, h: note.visibleH }, morph, column.morphCap)
+          function startMorph(to) {
+            morphTarget = to
+            if (column.reduced) { morph = to; morphVelocity = 0; morphRunning = false; morphDone(); return }
+            morphRunning = true
+          }
+          function morphDone() { if (morphTarget <= 0 && leaving) column.finishLeave(slot.key) }
+          FrameAnimation {
+            running: slot.morphRunning
+            onTriggered: {
+              var opening = slot.morphTarget > 0.5
+              var st = GlassMath.step(slot.morph, slot.morphVelocity, slot.morphTarget, Math.min(frameTime, 1 / 30),
+                                      GlassMath.omega(opening ? column.morphResponse : column.morphCloseResponse),
+                                      opening ? column.morphDamping : 0.99)
+              slot.morph = st.x; slot.morphVelocity = st.v
+              if (GlassMath.settled(slot.morph, slot.morphVelocity, slot.morphTarget)) {
+                slot.morph = slot.morphTarget; slot.morphVelocity = 0; slot.morphRunning = false
+                slot.morphDone()
+              }
+            }
+          }
           // Plain values (set once below): switching the style or reduced
           // motion later must not collapse a card that is already out.
           property real spread: 1
@@ -275,6 +336,7 @@ Item {
 
           width: column.cardW
           height: column.bloom ? bloomGap + blobH
+            : column.floating ? note.visibleH * morphK
             : Math.max(0, note.visibleH - (1 - presence) * note.rowH)
           // The card is clipped by `cardClip` below (it slides out of the bar's
           // edge); the material's shadow and halo sit outside that clip.
@@ -387,15 +449,33 @@ Item {
             onVisibleChanged: if (visible) play()
           }
 
+          // float: the plate while it morphs (the card's own surface is hidden
+          // then), outside the clip so its overshoot shows
+          Ui.BorderSurface {
+            visible: slot.morphing && slot.fade > 0
+            x: slot.plateRect.x
+            y: slot.plateRect.y
+            width: Math.max(1, slot.plateRect.w)
+            height: Math.max(1, slot.plateRect.h)
+            radius: slot.morphFrom.h / 2 + (note.surfaceItem.radius - slot.morphFrom.h / 2) * slot.morphK
+            color: note.surfaceItem.color
+            borderSpec: note.surfaceItem.borderSpec
+            opacity: slot.fade
+          }
+
           Item {
             id: cardClip
             width: slot.width
-            height: slot.height
-            clip: true
+            height: column.floating ? note.visibleH : slot.height
+            // float: the text sits at its own size, never cut by the growing row
+            clip: !column.floating
 
             NoteCard {
               id: note
-              y: column.bloom ? slot.bloomGap : -(1 - slot.presence) * rowH
+              y: column.bloom ? slot.bloomGap
+                : column.floating ? -(1 - slot.morphK) * column.island.s(4)
+                : -(1 - slot.presence) * rowH
+              bare: slot.morphing
               width: parent.width
               island: column.island
               entry: slot.entry
@@ -414,7 +494,8 @@ Item {
               openness: slot.openness
               spread: slot.spread
               tone: column.island.noteTone(slot.entry)
-              opacity: slot.fade
+              // float: the text comes in late and leaves first
+              opacity: slot.fade * (slot.morphing ? Math.max(0, Math.min(1, (slot.morph - 0.45) / 0.3)) : 1)
 
               onOpened: column.island.notificationOpen(slot.key)
               onDismissed: column.island.notificationDismiss(slot.key)
@@ -435,10 +516,6 @@ Item {
           // have updated yet when onOpenChanged starts the animation.
           function run(anim) {
             arrive.stop(); unroll.stop(); depart.stop(); arriveBloom.stop(); departBloom.stop()
-            // a float arrival cut short (promoted or dismissed while it
-            // drops in) lands at once instead of staying half faded
-            if (arriveFloat.running) { arriveFloat.stop(); fade = 1; drift = 0 }
-            departFloat.stop()
             if (anim === unroll) {
               unroll.to = open ? 1 : 0
               unroll.duration = open ? 220 : 180
@@ -488,28 +565,6 @@ Item {
             ScriptAction { script: { slot.arrived = true; slot.run(unroll) } }
           }
           NumberAnimation { id: unroll; target: slot; property: "openness"; easing.type: Easing.Linear }
-          // Float: in place at once, fading in while it drops the last few
-          // pixels; the open card unrolls at the same time (eased).
-          ParallelAnimation {
-            id: arriveFloat
-            NumberAnimation { target: slot; property: "fade"; from: 0; to: 1; duration: 200; easing.type: Easing.OutCubic }
-            NumberAnimation { target: slot; property: "drift"; from: 1; to: 0; duration: 200; easing.type: Easing.OutCubic }
-            SequentialAnimation {
-              PauseAnimation { duration: 0 }
-              ScriptAction { script: { slot.arrived = true; if (slot.open) { unroll.to = 1; unroll.duration = 220; unroll.easing.type = Easing.OutCubic; unroll.start() } } }
-            }
-          }
-          // Float: fade out while it rolls up, then the row closes so the
-          // ones below move up.
-          SequentialAnimation {
-            id: departFloat
-            ParallelAnimation {
-              NumberAnimation { target: slot; property: "fade"; to: 0; duration: 160; easing.type: Easing.InQuad }
-              NumberAnimation { target: slot; property: "openness"; to: 0; duration: 180; easing.type: Easing.OutCubic }
-            }
-            NumberAnimation { target: slot; property: "presence"; to: 0; duration: 140; easing.type: Easing.InOutCubic }
-            ScriptAction { script: column.finishLeave(slot.key) }
-          }
           SequentialAnimation {
             id: depart
             NumberAnimation { target: slot; property: "openness"; to: 0; duration: 180; easing.type: Easing.Linear }
@@ -538,8 +593,10 @@ Item {
               spread = 0; ink = 0
               run(arriveBloom)
             } else if (column.floating) {
-              presence = 1; spread = 1; fade = 0; drift = 1
-              run(arriveFloat)
+              // grows out of the island (morph above); the open card unrolls meanwhile
+              presence = 1; spread = 1; fade = 1; drift = 0; arrived = true
+              morph = 0; morphVelocity = 0; startMorph(1)
+              if (open) { unroll.to = 1; unroll.duration = 220; unroll.easing.type = Easing.OutCubic; unroll.start() }
             } else {
               spread = column.bubble ? 0 : 1
               run(arrive)
@@ -555,10 +612,14 @@ Item {
               else { fadeOut.stop(); fade = 1 }
               return
             }
-            if (leaving) run(column.bloom ? departBloom : column.floating ? departFloat : depart)
-            else {
+            if (leaving) {
+              // float: shrinks back into where it came from, then the row is gone
+              if (column.floating) { unroll.stop(); startMorph(0) }
+              else run(column.bloom ? departBloom : depart)
+            } else {
               // Back before it was gone: finish whatever its arrival left.
               presence = 1; spread = 1; arrived = true; ink = 1; ghost.opacity = 0; fade = 1; drift = 0
+              if (column.floating) startMorph(1)
               run(unroll)
             }
           }

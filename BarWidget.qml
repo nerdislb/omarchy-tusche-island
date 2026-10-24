@@ -68,6 +68,8 @@ BarWidget {
     var p = button.mapToItem(null, button.width / 2, 0)
     return p ? p.x : 0
   }
+  // how wide the island is there (a float note grows out of its lower edge)
+  function anchorWidth() { return button.width }
 
   function toggleInbox() {
     if (!live) return

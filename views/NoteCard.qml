@@ -40,6 +40,10 @@ Item {
   // material card or float: the same flat rules for text, frame and signal
   readonly property bool flat: !!mat || floating
   property real textIn: 1               // bloom: text opacity
+  // float: the column draws the plate while it morphs out of the island
+  // (the card's own surface hidden, its look read through `surfaceItem`)
+  property bool bare: false
+  readonly property alias surfaceItem: surface
   property bool first: false            // hangs from the island (bubble: notch)
   property bool active: false           // the open card, not a waiting row
   property string stateLabel: "now"     // now | next | paused
@@ -56,7 +60,8 @@ Item {
   readonly property bool critical: !!(entry && entry.critical) && kind === "note"
   // Bubble, bloom and material share the soft controls (no gadget, rounded buttons).
   readonly property bool soft: bubble || bloom || flat
-  readonly property real frame: Math.max(1, island.s(2))
+  // float: the popups' theme line (1 px on the flat themes), else 2 px
+  readonly property real frame: floating ? Math.max(1, Border.uniformWidth(island.frameSpec)) : Math.max(1, island.s(2))
   readonly property real notchH: bubble && first ? island.s(11) : 0
   readonly property real headH: island.s(26)
   readonly property real rowH: notchH + frame + headH + frame
@@ -89,7 +94,7 @@ Item {
   // ------------------------------------------------------------ surface
   Ui.BorderSurface {
     id: surface
-    visible: !card.bloom
+    visible: !card.bloom && !card.bare
     x: card.shapeX
     y: card.notchH
     width: card.shapeW
