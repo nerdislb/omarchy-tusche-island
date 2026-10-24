@@ -474,8 +474,10 @@ Item {
             id: cardClip
             width: slot.width
             height: column.floating ? note.visibleH : slot.height
-            // float: the text sits at its own size, never cut by the growing row
+            // float: the text sits at its own size, never cut by the growing row;
+            // no clicks while it morphs (it reaches over the rows below then)
             clip: !column.floating
+            enabled: !(column.floating && slot.morphing)
 
             NoteCard {
               id: note
