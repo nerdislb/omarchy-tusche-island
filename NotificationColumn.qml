@@ -313,10 +313,17 @@ Item {
           property real clearing: 1
           property real wet: 0
           property real phase: 0
-          // Reduced Motion switched on while it is still wet: dry at once
+          // Reduced Motion switched on while it is still wet: dry at once; a
+          // float morph lands where it was going (a leaving row is gone)
           Connections {
             target: column
-            function onReducedChanged() { if (column.reduced && wetting.running) { wetting.stop(); slot.clearing = 1; slot.wet = 0 } }
+            function onReducedChanged() {
+              if (column.reduced && wetting.running) { wetting.stop(); slot.clearing = 1; slot.wet = 0 }
+              if (column.reduced && slot.morphRunning) {
+                slot.morphRunning = false; slot.morph = slot.morphTarget; slot.morphVelocity = 0
+                slot.morphDone()
+              }
+            }
           }
           ParallelAnimation {
             id: wetting
@@ -609,7 +616,7 @@ Item {
           onLeavingChanged: {
             if (column.reduced) {
               if (leaving) fadeOut.start()
-              else { fadeOut.stop(); fade = 1 }
+              else { fadeOut.stop(); fade = 1; morphRunning = false; morph = morphTarget = 1; morphVelocity = 0 }
               return
             }
             if (leaving) {
