@@ -5,15 +5,20 @@
 
 // Use the desktop notification path: normal urgency opens a card and respects
 // DND. Keep agent-provided text and focus targets in literal argv, never a shell.
-function desktopAgents(flux, hermes, enabled, fluxEnabled, hermesEnabled) {
+function desktopAgents(flux, hermes, enabled, fluxEnabled, hermesEnabled, corgi, corgiEnabled) {
   if (!enabled) return []
   var h = flux && flux.herdr
   var list = fluxEnabled && h && h.running && Array.isArray(h.agents) ? h.agents : []
-  return list.concat(hermesEnabled && hermes && hermes.available && Array.isArray(hermes.agents) ? hermes.agents : [])
+  var extra = corgiEnabled && corgi && corgi.available && Array.isArray(corgi.agents) ? corgi.agents : []
+  return list.concat(hermesEnabled && hermes && hermes.available && Array.isArray(hermes.agents) ? hermes.agents : [], extra)
+    .filter(function(a) { return a && typeof a === "object" })
 }
 
-function agentFocusCommand(agent) {
+function agentFocusCommand(agent, corgiScript) {
   var pane = String((agent || {}).pane || "")
+  if (pane.indexOf("corgi:") === 0)
+    return /^corgi:[1-9][0-9]{0,12}$/.test(pane) && agent.source === "corgi" && corgiScript
+      ? ["python3", corgiScript, "--focus", pane.slice(6)] : []
   if (pane.indexOf("hermes:") === 0)
     return ["hyprctl", "dispatch", 'hl.dsp.focus({ window = "class:^com[.]nousresearch[.]hermes$" })']
   if (pane.indexOf("oc:") === 0)
@@ -21,13 +26,13 @@ function agentFocusCommand(agent) {
   return pane ? ["herdr", "agent", "focus", pane] : []
 }
 
-function agentDoneCommand(agent) {
+function agentDoneCommand(agent, corgiScript) {
   var a = agent || {}
   var name = String(a.agent || "Agent")
   var argv = ["omarchy-notification-send", "--app-name", name,
               "-u", "normal", "-g", "󰄬", "Agent finished",
               "Done · " + String(a.title || name)]
-  var focus = agentFocusCommand(a)
+  var focus = agentFocusCommand(a, corgiScript)
   return focus.length ? argv.concat(["--exec"], focus) : argv
 }
 
@@ -136,6 +141,9 @@ function sizeFor(view, counts, notch) {
   if (view === "inbox-expanded") base = inboxSize(counts && counts.inbox || 0)
   else if (view === "outputs-expanded") base = outputsSize(counts && counts.outputs || 0)
   else base = sizes[view] || sizes["idle"]
+  var agentRows = Math.min(4, counts && counts.agents || 0)
+  if (agentRows && (view === "idle-expanded" || (view === "activity-expanded" && counts.agentActivity)))
+    return { w: Math.max(424, base.w), h: view === "idle-expanded" ? 172 + agentRows * 52 + 12 : 56 + agentRows * 52, r: base.r }
   if (!notch || !(notch.w > 0) || compactViews.indexOf(view) === -1) return base
   var h = Math.max(base.h, notch.h > 0 ? notch.h : base.h)
   if (view === "idle" || view === "idle-hover") {
@@ -711,6 +719,7 @@ var defaultSettings = {
   omamail: true,
   flux: true,
   agents: true,
+  corgi: true,
   agentDone: true,
   phone: true,
   aiLimits: true,

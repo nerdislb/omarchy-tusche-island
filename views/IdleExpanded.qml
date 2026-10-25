@@ -139,6 +139,15 @@ Item {
     }
   }
 
+  AgentList {
+    island: view.island
+    x: view.pad
+    y: island.s(110)
+    width: parent.width - view.pad * 2
+    height: Math.max(0, chips.y - y - island.s(26))
+    visible: desk.panelAgents.length > 0
+  }
+
   // A hairline between the glance and the controls, as in Omarchy panels.
   Rectangle {
     x: view.pad

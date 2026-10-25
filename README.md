@@ -152,3 +152,23 @@ collector; Flux and other agent sources remain independent.
 
 Checks: `node tests/hermes.cjs` and
 `PYTHONDONTWRITEBYTECODE=1 python3 -m unittest discover -s tests -p 'test_hermes_status.py'`.
+
+
+### Corgi status
+
+Corgi is read locally through `corgi list --json` every two seconds while
+`agents` and `corgi` are enabled (both default to true). No runtime is started,
+no terminal output is read, and no network request is made. Only current panes
+are counted; Corgi conversation history is excluded. Working agents appear in
+the bar, input requests use the existing attention view, and the expanded
+activity/idle panel lists agent tasks and states. Click a row or the attention
+view's Open button to select its pane in an unambiguous attached viewer.
+A unique terminal window titled Corgi is raised when available. Multiple viewers
+in the same workspace are left unchanged rather than guessing a destination.
+
+The collector times out failed snapshots and clears unavailable sources without
+announcing completion. Existing completion notifications reflect a transition
+back to idle after at least 20 seconds of observed work, not proof of success.
+Set `corgi: false` in the Island's bar entry to stop the collector independently
+of Flux, Hermes and the other Island sources. You can also use
+`omarchy-shell tusche-island set corgi false` (or `true`) locally.

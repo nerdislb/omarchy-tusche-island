@@ -1155,7 +1155,7 @@ Item {
     idleQuiet: idleQuiet,
     hovered: hovered
   })
-  readonly property var viewCounts: ({ inbox: inbox.length, outputs: audioOutputs.length })
+  readonly property var viewCounts: ({ inbox: inbox.length, outputs: audioOutputs.length, agents: desktop.panelAgents.length, agentActivity: activity && activity.id === "agents" })
   readonly property var viewSize: {
     var v = Model.sizeFor(view, viewCounts, notchSize)
     // The resting pill grows to fit what the ticker is showing, so the
@@ -1277,7 +1277,7 @@ Item {
     doneSerial++
     toast({ title: agent.title || agent.agent || "Agent", body: "Done · " + (agent.agent || "agent"),
             icon: "󰄬", color: "green", duration: 5000 })
-    Quickshell.execDetached(Model.agentDoneCommand(agent))
+    Quickshell.execDetached(Model.agentDoneCommand(agent, desktop.corgiScript))
   }
 
   function toast(payload) {
@@ -1466,8 +1466,9 @@ Item {
         root.saveSettings({ noteStyle: style })
         return style
       }
+      if (key === "corgi" && (v === "true" || v === "false")) { root.saveSettings({ corgi: v === "true" }); return v }
       if (key === "notifications" && (v === "true" || v === "false")) { root.saveSettings({ notifications: v === "true" }); return v }
-      return "usage: set noteStyle window|bubble|float · set notifications true|false"
+      return "usage: set noteStyle window|bubble|float · set notifications true|false · set corgi true|false"
     }
     // Sample notifications through the real queue (no sender behind them).
     function noteDemo(kind: string): string { return root.noteDemo(kind) }

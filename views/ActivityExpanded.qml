@@ -9,10 +9,32 @@ Item {
   property var island: null
   readonly property var item: island.activity
   readonly property color tone: item ? island.toneFor(item.color) : island.accentColor
+  readonly property bool agentActivity: !!item && item.id === "agents"
   readonly property int pad: island.s(20)
+
+  AgentList {
+    island: view.island
+    anchors.fill: parent
+    anchors.margins: island.s(16)
+    anchors.topMargin: island.s(40)
+    visible: view.agentActivity
+  }
+
+  IconButton {
+    visible: view.agentActivity
+    anchors.right: parent.right
+    anchors.rightMargin: island.s(10)
+    y: island.s(4)
+    glyph: "󰅖"
+    glyphSize: island.f(16)
+    color: island.fg
+    fontFamily: island.fontFamily
+    onClicked: island.collapse()
+  }
 
   Rectangle {
     id: badge
+    visible: !view.agentActivity
     x: view.pad
     anchors.verticalCenter: parent.verticalCenter
     width: island.s(48)
@@ -42,6 +64,7 @@ Item {
 
   IconButton {
     id: close
+    visible: !view.agentActivity
     anchors.right: parent.right
     anchors.rightMargin: view.pad - island.s(6)
     anchors.verticalCenter: parent.verticalCenter
@@ -56,6 +79,7 @@ Item {
   }
 
   Column {
+    visible: !view.agentActivity
     anchors.left: badge.right
     anchors.leftMargin: island.s(14)
     anchors.right: close.left

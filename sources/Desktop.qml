@@ -112,8 +112,43 @@ Item {
     }
   }
 
+  // Read-only local Corgi CLI; failures clear observations, never synthesize done.
+  readonly property bool corgiEnabled: agentsEnabled && on("corgi")
+  readonly property string corgiScript: decodeURIComponent(Qt.resolvedUrl("../bin/corgi-status.py").toString().replace(/^file:\/\//, ""))
+  property var corgiState: ({})
+  property double corgiReceived: 0
+  function handleCorgi(line) {
+    var next
+    try { next = JSON.parse(line) } catch (e) { next = {} }
+    corgiReceived = Date.now()
+    if (JSON.stringify(next) !== JSON.stringify(corgiState)) corgiState = next
+  }
+  Process {
+    id: corgiProcess
+    command: ["python3", desk.corgiScript, "--watch"]
+    running: desk.corgiEnabled
+    stdout: SplitParser { onRead: data => desk.handleCorgi(data) }
+    onRunningChanged: if (!running) { desk.corgiState = ({}); desk.corgiReceived = 0 }
+  }
+  onCorgiEnabledChanged: corgiProcess.running = corgiEnabled
+  Timer {
+    interval: 2000
+    repeat: true
+    running: desk.corgiEnabled
+    onTriggered: {
+      if (!corgiProcess.running) corgiProcess.running = true
+      else if (desk.corgiReceived && Date.now() - desk.corgiReceived > 8000) corgiProcess.running = false
+    }
+  }
+
   // ---- agents
-  readonly property var agents: Model.desktopAgents(fluxState, hermesState, agentsEnabled, fluxEnabled, hermesEnabled)
+  readonly property var agents: Model.desktopAgents(fluxState, hermesState, agentsEnabled, fluxEnabled, hermesEnabled, corgiState, corgiEnabled)
+  readonly property var panelAgents: agents.filter(function(a) {
+    return a.source === "corgi" || a.status === "working" || a.status === "blocked"
+  }).sort(function(a, b) {
+    var rank = { blocked: 0, working: 1, idle: 2, unknown: 3 }
+    return (rank[a.status] || 0) - (rank[b.status] || 0)
+  })
   readonly property var working: agents.filter(function(a) { return a && a.status === "working" })
   // Agents waiting for input or approval (herdr "blocked"), minus the ones
   // snoozed from the requester ("Later", 10 minutes).
@@ -136,7 +171,7 @@ Item {
   // retain their own destinations. No untrusted strings are shell-evaluated.
   function focusAgent(a) {
     if (!a || !island) return
-    var command = Model.agentFocusCommand(a)
+    var command = Model.agentFocusCommand(a, desk.corgiScript)
     if (command.length) Quickshell.execDetached(command)
   }
 
@@ -153,14 +188,14 @@ Item {
       var before = seen[a.pane]
       var since = before && before.status === a.status ? before.since : now
       next[a.pane] = { status: a.status, since: since, title: a.title || "", agent: a.agent || "" }
-      if (primed && a.status === "blocked" && (!before || before.status !== "blocked") && island) island.flash()
+      if (primed && (a.source !== "corgi" || before) && a.status === "blocked" && (!before || before.status !== "blocked") && island) island.flash()
       // A run that finished after a real stretch of work (not a flicker).
       if (primed && agentDoneEnabled && before && before.status === "working" && a.status === "idle"
           && now - before.since >= 20000 && island)
         island.announceAgentDone(a)
     }
     seen = next
-    if (fluxState.herdr || hermesState.available) primed = true
+    if (fluxState.herdr || hermesState.available || corgiState.available) primed = true
     syncActivity()
   }
 
@@ -283,6 +318,8 @@ Item {
       flux: connected,
       hermes: hermesEnabled && hermesState.available === true,
       hermesAgents: hermesEnabled && Array.isArray(hermesState.agents) ? hermesState.agents.length : 0,
+      corgi: corgiEnabled && corgiState.available === true,
+      corgiAgents: corgiEnabled && Array.isArray(corgiState.agents) ? corgiState.agents.length : 0,
       agents: agents.length,
       working: working.map(function(a) { return a.agent + ": " + (a.title || "") }),
       phone: phone,
