@@ -88,7 +88,7 @@ def focus(pane_id):
                    check=True, timeout=3, stdout=subprocess.DEVNULL)
     # This desktop hosts Corgi inside a terminal. Raise only an unambiguous window.
     clients = run_json(['hyprctl', '-j', 'clients'])
-    windows = [c for c in clients if isinstance(c, dict) and c.get('title') == 'Corgi']
+    windows = [c for c in clients if isinstance(c, dict) and text(c.get('title')).casefold() == 'corgi']
     if len(windows) == 1 and re.fullmatch(r'0x[0-9a-fA-F]+', windows[0].get('address', '')):
         subprocess.run(['hyprctl', 'dispatch', 'hl.dsp.focus({ window = "address:' + windows[0]['address'] + '" })'],
                        check=True, timeout=3, stdout=subprocess.DEVNULL)

@@ -59,6 +59,11 @@ class StatusTests(unittest.TestCase):
         data = reply(); data['result']['panes'][0]['workspace'] = None
         with patch.object(c, 'run_json', return_value=data): self.assertEqual(c.focus('7'), 1)
 
+    def test_focus_handles_updated_lowercase_terminal_title(self):
+        with patch.object(c, 'run_json', side_effect=[reply(), [{'title': 'corgi', 'address': '0xabc'}]]), patch.object(c.subprocess, 'run') as run:
+            self.assertEqual(c.focus('7'), 0)
+            self.assertEqual(run.call_args.args[0], ['hyprctl', 'dispatch', 'hl.dsp.focus({ window = "address:0xabc" })'])
+
     def test_bounds(self):
         data = reply(); data['result']['panes'][0]['agent']['name'] = 'x' * 10000
         self.assertEqual(len(c.snapshot(data)['agents'][0]['title']), 180)
