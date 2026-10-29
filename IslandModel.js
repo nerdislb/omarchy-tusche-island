@@ -19,8 +19,13 @@ function agentFocusCommand(agent, corgiScript) {
   if (pane.indexOf("corgi:") === 0)
     return /^corgi:[1-9][0-9]{0,12}$/.test(pane) && agent.source === "corgi" && corgiScript
       ? ["python3", corgiScript, "--focus", pane.slice(6)] : []
+  // Hermes' window, by its app id: through Umbriel's window list there, else Hyprland.
   if (pane.indexOf("hermes:") === 0)
-    return ["hyprctl", "dispatch", 'hl.dsp.focus({ window = "class:^com[.]nousresearch[.]hermes$" })']
+    return ["sh", "-c",
+      'if [ -n "$UMBRIEL_SOCKET" ]; then ' +
+      'id=$(umbriel windows --json | jq -r \'[.[] | select(.app_id == "com.nousresearch.hermes")][0].id // empty\') && ' +
+      '[ -n "$id" ] && exec umbriel msg "window-focus:$id"; ' +
+      'else exec hyprctl dispatch \'hl.dsp.focus({ window = "class:^com[.]nousresearch[.]hermes$" })\'; fi']
   if (pane.indexOf("oc:") === 0)
     return ["xdg-open", "http://127.0.0.1:18789/"]
   return pane ? ["herdr", "agent", "focus", pane] : []

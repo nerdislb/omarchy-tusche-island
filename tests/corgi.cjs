@@ -17,6 +17,17 @@ assert.deepEqual(plain(model.agentDoneCommand(corgi.agents[0], '/local/corgi-sta
 assert.deepEqual(plain(model.desktopAgents({}, {}, true, false, false, corgi, false)), []);
 assert.deepEqual(plain(model.agentFocusCommand(corgi.agents[0], '/local/corgi-status.py')), ['python3','/local/corgi-status.py','--focus','7']);
 assert.deepEqual(plain(model.agentFocusCommand({...corgi.agents[0],pane:'corgi:7;bad'})), []);
+// Hermes' window is focused through Umbriel's window list there.
+{
+  const {execFileSync} = require('node:child_process');
+  const os = require('node:os');
+  const bin = fs.mkdtempSync(path.join(os.tmpdir(), 'island-hermes-'));
+  fs.writeFileSync(path.join(bin, 'umbriel'), '#!/bin/sh\nif [ "$1" = windows ]; then echo \'[{"id":"aa","app_id":"foot"},{"id":"b7","app_id":"com.nousresearch.hermes"}]\'; else echo "$@"; fi\n', {mode: 0o755});
+  const [cmd, ...args] = plain(model.agentFocusCommand({pane:'hermes:1'}));
+  const out = execFileSync(cmd, args, {env: {...process.env, UMBRIEL_SOCKET: '/run/test.sock', PATH: bin + ':' + process.env.PATH}}).toString().trim();
+  assert.equal(out, 'msg window-focus:b7');
+  fs.rmSync(bin, {recursive: true});
+}
 // Exercise the real transition handler: a dropped source/reconnect never completes.
 const desktop = fs.readFileSync(path.join(__dirname, '..', 'sources/Desktop.qml'), 'utf8');
 const handler = desktop.split('  onAgentsChanged: {')[1].split('\n  // Working agents')[0].trim().slice(0,-1);
