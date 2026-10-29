@@ -133,7 +133,7 @@ Target `tusche-island`, e.g. `omarchy-shell tusche-island state`:
 
 ## Develop
 
-Run `./dev-install.sh` after every edit (it copies the working tree to `~/.config/omarchy/plugins/nerdibeard.tusche-island` and validates it; the shell hot-reloads it), and `node tests/model.cjs` for the model tests. `UPSTREAM.md` holds the original activity and scripting documentation; read its plugin ID and `dynamic-island` IPC target as `nerdibeard.tusche-island` and `tusche-island`. Its Apple styling and takeover defaults do not apply here.
+Run `./dev-install.sh` after every edit (it copies the working tree to `~/.config/omarchy/plugins/nerdibeard.tusche-island` and validates it; the shell hot-reloads it), `node tests/model.cjs` for the model tests and `python3 tests/motion_runtime.py` for the springs (the island's shape, view swap, do-not-disturb switch and output list in a real offscreen Qt). `UPSTREAM.md` holds the original activity and scripting documentation; read its plugin ID and `dynamic-island` IPC target as `nerdibeard.tusche-island` and `tusche-island`. Its Apple styling and takeover defaults do not apply here.
 
 ## Licence
 

@@ -195,10 +195,6 @@ BarWidget {
     }
     onTooltipHoveredChanged: if (root.live) root.island.barHovered = tooltipHovered
 
-    Behavior on fixedWidth {
-      NumberAnimation { duration: Style.duration(180); easing.type: Easing.OutCubic }
-    }
-
     Row {
       id: row
       anchors.centerIn: parent
@@ -224,7 +220,7 @@ BarWidget {
         readonly property bool showing: root.segment !== null
         anchors.verticalCenter: parent.verticalCenter
         height: Math.round(root.barSize - Style.space(8))
-        width: showing ? chipRow.implicitWidth + Style.space(12) : 0
+        width: Math.max(0, grow.value)
         visible: width > 1
         clip: true
         radius: Math.min(Style.cornerRadius, Style.space(2))
@@ -240,7 +236,16 @@ BarWidget {
         Timer { id: flashTimer; interval: 110; repeat: true
           onTriggered: { chip.flash = !chip.flash; chip.flashes++; if (chip.flashes >= 4) { stop(); chip.flash = false } } }
 
-        Behavior on width { NumberAnimation { duration: Style.duration(180); easing.type: Easing.OutCubic } }
+        // It grows and shrinks on a spring (response 0.32 s, damping 0.92: no
+        // bounce you could see), and the clock's button follows it; a new
+        // width mid-flight (a title, a second glance) carries on from there.
+        SpringValue {
+          id: grow
+          target: chip.showing ? chipRow.implicitWidth + Style.space(12) : 0
+          response: 0.32; damping: 0.92
+          cap: 0
+          live: button.visible
+        }
         Behavior on color { ColorAnimation { duration: Style.duration(160) } }
 
         // metal family (Chrom & Platin): a chrome rim around the segment, a

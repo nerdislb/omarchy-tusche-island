@@ -111,7 +111,22 @@ Item {
       anchors.verticalCenter: parent.verticalCenter
       height: parent.height
 
-      readonly property real barHeight: seek.containsMouse ? island.s(7) : island.s(5)
+      // Under the pointer the bar and the playhead swell a little, on a
+      // short spring without overshoot (response 0.20 s).
+      readonly property real swell: Math.max(0, Math.min(1, swellSpring.value))
+      readonly property real barHeight: island.s(5) + (island.s(7) - island.s(5)) * swell
+      SpringValue { id: swellSpring; target: seek.containsMouse ? 1 : 0; response: 0.20; damping: 1; precision: 0.004; live: view.visible }
+      // The played part follows the player as it plays (no lag); only a
+      // click on the bar glides it there (response 0.20 s, no overshoot).
+      property bool seekGlide: false
+      SpringValue {
+        id: seekSpring
+        target: view.progress
+        response: 0.20; damping: 1
+        precision: 0.0005
+        live: track.seekGlide && view.visible
+        onSettled: track.seekGlide = false
+      }
 
       Rectangle {
         anchors.verticalCenter: parent.verticalCenter
@@ -120,19 +135,18 @@ Item {
         radius: Math.min(Style.cornerRadius, Style.space(2))
         color: Util.alpha(island.fg, 0.16)
 
-        Behavior on height { NumberAnimation { duration: Style.duration(120) } }
-
         Rectangle {
           id: played
+          readonly property real k: Math.max(0, Math.min(1, seekSpring.value))
           height: parent.height
           radius: Math.min(Style.cornerRadius, Style.space(2))
-          width: Math.max(view.progress > 0 ? height : 0, parent.width * view.progress)
+          width: Math.max(k > 0 ? height : 0, parent.width * k)
           color: island.accentColor
         }
 
         // The playhead.
         Rectangle {
-          property real d: seek.containsMouse ? island.s(13) : island.s(9)
+          readonly property real d: island.s(9) + (island.s(13) - island.s(9)) * track.swell
           width: d
           height: d
           radius: Math.min(Style.cornerRadius, Style.space(2))
@@ -141,8 +155,6 @@ Item {
           color: island.fg
           border.width: Math.max(1, island.s(2))
           border.color: island.bodyAt(0.6)
-
-          Behavior on d { NumberAnimation { duration: Style.duration(140); easing.type: Easing.OutCubic } }
         }
       }
 
@@ -152,7 +164,12 @@ Item {
         hoverEnabled: true
         enabled: island.mediaCanSeek
         cursorShape: island.mediaCanSeek ? Qt.PointingHandCursor : Qt.ArrowCursor
-        onClicked: function(mouse) { island.mediaSeek(mouse.x / width) }
+        onClicked: function(mouse) {
+          track.seekGlide = true
+          island.mediaSeek(mouse.x / width)
+          // a click where it already is: nothing to glide
+          if (!seekSpring.moving) track.seekGlide = false
+        }
       }
     }
   }

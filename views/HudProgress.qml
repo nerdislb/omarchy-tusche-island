@@ -51,13 +51,16 @@ Item {
     radius: Math.min(Style.cornerRadius, Style.space(2))
     color: Util.alpha(island.fg, 0.16)
 
+    // The level glides to each new value (a key press, a slider elsewhere)
+    // on a short spring without overshoot (response 0.20 s), quick enough
+    // to keep up with key repeat.
     Rectangle {
       height: parent.height
       radius: Math.min(Style.cornerRadius, Style.space(2))
-      width: Math.max(view.value > 0 ? height : 0, parent.width * view.value)
+      width: Math.max(view.value > 0 ? height : 0, parent.width * Math.max(0, level.value))
       color: view.hud.color || island.fg
 
-      Behavior on width { NumberAnimation { duration: Style.duration(160); easing.type: Easing.OutCubic } }
+      SpringValue { id: level; target: view.value; response: 0.20; damping: 1; precision: 0.001; live: view.visible }
     }
   }
 }

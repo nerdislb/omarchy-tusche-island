@@ -1658,12 +1658,19 @@ Item {
       id: stage
       anchors.fill: parent
 
-      // Short, non-overshooting geometry changes. Honor Omarchy Reduced Motion.
-      property real w: root.s(root.viewSize.w)
-      property real h: root.s(root.viewSize.h)
+      // The shape between views moves like the Dynamic Island (ShapeMorph:
+      // a spring with a visible settle of at most 6 px). Unmapped (in the
+      // bar) and with Reduced Motion it jumps.
+      property real w: shape.width
+      property real h: shape.height
       property real r: root.corner
-      Behavior on w { NumberAnimation { duration: Style.duration(180); easing.type: Easing.OutCubic } }
-      Behavior on h { NumberAnimation { duration: Style.duration(180); easing.type: Easing.OutCubic } }
+      ShapeMorph {
+        id: shape
+        targetWidth: root.s(root.viewSize.w)
+        targetHeight: root.s(root.viewSize.h)
+        maxOvershoot: root.s(6)
+        live: win.visible
+      }
 
       Ui.BorderSurface {
         x: island.x; y: island.y
@@ -1699,8 +1706,10 @@ Item {
 
         Item {
           id: content
-          // ViewSlots read this to put themselves on the pixel grid.
+          // ViewSlots read this to put themselves on the pixel grid, and
+          // whether anyone sees them change (unmapped in the bar: at once).
           readonly property real dpr: root.dpr
+          readonly property bool live: win.visible
           width: island.width
           height: island.height
 
@@ -1893,18 +1902,19 @@ Item {
         }
       }
 
-      // A second activity appears as a small, framed status tile.
+      // A second activity appears as a small, framed status tile. It rides
+      // on the island's edge (through its settle too) and slides out from
+      // under it, or back, on a spring (response 0.32 s, damping 0.9).
       Ui.BorderSurface {
         id: bubble
 
         readonly property real d: root.s(32)
-        readonly property real restX: island.x + island.width + root.s(8)
 
         width: d
         height: d
         radius: root.corner
         y: root.notch ? root.s(4) : root.topMargin
-        x: root.showBubble ? restX : island.x + island.width - d
+        x: island.x + island.width + slide.value
         color: root.surface
         borderSpec: root.frameSpec
         opacity: root.showBubble ? 1 : 0
@@ -1912,7 +1922,12 @@ Item {
         visible: opacity > 0.01
         clip: true
 
-        Behavior on x { NumberAnimation { duration: Style.duration(160); easing.type: Easing.OutCubic } }
+        SpringValue {
+          id: slide
+          target: root.showBubble ? root.s(8) : -bubble.d
+          response: 0.32; damping: 0.9
+          live: win.visible
+        }
         Behavior on opacity { NumberAnimation { duration: Style.duration(200) } }
 
 

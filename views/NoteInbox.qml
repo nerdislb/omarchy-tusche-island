@@ -272,28 +272,15 @@ Item {
       font.pixelSize: island.f(12)
       color: island.fg
     }
-    // An inset track with a raised knob, accent when on.
-    Rectangle {
+    // An inset track with a raised knob, accent when on (an iOS throw).
+    IslandSwitch {
       id: track
+      island: view.island
       x: dndLabel.x + dndLabel.implicitWidth + island.s(14)
       anchors.verticalCenter: parent.verticalCenter
-      width: island.s(38); height: island.s(18)
-      color: island.doNotDisturb ? view.mix(island.surface, island.accentColor, 0.45) : Qt.darker(island.surface, 1.25)
-      Rectangle { width: parent.width; height: 1; color: view.bevelDark }
-      Rectangle { width: 1; height: parent.height; color: view.bevelDark }
-      Rectangle {
-        x: island.doNotDisturb ? parent.width - width - 2 : 2
-        y: 2
-        width: island.s(14); height: parent.height - 4
-        color: island.doNotDisturb ? island.accentColor : island.fgDim
-        Behavior on x { NumberAnimation { duration: Style.duration(120) } }
-      }
-      MouseArea {
-        anchors.fill: parent
-        anchors.margins: -island.s(6)
-        cursorShape: Qt.PointingHandCursor
-        onClicked: island.setDoNotDisturb(!island.doNotDisturb)
-      }
+      width: implicitWidth; height: implicitHeight
+      checked: island.doNotDisturb
+      onToggled: island.setDoNotDisturb(!island.doNotDisturb)
     }
     Text {
       x: track.x + track.width + island.s(8)
