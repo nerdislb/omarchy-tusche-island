@@ -59,6 +59,7 @@ Item {
   readonly property real floatGap: island ? island.s(7) : 7
   readonly property real floatSpacing: island ? island.s(5) : 5
   readonly property real floatDrop: island ? island.s(10) : 10
+  readonly property real floatRise: island ? island.s(28) : 28
   // float morph: Apple's spring (response, damping fraction) and the overshoot cap
   readonly property real morphResponse: 0.38
   readonly property real morphDamping: 0.70
@@ -72,8 +73,14 @@ Item {
   readonly property bool calm: !!island && island.calmMotion && !bloom
   // Apple (the bar's option "motion": apple): a note slides down 10 px into its
   // place as an iOS banner does, fading in and growing from 96 % on a spring
-  // (response 0.42 s, damping 0.86), and leaves upwards in 0.24 s without a
-  // bounce; a bloom keeps its sheet.
+  // (response 0.42 s, damping 0.86). It leaves the way a banner withdraws, on
+  // a softer spring without a bounce (response 0.40 s): the top note slides
+  // up behind the bar's edge (the column's window starts right under it),
+  // whole until it is mostly gone and fading over the last stretch; a note
+  // further down rises 28 px and fades instead, so it never crosses the notes
+  // above. Either way it eases to 97 % and the notes below close up with it
+  // rather than jumping when it is gone.
+  // A bloom keeps its sheet.
   readonly property bool apple: !!island && island.appleMotion && !bloom
 
   // Bloom geometry: the area reaches `bloomMargin` past the cards on every
@@ -273,7 +280,9 @@ Item {
           property real openness: 0
           // float: 1 = still a drop above its place, 0 = in place
           property real drift: 0
-          transform: Translate { y: -slot.drift * column.floatDrop }
+          // how far `drift` 1 is: the 10 px drop coming in, the longer rise going
+          property real driftDistance: column.floatDrop
+          transform: Translate { y: -slot.drift * slot.driftDistance }
           // calm: its size while it fades in or out (around its centre)
           property real calmScale: 1
           scale: calmScale
@@ -282,14 +291,30 @@ Item {
           property real bannerVelocity: 0
           property real bannerTarget: 1
           property bool bannerRunning: false
+          // going: the rise and the late fade (kept if it turns back midway,
+          // so nothing jumps); coming in from nothing: the short drop. The top
+          // note withdraws all the way behind the bar's edge.
+          property bool bannerOut: false
+          property bool bannerTuck: false
           function startBanner(to) {
+            if (to <= 0) {
+              bannerOut = true
+              bannerTuck = index === 0
+              driftDistance = bannerTuck ? stack.y + slot.y + note.visibleH + column.island.s(4) : column.floatRise
+            }
+            else if (bannerK <= 0.001) { bannerOut = false; bannerTuck = false; driftDistance = column.floatDrop }
             bannerTarget = to
             if (column.reduced) { settleBanner(); return }
             bannerRunning = true
           }
           function showBanner(k) {
-            fade = Math.max(0, Math.min(1, k))
-            calmScale = 0.96 + 0.04 * k
+            var c = Math.max(0, Math.min(1, k))
+            // going: whole while it sets off, then a smooth fade that ends
+            // before the spring does (bright text would outlast the dark glass);
+            // tucked behind the bar it stays whole for most of the way
+            var x = bannerTuck ? Math.min(1, c / 0.3) : Math.max(0, Math.min(1, (c - 0.15) / 0.45))
+            fade = bannerOut ? x * x * (3 - 2 * x) : c
+            calmScale = bannerOut ? 0.97 + 0.03 * c : 0.96 + 0.04 * k
             drift = Math.max(0, 1 - k)
           }
           function settleBanner() {
@@ -302,7 +327,7 @@ Item {
             onTriggered: {
               var rising = slot.bannerTarget > 0.5
               var st = GlassMath.step(slot.bannerK, slot.bannerVelocity, slot.bannerTarget, Math.min(frameTime, 1 / 30),
-                                      GlassMath.omega(rising ? 0.42 : 0.24), rising ? 0.86 : 0.99)
+                                      GlassMath.omega(rising ? 0.42 : 0.40), rising ? 0.86 : 0.99)
               slot.bannerK = st.x; slot.bannerVelocity = st.v
               slot.showBanner(st.x)
               if (GlassMath.settled(slot.bannerK, slot.bannerVelocity, slot.bannerTarget)) slot.settleBanner()
@@ -385,9 +410,12 @@ Item {
             + note.bodyH * Math.max(0, Math.min(1, openness))
 
           width: column.cardW
-          height: column.bloom ? bloomGap + blobH
+          // apple: a leaving note gives up its height as it rises, so the notes
+          // below close up with it
+          height: (column.bloom ? bloomGap + blobH
             : column.floating ? note.visibleH * morphK
-            : Math.max(0, note.visibleH - (1 - presence) * note.rowH)
+            : Math.max(0, note.visibleH - (1 - presence) * note.rowH))
+            * (column.apple && leaving ? Math.max(0, Math.min(1, bannerK)) : 1)
           // The card is clipped by `cardClip` below (it slides out of the bar's
           // edge); the material's shadow and halo sit outside that clip.
 
