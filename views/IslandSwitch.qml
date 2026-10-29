@@ -1,7 +1,8 @@
 import QtQuick
 import qs.Commons
 
-// An inset track with a raised knob, accent when on, that moves like an iOS
+// An inset track with a raised knob (flat themes: a flat track and a light
+// knob, the way iOS draws it), accent when on, that moves like an iOS
 // switch: the knob is thrown on a spring (response 0.28 s, damping 0.8), it
 // widens by a fifth while pressed (toward where it would go), and the track
 // and knob take their colour from how far the knob has travelled rather than
@@ -12,11 +13,12 @@ Item {
 
   property var island: null
   property bool checked: false
+  property bool flat: false
   signal toggled()
 
   readonly property color bevelDark: Qt.darker(island.surface, 1.7)
-  readonly property color offTrack: Qt.darker(island.surface, 1.25)
-  readonly property color onTrack: { var c = mix(island.surface, island.accentColor, 0.45); return Qt.rgba(c.r, c.g, c.b, 1) }
+  readonly property color offTrack: flat ? Util.alpha(island.fg, 0.16) : Qt.darker(island.surface, 1.25)
+  readonly property color onTrack: { if (flat) return island.accentColor; var c = mix(island.surface, island.accentColor, 0.45); return Qt.rgba(c.r, c.g, c.b, 1) }
   readonly property real inset: 2
   readonly property real knobRest: island.s(14)
   // How far the knob has gone, 0 off to 1 on (the knob itself may settle a
@@ -53,8 +55,9 @@ Item {
     id: track
     anchors.fill: parent
     color: sw.mix(sw.offTrack, sw.onTrack, sw.travel)
-    Rectangle { width: parent.width; height: 1; color: sw.bevelDark }
-    Rectangle { width: 1; height: parent.height; color: sw.bevelDark }
+    radius: sw.flat ? Math.min(Style.cornerRadius, 3) : 0
+    Rectangle { visible: !sw.flat; width: parent.width; height: 1; color: sw.bevelDark }
+    Rectangle { visible: !sw.flat; width: 1; height: parent.height; color: sw.bevelDark }
     Rectangle {
       id: knob
       readonly property real free: track.width - 2 * sw.inset - width
@@ -62,7 +65,8 @@ Item {
       height: parent.height - 2 * sw.inset
       x: sw.inset + free * knobSpring.value
       y: sw.inset
-      color: sw.mix(island.fgDim, island.accentColor, sw.travel)
+      radius: sw.flat ? Math.min(Style.cornerRadius, 2) : 0
+      color: sw.flat ? sw.mix(island.fgDim, island.fg, sw.travel) : sw.mix(island.fgDim, island.accentColor, sw.travel)
     }
   }
 

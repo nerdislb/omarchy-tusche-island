@@ -28,9 +28,15 @@ Item {
   // bring their own halo), Tusche/Papier keep the quiet tonal step with the
   // card frame colour as the crisp separator, Chrom/Platin get a chrome
   // hairline. Themes without bar-material.json keep the old bevelled slab.
-  readonly property var material: island ? island.material : null
+  // The theme's own material counts even with the bar's edge option off (the
+  // island then has no card material), and so do translucent popups: a flat
+  // theme then gets flat parts throughout, buttons, footer and switch too,
+  // instead of an opaque slab on its glass.
+  readonly property var material: island ? (island.material || island.themeMaterial) : null
   readonly property bool glassHead: !!(material && material.glass && material.glass.enabled !== false)
   readonly property bool bloomHead: !!(material && material.card && material.card.bloom === true)
+  readonly property bool flatLook: glassHead || bloomHead || island.surface.a < 0.95
+  readonly property color hairline: Util.alpha(island.fg, 0.08)
   readonly property var headRule: {
     if (!material || bloomHead) return null
     var edge = material.edge || {}
@@ -50,15 +56,15 @@ Item {
     id: head
     width: parent.width
     height: view.headH
-    color: (view.glassHead || view.bloomHead) ? "transparent" : view.mix(island.surface, island.fg, 0.06)
+    color: view.flatLook ? "transparent" : view.mix(island.surface, island.fg, 0.06)
     // A solid head keeps its faint top bevel; glass and Lavur have no slab.
-    Rectangle { visible: !view.glassHead && !view.bloomHead; width: parent.width; height: 1; color: view.bevelLight }
+    Rectangle { visible: !view.flatLook; width: parent.width; height: 1; color: view.bevelLight }
     Rectangle {
       visible: !view.bloomHead
       y: parent.height - view.headRuleWidth
       width: parent.width
       height: view.headRuleWidth
-      color: view.headRuleColor
+      color: view.headRule || !view.flatLook ? view.headRuleColor : view.hairline
       opacity: view.glassHead ? 0.9 : 1
     }
     Text {
@@ -113,7 +119,7 @@ Item {
       visible: !view.bloomHead
       y: parent.height - 1; width: parent.width; height: 1
       // Soft separation for the materials that have no slab edge of their own.
-      color: (view.glassHead || view.bloomHead) ? Util.alpha(island.fg, 0.08) : view.bevelDark
+      color: view.flatLook ? view.hairline : view.bevelDark
     }
   }
 
@@ -259,8 +265,8 @@ Item {
     y: parent.height - view.footH
     width: parent.width
     height: view.footH
-    Rectangle { width: parent.width; height: 1; color: view.bevelDark }
-    Rectangle { y: 1; width: parent.width; height: 1; color: view.bevelLight }
+    Rectangle { width: parent.width; height: 1; color: view.flatLook ? view.hairline : view.bevelDark }
+    Rectangle { visible: !view.flatLook; y: 1; width: parent.width; height: 1; color: view.bevelLight }
     Text {
       id: dndLabel
       x: island.s(14)
@@ -276,6 +282,7 @@ Item {
     IslandSwitch {
       id: track
       island: view.island
+      flat: view.flatLook
       x: dndLabel.x + dndLabel.implicitWidth + island.s(14)
       anchors.verticalCenter: parent.verticalCenter
       width: implicitWidth; height: implicitHeight
@@ -305,6 +312,8 @@ Item {
     }
   }
 
+  // Raised and pressed in on solid themes; on flat ones a quiet fill that
+  // brightens under the pointer, without edges of its own.
   component BevelButton: Rectangle {
     id: b
     property string label: ""
@@ -312,11 +321,12 @@ Item {
     width: t.implicitWidth + island.s(20)
     height: island.s(22)
     opacity: enabled ? 1 : 0.45
-    color: Util.alpha(island.fg, m.containsMouse ? 0.14 : 0.07)
-    Rectangle { width: parent.width; height: 1; color: m.pressed ? view.bevelDark : view.bevelLight }
-    Rectangle { width: 1; height: parent.height; color: m.pressed ? view.bevelDark : view.bevelLight }
-    Rectangle { y: parent.height - 1; width: parent.width; height: 1; color: m.pressed ? view.bevelLight : view.bevelDark }
-    Rectangle { x: parent.width - 1; width: 1; height: parent.height; color: m.pressed ? view.bevelLight : view.bevelDark }
+    radius: view.flatLook ? Math.min(Style.cornerRadius, 3) : 0
+    color: Util.alpha(island.fg, m.pressed && view.flatLook ? 0.18 : m.containsMouse ? 0.12 : 0.06)
+    Rectangle { visible: !view.flatLook; width: parent.width; height: 1; color: m.pressed ? view.bevelDark : view.bevelLight }
+    Rectangle { visible: !view.flatLook; width: 1; height: parent.height; color: m.pressed ? view.bevelDark : view.bevelLight }
+    Rectangle { visible: !view.flatLook; y: parent.height - 1; width: parent.width; height: 1; color: m.pressed ? view.bevelLight : view.bevelDark }
+    Rectangle { visible: !view.flatLook; x: parent.width - 1; width: 1; height: parent.height; color: m.pressed ? view.bevelLight : view.bevelDark }
     Text {
       id: t
       anchors.centerIn: parent
