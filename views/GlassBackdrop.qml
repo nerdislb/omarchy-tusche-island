@@ -19,7 +19,11 @@ Item {
   // Optional authored source for the native render acceptance harness.
   property url testBackground: ""
   property string backgroundPath: ""
-  readonly property var monitor: screen ? Hyprland.monitorFor(screen) : null
+  // Hyprland's monitor, never asked for on Umbriel: monitorFor() would add one
+  // to Quickshell's Hyprland model, which code then takes for Hyprland's.
+  readonly property bool umbriel: !Quickshell.env("HYPRLAND_INSTANCE_SIGNATURE")
+    && (!!Quickshell.env("UMBRIEL_SOCKET") || String(Quickshell.env("XDG_CURRENT_DESKTOP") || "").toLowerCase().split(":").indexOf("umbriel") >= 0)
+  readonly property var monitor: screen && !umbriel ? Hyprland.monitorFor(screen) : null
   readonly property var region: ({ x: screen ? screen.x + screenX : screenX,
                                   y: screen ? screen.y + screenY : screenY,
                                   w: width, h: height })
