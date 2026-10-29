@@ -87,8 +87,10 @@ Item {
 
   property var disabledPlugins: []
   // Options of the Tusche Bar plugin, if installed (Model.barOptions); the
-  // island follows its `edge` ("none" | "theme").
+  // island follows its `edge` ("none" | "theme") and its `motion` ("spring" |
+  // "calm": nbshell's fade and settle for popups and notes).
   property var barOptions: ({})
+  readonly property bool calmMotion: barOptions.motion === "calm"
   // Theme material (the bar's edge option "theme"; Tusche & Papier): the
   // current theme's bar-material.json – notes and popups take its light and
   // shadow. Off for themes without the file.

@@ -67,6 +67,10 @@ Item {
   readonly property real morphCap: island ? island.s(6) : 6
   readonly property real cardW: island ? island.s(480) : 480
   readonly property bool reduced: Style.reduceMotion
+  // Calm (the bar's option "motion": calm, nbshell's motion): a note fades in
+  // and grows from 98.5 % where it lands, and fades out where it stands; a
+  // bloom keeps its sheet.
+  readonly property bool calm: !!island && island.calmMotion && !bloom
 
   // Bloom geometry: the area reaches `bloomMargin` past the cards on every
   // side (and up into the bar), so the blur never runs into its edge.
@@ -266,6 +270,9 @@ Item {
           // float: 1 = still a drop above its place, 0 = in place
           property real drift: 0
           transform: Translate { y: -slot.drift * column.floatDrop }
+          // calm: its size while it fades in or out (around its centre)
+          property real calmScale: 1
+          scale: calmScale
           // float: the morph (0 = the edge it grows from, 1 = the card, past 1
           // the overshoot); at rest the card draws itself again
           property real morph: 1
@@ -580,6 +587,20 @@ Item {
             NumberAnimation { target: slot; property: "presence"; to: 0; duration: 160; easing.type: Easing.Linear }
             ScriptAction { script: column.finishLeave(slot.key) }
           }
+          // Calm: in 250 ms, out in 120 ms, on cubic-bezier(0.2, 0, 0, 1).
+          ParallelAnimation {
+            id: calmIn
+            NumberAnimation { target: slot; property: "fade"; to: 1; duration: 250; easing.type: Easing.BezierSpline; easing.bezierCurve: [0.2, 0, 0, 1, 1, 1] }
+            NumberAnimation { target: slot; property: "calmScale"; to: 1; duration: 250; easing.type: Easing.BezierSpline; easing.bezierCurve: [0.2, 0, 0, 1, 1, 1] }
+          }
+          SequentialAnimation {
+            id: calmOut
+            ParallelAnimation {
+              NumberAnimation { target: slot; property: "fade"; to: 0; duration: 120; easing.type: Easing.BezierSpline; easing.bezierCurve: [0.2, 0, 0, 1, 1, 1] }
+              NumberAnimation { target: slot; property: "calmScale"; to: 0.99; duration: 120; easing.type: Easing.BezierSpline; easing.bezierCurve: [0.2, 0, 0, 1, 1, 1] }
+            }
+            ScriptAction { script: column.finishLeave(slot.key) }
+          }
           // Reduced motion: fade in or out at the final geometry.
           NumberAnimation { id: fadeIn; target: slot; property: "fade"; to: 1; duration: 150 }
           SequentialAnimation {
@@ -598,6 +619,12 @@ Item {
               presence = 1; spread = 1; arrived = true; fade = 0; ink = 1
               openness = open ? 1 : 0
               fadeIn.start()
+            } else if (column.calm) {
+              presence = 1; spread = 1; arrived = true; ink = 1; drift = 0
+              morph = morphTarget = 1; morphVelocity = 0
+              openness = open ? 1 : 0
+              fade = 0; calmScale = 0.985
+              calmIn.start()
             } else if (column.bloom) {
               spread = 0; ink = 0
               run(arriveBloom)
@@ -622,11 +649,13 @@ Item {
               return
             }
             if (leaving) {
+              if (column.calm) { unroll.stop(); calmIn.stop(); calmOut.start(); return }
               // float: shrinks back into where it came from, then the row is gone
               if (column.floating) { unroll.stop(); startMorph(0) }
               else run(column.bloom ? departBloom : depart)
             } else {
               // Back before it was gone: finish whatever its arrival left.
+              calmIn.stop(); calmOut.stop(); calmScale = 1
               presence = 1; spread = 1; arrived = true; ink = 1; ghost.opacity = 0; fade = 1; drift = 0
               if (column.floating) startMorph(1)
               run(unroll)
