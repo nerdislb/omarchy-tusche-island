@@ -2,7 +2,6 @@ import QtQuick
 import QtQuick.Effects
 import Quickshell
 import Quickshell.Wayland
-import Quickshell.Hyprland
 import qs.Commons
 import qs.Commons as Commons
 import qs.Ui as Ui
@@ -173,7 +172,7 @@ Item {
   // The column hangs from the island in the bar on the focused monitor.
   readonly property var targetScreen: {
     var screens = Quickshell.screens
-    var name = Hyprland.focusedMonitor ? Hyprland.focusedMonitor.name : ""
+    var name = island ? island.focusedScreenName : ""
     for (var i = 0; i < screens.length; i++) if (screens[i].name === name) return screens[i]
     return island ? island.targetScreen : (screens.length ? screens[0] : null)
   }

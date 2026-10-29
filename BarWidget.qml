@@ -3,7 +3,6 @@ import Quickshell
 import qs.Commons
 import qs.Commons as Commons
 import qs.Ui
-import Quickshell.Hyprland
 import "views"
 import "IslandModel.js" as Model
 import "bridge" as Bridge
@@ -35,7 +34,7 @@ BarWidget {
   // Opened over IPC or a keybind (no click): the bar on the focused monitor.
   readonly property string screenName: button.QsWindow.window && button.QsWindow.window.screen
     ? button.QsWindow.window.screen.name : ""
-  readonly property bool onFocusedScreen: !!Hyprland.focusedMonitor && Hyprland.focusedMonitor.name === screenName
+  readonly property bool onFocusedScreen: !!island && island.focusedScreenName !== "" && island.focusedScreenName === screenName
   readonly property bool popupOwner: Bridge.IslandBus.owner === root
     || (Bridge.IslandBus.owner === null && Bridge.IslandBus.pick(onFocusedScreen, root))
 

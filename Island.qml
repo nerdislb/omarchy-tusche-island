@@ -91,6 +91,17 @@ Item {
   // "calm": nbshell's fade and settle for popups and notes).
   property var barOptions: ({})
   readonly property bool calmMotion: barOptions.motion === "calm"
+  // Running on Umbriel rather than Hyprland, decided as the bar's ModuleBus and
+  // the shell's compositor service (Commons.Compositor) decide it; only shells
+  // built for Umbriel have that service, so nothing reads it on Hyprland.
+  readonly property bool umbriel: {
+    if (Quickshell.env("HYPRLAND_INSTANCE_SIGNATURE")) return false
+    var desktops = String(Quickshell.env("XDG_CURRENT_DESKTOP") || "").toLowerCase().split(":")
+    return !!Quickshell.env("UMBRIEL_SOCKET") || desktops.indexOf("umbriel") >= 0
+  }
+  // The monitor with the keyboard focus, by name.
+  readonly property string focusedScreenName: umbriel ? String(Commons.Compositor.focusedOutputName || "")
+    : Hyprland.focusedMonitor ? String(Hyprland.focusedMonitor.name || "") : ""
   // Theme material (the bar's edge option "theme"; Tusche & Papier): the
   // current theme's bar-material.json – notes and popups take its light and
   // shadow. Off for themes without the file.
@@ -1599,7 +1610,7 @@ Item {
     var screens = Quickshell.screens
     if (!screens || screens.length === 0) return null
     var wanted = monitorSetting
-    if (wanted === "focused" && Hyprland.focusedMonitor) wanted = Hyprland.focusedMonitor.name
+    if (wanted === "focused" && focusedScreenName) wanted = focusedScreenName
     for (var i = 0; i < screens.length; i++)
       if (screens[i].name === wanted) return screens[i]
     return screens[0]

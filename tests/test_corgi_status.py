@@ -60,9 +60,18 @@ class StatusTests(unittest.TestCase):
         with patch.object(c, 'run_json', return_value=data): self.assertEqual(c.focus('7'), 1)
 
     def test_focus_handles_updated_lowercase_terminal_title(self):
-        with patch.object(c, 'run_json', side_effect=[reply(), [{'title': 'corgi', 'address': '0xabc'}]]), patch.object(c.subprocess, 'run') as run:
+        with patch.dict(c.os.environ, {'UMBRIEL_SOCKET': ''}), \
+                patch.object(c, 'run_json', side_effect=[reply(), [{'title': 'corgi', 'address': '0xabc'}]]), patch.object(c.subprocess, 'run') as run:
             self.assertEqual(c.focus('7'), 0)
             self.assertEqual(run.call_args.args[0], ['hyprctl', 'dispatch', 'hl.dsp.focus({ window = "address:0xabc" })'])
+
+    def test_focus_raises_the_terminal_on_umbriel(self):
+        with patch.dict(c.os.environ, {'UMBRIEL_SOCKET': '/run/user/1000/umbriel.sock'}), \
+                patch.object(c, 'run_json', side_effect=[reply(), [{'title': 'corgi', 'id': 'f258f156'}]]) as read, \
+                patch.object(c.subprocess, 'run') as run:
+            self.assertEqual(c.focus('7'), 0)
+            self.assertEqual(read.call_args.args[0], ['umbriel', 'windows', '--json'])
+            self.assertEqual(run.call_args.args[0], ['umbriel', 'msg', 'window-focus:f258f156'])
 
     def test_bounds(self):
         data = reply(); data['result']['panes'][0]['agent']['name'] = 'x' * 10000

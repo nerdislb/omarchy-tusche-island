@@ -2,6 +2,7 @@
 """Local Corgi snapshots for Tusche Island; never starts a runtime."""
 import argparse
 import json
+import os
 import re
 import subprocess
 import tempfile
@@ -87,6 +88,13 @@ def focus(pane_id):
     subprocess.run(['corgi', 'focus', pane_id, '--viewer', str(candidates[0]['id'])],
                    check=True, timeout=3, stdout=subprocess.DEVNULL)
     # This desktop hosts Corgi inside a terminal. Raise only an unambiguous window.
+    if os.environ.get('UMBRIEL_SOCKET'):
+        clients = run_json(['umbriel', 'windows', '--json'])
+        windows = [c for c in clients if isinstance(c, dict) and text(c.get('title')).casefold() == 'corgi']
+        if len(windows) == 1 and re.fullmatch(r'[0-9a-fA-F]+', text(windows[0].get('id'))):
+            subprocess.run(['umbriel', 'msg', 'window-focus:' + windows[0]['id']],
+                           check=True, timeout=3, stdout=subprocess.DEVNULL)
+        return 0
     clients = run_json(['hyprctl', '-j', 'clients'])
     windows = [c for c in clients if isinstance(c, dict) and text(c.get('title')).casefold() == 'corgi']
     if len(windows) == 1 and re.fullmatch(r'0x[0-9a-fA-F]+', windows[0].get('address', '')):
