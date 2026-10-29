@@ -84,6 +84,15 @@ Item {
   readonly property int mediaLingerMs: Math.max(0, Number(setting("mediaLingerSeconds", 30))) * 1000
   // How notes look in the bar without a theme material: "window" or "bubble".
   readonly property string noteStyle: Model.noteStyle(setting("noteStyle", "window"))
+  // The island's look in the bar: "classic" (the clock with a live segment,
+  // notes in their own column) or "dynamic" (Apple's Dynamic Island: a black
+  // capsule hanging from a top bar, notes pouring out of it; DynamicIsland.qml).
+  readonly property string look: Model.look(setting("look", "classic"))
+  // Dynamic only where a top bar holds the island; anywhere else classic.
+  readonly property bool dynamicLook: barMode && look === "dynamic"
+    && Bridge.IslandBus.list.some(function(w) { return !!w && w.dynamicCapable === true })
+  // Rows on their way out in the other look's drawing: gone at once.
+  onDynamicLookChanged: noteColumn.queue.dropLeaving()
 
   property var disabledPlugins: []
   // Options of the Tusche Bar plugin, if installed (Model.barOptions); the
@@ -173,6 +182,25 @@ Item {
   readonly property color urgentColor: Commons.Color.urgent
   readonly property color greenColor: themeColors.green || themeColors.color2 || Commons.Color.accent
   readonly property color orangeColor: themeColors.orange || themeColors.color3 || Commons.Color.accent
+  // The dynamic island's status colours (hybrid design rule 5): yellow is
+  // working, green done, red an error or running low, orange a choice, blue info.
+  readonly property color yellowColor: themeColors.yellow || themeColors.color3 || orangeColor
+  readonly property color blueColor: themeColors.blue || themeColors.color4 || accentColor
+  // On the island's black every colour needs 4.5:1: a light theme's darker
+  // tones are lifted until they have it.
+  function onBlack(c) {
+    var col = Qt.color(c)
+    function lum(x) {
+      function ch(v) { return v <= 0.03928 ? v / 12.92 : Math.pow((v + 0.055) / 1.055, 2.4) }
+      return 0.2126 * ch(x.r) + 0.7152 * ch(x.g) + 0.0722 * ch(x.b)
+    }
+    for (var i = 0; i < 8 && lum(col) < 0.18; i++)
+      col = Qt.rgba(col.r + (1 - col.r) * 0.25, col.g + (1 - col.g) * 0.25, col.b + (1 - col.b) * 0.25, col.a)
+    return col
+  }
+  // its text: the theme's foreground, or a light one when that is dark
+  readonly property color islandInk: onBlack(themeColors.foreground && Model.luminance(themeColors.foreground) > 0.35
+    ? themeColors.foreground : (Model.luminance(String(fg)) > 0.35 ? fg : (themeColors.background || "#f2f2f2")))
   readonly property real corner: Math.min(Style.cornerRadius, Style.space(2))
   readonly property var frameSpec: Border.surfaceSpec("popups", "border", Commons.Color.popups.border, Math.max(1, Style.space(2)))
   readonly property color rim: Commons.Color.popups.border
@@ -401,7 +429,9 @@ Item {
       icon: Model.batteryIcon(batteryLevel, false),
       valueText: Model.percentText(batteryLevel),
       color: urgentColor,
-      duration: 3500
+      // the dynamic look expands the island for it (dynamicAlert)
+      alert: "battery",
+      duration: dynamicLook ? 6000 : 3500
     })
   }
 
@@ -1264,6 +1294,156 @@ Item {
   }
 
   // ------------------------------------------------------------------
+  // Dynamic look (`look: "dynamic"`): what the capsule shows. DynamicIsland.qml
+  // draws it over the bar; views/DynamicStage.qml moves it.
+  // ------------------------------------------------------------------
+  // The clock on the right of the capsule.
+  readonly property string dynamicClock: Qt.formatDateTime(idleClock.date, String(setting("format", "HH:mm")))
+
+  // Live activities in order: working agents rank right after an agent
+  // waiting for you and a recording (the board's capsule: robot and count).
+  readonly property var dynamicActivities: {
+    var list = activityList.slice()
+    if (dynamicLook && desktop.working.length > 0) {
+      var at = 0
+      while (at < list.length && (list[at] === "attention" || list[at] === "recording")) at++
+      list.splice(at, 0, "agents")
+    }
+    return list
+  }
+
+  // One activity as { kind, glyph, text, tone }: a status symbol and a short
+  // value in the status colour. Minimal capsules keep only live data.
+  function dynamicActivity(kind, minimal) {
+    var c = clockSource
+    if (kind === "agents")
+      return { kind: kind, glyph: "\u{f06a9}", text: String(desktop.working.length), tone: yellowColor }
+    if (kind === "attention")
+      return { kind: kind, glyph: "\u{f0026}", text: minimal ? "" : String(attentionAgent && attentionAgent.agent || "Agent"), tone: orangeColor }
+    if (kind === "recording")
+      return { kind: kind, glyph: "\u{f044a}", text: Model.formatTime(recordingElapsed), tone: urgentColor }
+    if (kind === "timer")
+      return { kind: kind, glyph: minimal ? "" : (c.timerPaused ? "\u{f03e4}" : "\u{f051b}"),
+               text: Model.formatClock(Math.ceil(c.timerLeft / 1000)), tone: orangeColor }
+    if (kind === "stopwatch")
+      return { kind: kind, glyph: minimal ? "" : "\u{f13ab}", text: Model.formatClock(c.stopwatchElapsed / 1000, false), tone: accentColor }
+    if (kind === "activity" && activity) {
+      var value = String(activity.value || "")
+      return { kind: kind, glyph: activity.icon || "\u{f012c}",
+               text: minimal ? (value.length <= 6 ? value : "") : (value || String(activity.title || "")), tone: toneFor(activity.color) }
+    }
+    if (kind === "media")
+      return { kind: kind, glyph: mediaPlaying ? "\u{f075a}" : "\u{f03e4}", text: minimal ? "" : mediaTitle, tone: mediaTint }
+    if (kind === "calendar" && calendar.next)
+      return { kind: kind, glyph: "\u{f00ed}", text: String(calendar.countdown || ""), tone: blueColor }
+    if (kind === "mic")
+      return { kind: kind, glyph: cameraActive ? "\u{f0100}" : "\u{f036c}", text: "", tone: cameraActive ? greenColor : orangeColor }
+    if (kind === "inbox")
+      return { kind: kind, glyph: "\u{f009a}", text: String(inbox.length), tone: accentColor }
+    return null
+  }
+
+  // The capsule's leading half, most pressing first: a quiet line, the open
+  // banner's app, a passing announcement, the first live activity, else the
+  // glances the bar does not show (next meeting, limits, battery, DND).
+  readonly property var dynamicLead: {
+    if (!dynamicLook) return null
+    var ln = noteLine
+    if (ln && !hud)
+      return { kind: "line:" + ln.key, glyph: ln.glyph || "\u{f02fc}", wide: true, tone: noteTone(ln),
+               text: [ln.summary, ln.body].filter(function(t) { return !!t }).join(" · ") || String(ln.app || "") }
+    var cur = columnNotes ? noteCurrent : null
+    if (cur && !Model.isAlertNote(cur))
+      return { kind: "note:" + cur.key, glyph: cur.glyph || (cur.critical ? "\u{f0ecc}" : "\u{f009a}"), text: "", tone: noteTone(cur) }
+    var h = hud
+    if (h && !h.alert) {
+      if (h.layout === "toast")
+        return { kind: "hud:toast", glyph: h.icon || "\u{f009a}", text: h.title || h.body || "", tone: h.color || accentColor, wide: true }
+      if (h.layout === "track")
+        return { kind: "hud:track", glyph: "\u{f075a}", text: mediaTitle, tone: mediaTint, wide: true }
+      if (h.layout === "progress")
+        return { kind: "hud:" + (h.key || "progress"), glyph: h.icon || "", text: h.valueText || "", tone: h.color || fg }
+      return { kind: "hud:" + (h.key || "label"), glyph: h.icon || "", text: [h.label, h.valueText].filter(function(t) { return !!t }).join(" "),
+               tone: h.color || accentColor, wide: true }
+    }
+    var first = dynamicActivities.length > 0 ? dynamicActivity(dynamicActivities[0], false) : null
+    if (first) return first
+    var glances = idleSignals.filter(function(i) { return i.key !== "agents" })
+    if (glances.length > 0) {
+      var g = glances[idleIndex % glances.length]
+      var cut = g.text.indexOf(" ")
+      return { kind: "idle:" + g.key, glyph: cut > 0 ? g.text.substring(0, cut) : "", text: cut > 0 ? g.text.substring(cut + 1) : g.text,
+               tone: g.color || fg }
+    }
+    return null
+  }
+  // Up to two more activities, each its own small capsule (three in all).
+  readonly property var dynamicMinimal: {
+    if (!dynamicLook) return []
+    var out = []
+    for (var i = 1; i < dynamicActivities.length && out.length < 2; i++) {
+      var m = dynamicActivity(dynamicActivities[i], true)
+      if (m) out.push(m)
+    }
+    return out
+  }
+
+  // The events that expand the island itself instead of a banner (owner's
+  // choice 29.10.2026): an agent finished, the battery runs low, a timer ran
+  // out. { source: "note" | "hud", kind, key, glyph, tone, title, subtitle,
+  // actions: [{ id, label, primary }] }, or null. Not while the popup is open.
+  readonly property var dynamicAlert: {
+    if (!dynamicLook || userExpanded) return null
+    var h = hud
+    if (h && h.alert === "battery")
+      return { source: "hud", kind: "battery", key: -1, glyph: h.icon || Model.batteryIcon(batteryLevel, false), tone: urgentColor,
+               title: "Battery low", subtitle: (h.valueText ? h.valueText + " · " : "") + "plug in the charger", actions: [] }
+    if (h && h.alert === "timer")
+      return { source: "hud", kind: "timer", key: -1, glyph: "\u{f0020}", tone: orangeColor,
+               title: h.title || "Timer", subtitle: h.body || "Time's up",
+               actions: [{ id: "again", label: "+1 min", primary: true }, { id: "dismiss", label: "Dismiss" }] }
+    if (h && h.alert === "agent")
+      return { source: "hud", kind: "agent", key: -1, glyph: "\u{f012c}", tone: greenColor,
+               title: "Agent finished", subtitle: h.title + (h.agentName ? " · " + h.agentName : ""),
+               actions: (h.agent && h.agent.pane ? [{ id: "open", label: "Open", primary: true }] : []).concat([{ id: "dismiss", label: "Dismiss" }]) }
+    var cur = columnNotes ? noteCurrent : null
+    if (cur && Model.isAlertNote(cur))
+      return { source: "note", kind: "agent", key: cur.key, glyph: "\u{f012c}", tone: greenColor,
+               title: "Agent finished", subtitle: Model.alertSubtitle(cur),
+               actions: [{ id: "open", label: "Open", primary: true }, { id: "later", label: "Later" }] }
+    return null
+  }
+
+  // The expanded island's buttons (and IPC `alert`): an agent note opens,
+  // goes into the inbox or is dismissed like any card; the others close.
+  function dynamicAlertAction(id) {
+    var a = dynamicAlert
+    if (!a) return "none"
+    if (a.source === "note") {
+      if (id === "open") notificationOpen(a.key)
+      else if (id === "later") notifications.later(a.key)
+      else notificationDismiss(a.key)
+      return "ok"
+    }
+    var h = hud
+    if (id === "open" && a.kind === "agent" && h && h.agent)
+      Quickshell.execDetached(Model.agentFocusCommand(h.agent, desktop.corgiScript))
+    if (id === "again" && a.kind === "timer")
+      clockSource.startTimer(60, h && h.title && h.title !== "Timer" ? h.title : "")
+    hud = null
+    return "ok"
+  }
+  // The pointer on the expanded island holds an alert's time.
+  property bool dynamicHold: false
+  onDynamicHoldChanged: {
+    if (!hud || !hud.alert) return
+    if (dynamicHold) hudTimer.stop()
+    else hudTimer.restart()
+  }
+
+  DynamicIsland { island: root; service: notifications; column: noteColumn }
+
+  // ------------------------------------------------------------------
   // Shell contract + IPC
   // ------------------------------------------------------------------
   readonly property bool opened: userExpanded
@@ -1292,8 +1472,13 @@ Item {
   property int doneSerial: 0
   function announceAgentDone(agent) {
     doneSerial++
-    toast({ title: agent.title || agent.agent || "Agent", body: "Done · " + (agent.agent || "agent"),
-            icon: "󰄬", color: "green", duration: 5000 })
+    // Dynamic look: the island expands for it; when the island serves the
+    // notifications, the notification below is that alert (with Open/Later).
+    // Do not disturb keeps it to the quiet announcement in the capsule.
+    var quiet = notifications.doNotDisturb
+    if (!(dynamicLook && columnNotes && !quiet))
+      toast({ title: agent.title || agent.agent || "Agent", body: "Done · " + (agent.agent || "agent"),
+              icon: "󰄬", color: "green", duration: 5000, alert: quiet ? "" : "agent", agent: agent, agentName: agent.agent || "" })
     Quickshell.execDetached(Model.agentDoneCommand(agent, desktop.corgiScript))
   }
 
@@ -1305,7 +1490,11 @@ Item {
       body: String(payload.body || ""),
       icon: String(payload.icon || ""),
       color: toneFor(payload.color),
-      duration: Number(payload.duration) || 4000
+      duration: Number(payload.duration) || 4000,
+      // the dynamic look expands the island for these (dynamicAlert)
+      alert: String(payload.alert || ""),
+      agent: payload.agent || null,
+      agentName: String(payload.agentName || "")
     })
   }
 
@@ -1352,7 +1541,7 @@ Item {
     } else if (kind === "charging") {
       showHud({ layout: "label", label: "Charging", icon: Model.batteryIcon(0.8, true), valueText: "80%", color: greenColor, duration: 3000 })
     } else if (kind === "lowbattery") {
-      showHud({ layout: "label", label: "Low Battery", icon: Model.batteryIcon(0.1, false), valueText: "10%", color: urgentColor, duration: 3000 })
+      showHud({ layout: "label", label: "Low Battery", icon: Model.batteryIcon(0.1, false), valueText: "10%", color: urgentColor, alert: "battery", duration: 3000 })
     } else if (kind === "track") {
       demo = { media: media }; mediaPosition = 0; showHud({ layout: "track", duration: 3200 })
     } else if (kind === "notification" || kind === "notification-actions") {
@@ -1390,6 +1579,8 @@ Item {
       demo = { media: media }; mediaPosition = 71; openOutputs()
     } else if (kind === "toast") {
       toast({ title: "Build finished", body: "nerdibeard.tusche-island · 0 errors", icon: "󰄬", color: "green" })
+    } else if (kind === "timerdone") {
+      toast({ title: "Tea", body: "Time's up", icon: "󰀠", color: "accent", duration: 12000, alert: "timer" })
     } else {
       return "unknown demo: " + kind
     }
@@ -1484,12 +1675,21 @@ Item {
         return style
       }
       if (key === "corgi" && (v === "true" || v === "false")) { root.saveSettings({ corgi: v === "true" }); return v }
+      if (key === "look" && (v === "dynamic" || v === "classic")) { root.saveSettings({ look: v }); return v }
       if (key === "notifications" && (v === "true" || v === "false")) { root.saveSettings({ notifications: v === "true" }); return v }
-      return "usage: set noteStyle window|bubble|float · set notifications true|false · set corgi true|false"
+      return "usage: set noteStyle window|bubble|float · set notifications true|false · set corgi true|false · set look dynamic|classic"
     }
     // Sample notifications through the real queue (no sender behind them).
     function noteDemo(kind: string): string { return root.noteDemo(kind) }
     function markRead(): string { root.markAllRead(); return "ok" }
+    // The expanded dynamic island's buttons, for keybinds: open | later |
+    // dismiss | again (a finished timer, one more minute) | action:<id>.
+    function alert(action: string): string {
+      var a = String(action || "")
+      if (a.indexOf("action:") === 0) a = a.substring(7)
+      if (["open", "later", "dismiss", "again"].indexOf(a) === -1) return "usage: alert open|later|dismiss|again"
+      return root.dynamicAlertAction(a)
+    }
     // The column's buttons, for keybinds: open | dismiss | later | next |
     // action:<id> on the open card (next pulls the first waiting row up).
     function note(action: string): string {
@@ -1544,6 +1744,12 @@ Item {
       return JSON.stringify({
         view: root.view,
         barMode: root.barMode,
+        look: root.look,
+        dynamic: root.dynamicLook ? {
+          lead: root.dynamicLead ? root.dynamicLead.kind : null,
+          minimal: root.dynamicMinimal.map(function(m) { return m.kind }),
+          alert: root.dynamicAlert ? root.dynamicAlert.kind : null
+        } : null,
         geometry: { x: island.x, y: island.y, width: island.width, height: island.height,
           exclusiveZone: win.exclusiveZone, corner: root.corner, topMargin: root.topMargin, gapsOut: Style.gapsOut },
         palette: { background: String(root.surface), foreground: String(root.fg), accent: String(root.accentColor) },

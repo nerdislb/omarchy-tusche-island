@@ -70,6 +70,56 @@ BarWidget {
   // how wide the island is there (a float note grows out of its lower edge)
   function anchorWidth() { return button.width }
 
+  // ------------------------------------------------------------------
+  // Dynamic look (Island.qml `look: "dynamic"`): DynamicIsland.qml draws the
+  // island as a black capsule over this bar. The widget keeps the capsule's
+  // slot (and the minimal capsules' beside it) and paints nothing there; the
+  // bell stays. Only on a top bar; elsewhere the classic look stays.
+  // ------------------------------------------------------------------
+  readonly property bool dynamicCapable: !vertical && (!bar || bar.position === undefined || String(bar.position) === "top")
+  readonly property bool dyn: live && island.dynamicLook && dynamicCapable
+  readonly property var barScreen: button.QsWindow.window ? button.QsWindow.window.screen : null
+  readonly property bool barHidden: !!bar && bar.barHidden === true
+  readonly property int barThickness: bar && typeof bar.barSizeFor === "function" && screenName !== ""
+    ? bar.barSizeFor(screenName) : barSize
+  // the capsule's centre in the bar's window (= on its screen), live
+  readonly property real sceneCenterX: {
+    var x = button.x + button.width / 2
+    for (var p = root; p; p = p.parent) x += p.x
+    return x
+  }
+  // set by the overlay: the compact capsule's width and the capsules beside it
+  property real dynamicPill: 0
+  property real dynamicExtra: 0
+  // the bar makes room as the capsule grows, on the capsule's own spring
+  SpringValue { id: dynPill; target: root.dynamicPill; response: 0.40; damping: 0.78; live: button.visible }
+  SpringValue { id: dynExtra; target: root.dynamicExtra; response: 0.40; damping: 0.78; live: button.visible }
+
+  // The island's buttons: left opens (or opens the quiet line), right the
+  // calendar, middle plays/pauses – from the bar or from the capsule over it.
+  function pillPressed(b) {
+    if (!live) return
+    if (b === Qt.RightButton) {
+      Bridge.IslandBus.owner = root
+      island.openCalendar()
+    } else if (b === Qt.MiddleButton) {
+      if (island.hasMedia) island.mediaToggle()
+    } else if (island.columnNotes && island.noteLine) {
+      // The low-urgency line is the island's: a click opens it.
+      island.notificationOpen(island.noteLine.key)
+    } else {
+      toggle()
+    }
+  }
+  // A minimal capsule clicked: the island opens on that activity.
+  function openFocused(kind) {
+    if (!live) return
+    if (kind === "inbox") { toggleInbox(); return }
+    Bridge.IslandBus.owner = root
+    island.openFocus = kind === "agents" ? "" : kind
+    island.expand()
+  }
+
   function toggleInbox() {
     if (!live) return
     if (opened && island.inboxOpen) { close(); return }
@@ -159,7 +209,7 @@ BarWidget {
   onSegmentChanged: if (segment) shownSegment = segment
 
   readonly property bool bellShown: live && island.columnNotes
-  implicitWidth: button.implicitWidth + (bellShown ? bell.implicitWidth : 0)
+  implicitWidth: button.implicitWidth + dynSpacer.width + (bellShown ? bell.implicitWidth : 0)
   implicitHeight: button.implicitHeight
 
   WidgetButton {
@@ -174,29 +224,18 @@ BarWidget {
     text: ""
     hasVisualContent: true
     horizontalMargin: 8.75
-    fixedWidth: row.width + Style.spaceReal(8.75) * 2
+    fixedWidth: root.dyn ? Math.max(Style.space(24), dynPill.value) : row.width + Style.spaceReal(8.75) * 2
     active: root.opened
     useActiveColor: false
     tooltipText: ""
 
-    onPressed: function(b) {
-      if (!root.live) return
-      if (b === Qt.RightButton) {
-        Bridge.IslandBus.owner = root
-        root.island.openCalendar()
-      } else if (b === Qt.MiddleButton) {
-        if (root.island.hasMedia) root.island.mediaToggle()
-      } else if (root.island.columnNotes && root.island.noteLine) {
-        // The low-urgency line is the island's: a click opens it.
-        root.island.notificationOpen(root.island.noteLine.key)
-      } else {
-        root.toggle()
-      }
-    }
-    onTooltipHoveredChanged: if (root.live) root.island.barHovered = tooltipHovered
+    onPressed: function(b) { root.pillPressed(b) }
+    onTooltipHoveredChanged: if (root.live && !root.dyn) root.island.barHovered = tooltipHovered
 
     Row {
       id: row
+      // the dynamic look draws the island over the bar instead
+      visible: !root.dyn
       anchors.centerIn: parent
       spacing: Style.space(8)
 
@@ -352,7 +391,7 @@ BarWidget {
     x: mark ? Math.round(button.x + (button.width - width) / 2) : button.x + Style.space(4)
     height: Math.max(1, Style.space(2))
     anchors.bottom: button.bottom
-    visible: entry !== null
+    visible: entry !== null && !root.dyn
     onKeyChanged: if (key >= 0) { run = Style.reduceMotion ? 1 : 0; if (!Style.reduceMotion) runAnim.restart() }
     NumberAnimation { id: runAnim; target: toneLine; property: "run"; to: 1; duration: toneLine.mark ? 200 : 380; easing.type: toneLine.mark ? Easing.OutCubic : Easing.Linear }
     Rectangle {
@@ -364,11 +403,19 @@ BarWidget {
     }
   }
 
+  // Dynamic look: room for the minimal capsules beside the island's.
+  Item {
+    id: dynSpacer
+    anchors.left: button.right
+    width: root.dyn ? Math.max(0, dynExtra.value) : 0
+    height: 1
+  }
+
   // The bell segment: unread count, do-not-disturb state.
   WidgetButton {
     id: bell
     visible: root.bellShown
-    anchors.left: button.right
+    anchors.left: dynSpacer.right
     anchors.top: parent.top
     anchors.bottom: parent.bottom
     width: implicitWidth

@@ -95,7 +95,9 @@ Item {
       body: "Time's up",
       icon: "󰀠",
       color: "accent",
-      duration: 12000
+      duration: 12000,
+      // the dynamic look expands the island for it
+      alert: "timer"
     })
     if (island.setting("timerSound", true) !== false)
       Quickshell.execDetached(["sh", "-c",

@@ -135,4 +135,66 @@ assert.equal(ctx.defaultSettings.notifications, false);
   for (const f of ['InkSheet.qml', 'shaders/gauss.frag.qsb', 'shaders/bloomcut.frag.qsb', 'shaders/restink.frag.qsb', 'shaders/halo.frag.qsb', 'shaders/wetink.frag.qsb'])
     assert.ok(fs.existsSync(path.join(__dirname, '..', 'views', f)), f);
 }
+
+// Dynamic look (hybrid design 29.10.2026): a setting, classic by default.
+assert.equal(ctx.defaultSettings.look, 'classic');
+assert.equal(ctx.look('dynamic'), 'dynamic');
+for (const v of ['classic', 'Dynamic', '', undefined, 'window']) assert.equal(ctx.look(v), 'classic');
+// An agent's completion notification expands the island instead of a banner;
+// nothing else does (a low line, a critical request, an ordinary note).
+{
+  const argv = Array.from(ctx.agentDoneCommand({ agent: 'Claude', title: 'Liquid Island' }));
+  const note = { app: argv[2], glyph: argv[6], summary: argv[7], body: argv[8], critical: false };
+  assert.equal(ctx.isAlertNote(note), true);
+  assert.equal(ctx.alertSubtitle(note), 'Liquid Island · Claude');
+  assert.equal(ctx.isAlertNote({ ...note, critical: true }), false);
+  assert.equal(ctx.isAlertNote({ app: 'WhatsApp', summary: 'Sarah', body: 'Hallo', glyph: '' }), false);
+  assert.equal(ctx.isAlertNote({ app: 'Claude Code', summary: 'Agent fertig', body: 'nbtiles', glyph: argv[6] }), false);
+  assert.equal(ctx.isAlertNote(null), false);
+  // restored after a restart (no glyph kept): still the completion by its text
+  assert.equal(ctx.isAlertNote({ app: 'Codex', summary: 'Agent finished', body: 'Done · x', glyph: '' }), true);
+}
+// WCAG luminance for the island's text on black.
+assert.ok(Math.abs(ctx.luminance('#ffffff') - 1) < 1e-9 && ctx.luminance('#000') === 0);
+assert.ok(ctx.luminance('#efeaf6') > 0.8 && ctx.luminance('#ff110e18') < 0.01);
+assert.equal(ctx.luminance('nope'), 0);
+
+// The dynamic island's motion maths (views/Liquid.js, on GlassMath.step).
+{
+  const lctx = {};
+  vm.createContext(lctx);
+  const glass = fs.readFileSync(path.join(__dirname, '..', 'views', 'GlassMath.js'), 'utf8').replace('.pragma library', '');
+  vm.runInContext('var GlassMath = (function () {' + glass + '; return { step, omega, settled }; })();', lctx);
+  vm.runInContext(fs.readFileSync(path.join(__dirname, '..', 'views', 'Liquid.js'), 'utf8')
+    .replace('.pragma library', '').replace(/^\.import .*$/m, ''), lctx);
+  const L = lctx;
+  // compact: halves balanced, as narrow as possible; the clock alone sits in the middle
+  assert.equal(L.compactWidth(0, 40, 16, 12), 72);
+  assert.equal(L.compactWidth(30, 40, 16, 12), 124);          // the board's capsule: robot + "2" | 21:58
+  assert.equal(L.compactWidth(55, 40, 16, 12), 154);
+  assert.equal(L.compactWidth(200, 40, 16, 12), 284);        // a long status no longer centres
+  // squash and stretch: +16 % falling, -10 % landing at most
+  assert.equal(L.stretch(1e6, 1), 0.16);
+  assert.equal(L.stretch(-1e6, 1), -0.10);
+  assert.ok(Math.abs(L.stretch(260, 1) - 0.1) < 1e-9);
+  // springs: "Verspielt" overshoots and lands exactly; a timed fade lands on time; placing is at once
+  const card = L.spring(0); L.go(card, 100, L.tune.cardResponse, L.tune.cardDamping);
+  let peak = 0, frames = 0;
+  while (L.tick(card, 1 / 60) && frames < 600) { peak = Math.max(peak, card.x); frames++; }
+  assert.equal(card.x, 100); assert.equal(card.moving, false);
+  assert.ok(peak > 103 && peak < 108, 'card overshoot ' + peak);
+  const fade = L.spring(0, 0.002); L.fade(fade, 1, L.tune.fade); frames = 0;
+  while (L.tick(fade, 1 / 60)) frames++;
+  assert.equal(fade.x, 1); assert.ok(frames >= 8 && frames <= 10, 'fade frames ' + frames);
+  const now = L.spring(0); L.go(now, 50, 0.4, 0.7, true);
+  assert.equal(now.x, 50); assert.equal(now.moving, false);
+  const gulp = L.spring(120); L.kick(gulp, 380); assert.equal(gulp.moving, true);
+  let wide = 120; while (L.tick(gulp, 1 / 60)) wide = Math.max(wide, gulp.x);
+  assert.ok(wide > 124 && gulp.x === 120, 'gulp ' + wide);
+}
+for (const f of ['shaders/liquid.frag', 'shaders/liquid.frag.qsb', 'LiquidShape.qml', 'DynamicStage.qml', 'DynamicNote.qml', 'DynamicAlert.qml', 'NoteRows.qml'])
+  assert.ok(fs.existsSync(path.join(__dirname, '..', 'views', f)), f);
+// No version-sensitive caps in the dynamic island's text (sentence case).
+for (const f of ['DynamicNote.qml', 'DynamicAlert.qml', 'DynamicStage.qml'])
+  assert.doesNotMatch(fs.readFileSync(path.join(__dirname, '..', 'views', f), 'utf8'), /toUpperCase|font\.capitalization/, f);
 console.log('model tests ok');

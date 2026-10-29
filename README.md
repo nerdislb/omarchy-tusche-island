@@ -47,6 +47,18 @@ The plugin is both a `panel` (state and sources) and a `bar-widget`. With `nerdi
 
 While the plugin is in the bar, the shell reads and writes its entry in `bar.layout`, so keep only that one entry (no second one in `plugins[]`).
 
+### Dynamic look
+
+With `"look": "dynamic"` in the island's entry (or `omarchy-shell tusche-island set look dynamic`) the island in a top bar becomes Apple's Dynamic Island: a true black, opaque capsule hanging from the bar, with a thin key line in the colour of what it shows. `"look": "classic"` (the default) keeps everything above. A bar at the bottom or the side keeps the classic look.
+
+- **Compact**: a capsule about 36 px tall from 2 px under the screen's edge (it hangs below a 30 px bar), the status on the left in its colour (working agents in yellow with their count, a timer, music, a recording, the next meeting, a quiet line, a passing announcement) and the clock on the right, both halves balanced and as narrow as possible. The bar keeps the capsule's slot free; the bell stays beside it. Left click opens the island's popup (the capsule tucks into the bar meanwhile), right click the calendar, middle click plays/pauses.
+- **Minimal**: up to two more live activities bud off beside the capsule as their own small capsules with live data (three in all); a click opens the island on that activity.
+- **Expanded**: when an agent finishes, the battery runs low or a timer runs out, the capsule itself grows into a rounded island (470 px wide, 84 or 104 px tall) with the event, the clock and its actions (*Open* / *Later* for an agent, *+1 min* / *Dismiss* for a timer), then shrinks back. A click runs the first action, a right click dismisses; the pointer on it holds its time.
+- **Banners**: every other notification pours out of the capsule as one liquid shape (a signed-distance shader): the capsule swells, the card falls out through a neck that lets go after about a third of a second, stretching as it falls and squashing as it lands; going, the neck tightens, the card shrinks into the capsule and the capsule gulps it. The queue stays as in the classic column (one open card, two waiting rows, `+N`), with the same clicks, actions, *Later*, hover pause, DND, inbox and IPC.
+- **Motion**: Apple springs, "playful" as chosen on the Liquid Island prototype (cards damping 0.68, closing 0.80, the capsule's swell 0.58 and gulp 0.45); Reduced Motion cross-fades in place instead.
+
+The island is drawn by its own layer-shell window per bar (`tusche-island-dynamic`, overlay layer, no exclusive zone) that takes input only on the capsules and the cards and goes away under a fullscreen window or while the bar is hidden. Notes and the expanded island appear on the monitor the notes latched to (the focused one), the compact capsule on every bar.
+
 The look follows the running shell: Omarchy's popup colours and `BorderSurface` frame, the theme font, font scale and Reduced Motion.
 
 ## Notifications
@@ -100,6 +112,7 @@ Settings live in the island's entry in `~/.config/omarchy/shell.json` (in `bar.l
 | `idleFace` | `"ticker"` | `ticker` (glances), `clock` or `none` |
 | `notifications` | `false` | take over Omarchy's notifications (see above) |
 | `noteStyle` | `"window"` | `window`, `bubble` or `float` (the former value `workbench` reads as `window`) |
+| `look` | `"classic"` | `dynamic`: the island as a black capsule hanging from a top bar, notes pouring out of it (see *Dynamic look*); `classic`: the clock with a live segment |
 | `inbox` | `true` | keep missed notifications in the inbox |
 | `osd` | `false` | take over Omarchy's on-screen display (volume, brightness, … as island HUDs) |
 | `volume`, `brightness` | `false` | HUDs for volume and brightness changes |
@@ -123,17 +136,18 @@ Settings live in the island's entry in `~/.config/omarchy/shell.json` (in `bar.l
 Target `tusche-island`, e.g. `omarchy-shell tusche-island state`:
 
 - `expand`, `collapse`, `toggle`, `calendar`, `show '<json>'`, `toast <title> <body> <icon> <color>`
-- `set noteStyle window|bubble|float`, `set notifications true|false`
+- `set noteStyle window|bubble|float`, `set notifications true|false`, `set look dynamic|classic`
 - `note open|dismiss|later|next|action:<id>` (the column's buttons, for keybinds), `markRead`
+- `alert open|later|dismiss|again` (the expanded dynamic island's buttons, for keybinds)
 - `timer 25m [label]`, `timerToggle`, `timerCancel`, `stopwatch start|pause|toggle|reset`
 - `activity <id> '<json>'`, `endActivity <id> [message]`, `activities` (live activities for scripts; see `UPSTREAM.md`)
 - `addCalendar <link>`, `removeCalendar <link>`, `addCalendarFromClipboard`, `refreshCalendar`
 - `reserveSpace on|off|toggle`, `state`, `ping`; `state` carries a `companion` object (`unread`, `alerts`, `dnd`, `blocked`, `working`, `doneSerial`: counts and a counter that moves when an agent finishes) that the Tusche Bar's Omi focus seal reads while the bar is hidden
-- Previews: `demo media|paused|recording|mic|split|expanded|volume|brightness|charging|lowbattery|track|notification|inbox|timer|stopwatch|activity|calendar|calendar-view|camera|device|outputs|toast|off`, `noteDemo mail|chat|phone|low|critical|actions|burst|story|many`, `attentionDemo on|off`, `agentDoneDemo`, `failureDemo [unit]`, `flash`
+- Previews: `demo media|paused|recording|mic|split|expanded|volume|brightness|charging|lowbattery|timerdone|track|notification|inbox|timer|stopwatch|activity|calendar|calendar-view|camera|device|outputs|toast|off`, `noteDemo mail|chat|phone|low|critical|actions|burst|story|many`, `attentionDemo on|off`, `agentDoneDemo`, `failureDemo [unit]`, `flash`
 
 ## Develop
 
-Run `./dev-install.sh` after every edit (it copies the working tree to `~/.config/omarchy/plugins/nerdibeard.tusche-island` and validates it; the shell hot-reloads it), `node tests/model.cjs` for the model tests and `python3 tests/motion_runtime.py` for the springs (the island's shape, view swap, do-not-disturb switch and output list in a real offscreen Qt). `UPSTREAM.md` holds the original activity and scripting documentation; read its plugin ID and `dynamic-island` IPC target as `nerdibeard.tusche-island` and `tusche-island`. Its Apple styling and takeover defaults do not apply here.
+Run `./dev-install.sh` after every edit (it copies the working tree to `~/.config/omarchy/plugins/nerdibeard.tusche-island` and validates it; the shell hot-reloads it), `node tests/model.cjs` for the model tests, `python3 tests/motion_runtime.py` for the springs (the island's shape, view swap, do-not-disturb switch and output list in a real offscreen Qt) and `python3 tests/dynamic_runtime.py [--shots DIR]` for the dynamic look (pour, neck, gulp, minimal and expanded island, stacked notes, input region and Reduced Motion in a real Qt with OpenGL under `xvfb-run`; `--shots` saves screenshots). The liquid shader is built with `/usr/lib/qt6/bin/qsb --glsl '100 es,120,150' --hlsl 50 --msl 12 -o views/shaders/liquid.frag.qsb views/shaders/liquid.frag`. `UPSTREAM.md` holds the original activity and scripting documentation; read its plugin ID and `dynamic-island` IPC target as `nerdibeard.tusche-island` and `tusche-island`. Its Apple styling and takeover defaults do not apply here.
 
 ## Licence
 

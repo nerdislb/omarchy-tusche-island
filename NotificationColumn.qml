@@ -90,75 +90,20 @@ Item {
   readonly property real dropW: island ? island.s(52) : 52
   readonly property real dropH: island ? island.s(28) : 28
 
-  // What belongs on screen, top to bottom: the open card, two waiting rows,
-  // "+N" for the rest.
-  readonly property var wanted: {
-    if (!serving || !service || !service.current) return []
-    var out = [{ key: service.current.key, kind: "note" }]
-    var w = service.waiting
-    for (var i = 0; i < w.length && i < Model.maxWaitingRows; i++) out.push({ key: w[i].key, kind: "note" })
-    if (w.length > Model.maxWaitingRows) out.push({ key: -1, kind: "more" })
-    return out
+  // The rows (the open card, two waiting rows, "+N", rows rolling away):
+  // views/NoteRows.qml, shared with the dynamic island. Only one look draws
+  // them: in the dynamic look (Island.qml `look`) this column stays unmapped.
+  readonly property bool dynamic: !!island && island.dynamicLook
+  NoteRows {
+    id: noteRows
+    service: column.service
+    serving: column.serving
+    onSynced: column.latchAnchor()
   }
-  readonly property int hiddenCount: service ? Math.max(0, service.waiting.length - Model.maxWaitingRows) : 0
-
-  // Entries by key, kept while their row is still rolling away.
-  property var cache: ({})
-  function entryOf(key) {
-    if (service) {
-      var b = service.banners
-      for (var i = 0; i < b.length; i++) if (b[i].key === key) return b[i]
-    }
-    return cache[key] || null
-  }
-
-  ListModel { id: rows }   // { key, kind, leaving }
-
-  onWantedChanged: Qt.callLater(sync)
-
-  function indexOfKey(key) {
-    for (var i = 0; i < rows.count; i++) if (rows.get(i).key === key) return i
-    return -1
-  }
-  // Where the n-th wanted row goes: before the n-th row that is not leaving.
-  function slotIndex(n) {
-    var seen = 0
-    for (var i = 0; i < rows.count; i++) {
-      if (rows.get(i).leaving) continue
-      if (seen === n) return i
-      seen++
-    }
-    return rows.count
-  }
-
-  function sync() {
-    var want = wanted
-    var keys = want.map(function(w) { return w.key })
-    var nextCache = {}
-    for (var c = 0; c < want.length; c++) {
-      var e = entryOf(want[c].key)
-      if (e) nextCache[want[c].key] = e
-    }
-    for (var i = 0; i < rows.count; i++) {
-      var r = rows.get(i)
-      if (keys.indexOf(r.key) === -1) {
-        if (cache[r.key]) nextCache[r.key] = cache[r.key]
-        if (!r.leaving) rows.setProperty(i, "leaving", true)
-      }
-    }
-    cache = nextCache
-    for (var j = 0; j < want.length; j++) {
-      var at = indexOfKey(want[j].key)
-      var target = slotIndex(j)
-      if (at === -1) {
-        rows.insert(Math.min(target, rows.count), { key: want[j].key, kind: want[j].kind, leaving: false })
-        continue
-      }
-      if (rows.get(at).leaving) rows.setProperty(at, "leaving", false)
-      if (at !== target && target < rows.count) rows.move(at, target, 1)
-    }
-    if (rows.count > 0) latchAnchor()
-  }
+  readonly property var queue: noteRows
+  readonly property ListModel rows: noteRows.model
+  readonly property int hiddenCount: noteRows.hiddenCount
+  function entryOf(key) { return noteRows.entryOf(key) }
 
   // Float morph: a rect from `a` to `b` at m (0..1); past 1 each edge keeps
   // going the way it moved, softly capped at `cap` pixels.
@@ -175,10 +120,7 @@ Item {
   }
 
   // A row has rolled away completely.
-  function finishLeave(key) {
-    var i = indexOfKey(key)
-    if (i !== -1 && rows.get(i).leaving) rows.remove(i)
-  }
+  function finishLeave(key) { noteRows.finishLeave(key) }
 
   // ------------------------------------------------------------ placement
   // The column hangs from the island in the bar on the focused monitor.
@@ -214,7 +156,7 @@ Item {
     id: win
 
     screen: column.latchedScreen || column.targetScreen
-    visible: column.serving && rows.count > 0
+    visible: column.serving && rows.count > 0 && !column.dynamic
     anchors { top: true; left: true; right: true }
     // Tall enough for a requester, two rows and "+N"; only the cards take input.
     implicitHeight: island ? island.s(560) : 560
@@ -261,7 +203,7 @@ Item {
       }
 
       Repeater {
-        model: rows
+        model: column.dynamic ? null : rows
 
         delegate: Item {
           id: slot

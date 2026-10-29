@@ -713,6 +713,10 @@ var defaultSettings = {
   // "window" (window head + body), "bubble" (speech bubble with a notch) or
   // "float" (a free card under the island with window corners, no connector).
   noteStyle: "window",
+  // The island in the bar: "classic" (clock and live segment, notes in their
+  // column) or "dynamic" (a black capsule hanging from a top bar, notes
+  // pouring out of it, the island expanding for what matters).
+  look: "classic",
   inbox: true,
   osd: false,
   volume: false,
@@ -744,6 +748,38 @@ function missingSettings(settings) {
 function noteStyle(value) {
   var v = String(value || "")
   return v === "bubble" || v === "float" ? v : "window"
+}
+
+// The look setting: "dynamic", else "classic".
+function look(value) {
+  return String(value || "") === "dynamic" ? "dynamic" : "classic"
+}
+
+// An agent's completion notification (agentDoneCommand): the dynamic island
+// expands for it instead of pouring a banner.
+var agentDoneGlyph = "\u{f012c}"
+function isAlertNote(entry) {
+  return !!entry && !entry.critical && String(entry.summary || "") === "Agent finished"
+    && (entry.glyph === agentDoneGlyph || /^Done · /.test(String(entry.body || "")))
+}
+// Its line in the expanded island: what was done, and who did it.
+function alertSubtitle(entry) {
+  var body = String(entry && entry.body || "").replace(/^Done · /, "")
+  var app = String(entry && entry.app || "")
+  return [body, app && app !== body ? app : ""].filter(function(t) { return !!t }).join(" · ")
+}
+
+// Relative luminance (WCAG) of "#rgb", "#rrggbb" or "#aarrggbb"; 0 when unreadable.
+function luminance(hex) {
+  var h = String(hex || "").replace(/^#/, "")
+  if (h.length === 3) h = h.replace(/(.)/g, "$1$1")
+  if (h.length === 8) h = h.substring(2)
+  if (!/^[0-9a-fA-F]{6}$/.test(h)) return 0
+  var c = [0, 2, 4].map(function(i) {
+    var v = parseInt(h.substring(i, i + 2), 16) / 255
+    return v <= 0.03928 ? v / 12.92 : Math.pow((v + 0.055) / 1.055, 2.4)
+  })
+  return 0.2126 * c[0] + 0.7152 * c[1] + 0.0722 * c[2]
 }
 
 // Hyprland's modifier mask for a key like "SUPER + ALT + I", and the key.
