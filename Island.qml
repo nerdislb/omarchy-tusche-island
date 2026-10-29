@@ -88,9 +88,11 @@ Item {
   property var disabledPlugins: []
   // Options of the Tusche Bar plugin, if installed (Model.barOptions); the
   // island follows its `edge` ("none" | "theme") and its `motion` ("spring" |
-  // "calm": nbshell's fade and settle for popups and notes).
+  // "calm": nbshell's fade and settle | "apple": springs, notes sliding in from
+  // above, for popups and notes).
   property var barOptions: ({})
   readonly property bool calmMotion: barOptions.motion === "calm"
+  readonly property bool appleMotion: barOptions.motion === "apple"
   // Running on Umbriel rather than Hyprland, decided as the bar's ModuleBus and
   // the shell's compositor service (Commons.Compositor) decide it; only shells
   // built for Umbriel have that service, so nothing reads it on Hyprland.

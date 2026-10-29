@@ -451,7 +451,7 @@ BarWidget {
 
     // Theme material (the bar's edge "theme"): the popup takes the theme's
     // card, rolls out of the bar or, on the Lavur themes, blooms out of it.
-    MaterialCard { panel: popup; material: root.island ? root.island.material : null; calm: !!root.island && root.island.calmMotion }
+    MaterialCard { panel: popup; material: root.island ? root.island.material : null; calm: !!root.island && root.island.calmMotion; apple: !!root.island && root.island.appleMotion }
 
     // Esc closes (or first leaves the calendar's link field). Keys the
     // views do not take bubble up to here.

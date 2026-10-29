@@ -70,6 +70,11 @@ Item {
   // and grows from 98.5 % where it lands, and fades out where it stands; a
   // bloom keeps its sheet.
   readonly property bool calm: !!island && island.calmMotion && !bloom
+  // Apple (the bar's option "motion": apple): a note slides down 10 px into its
+  // place as an iOS banner does, fading in and growing from 96 % on a spring
+  // (response 0.42 s, damping 0.86), and leaves upwards in 0.24 s without a
+  // bounce; a bloom keeps its sheet.
+  readonly property bool apple: !!island && island.appleMotion && !bloom
 
   // Bloom geometry: the area reaches `bloomMargin` past the cards on every
   // side (and up into the bar), so the blur never runs into its edge.
@@ -272,6 +277,37 @@ Item {
           // calm: its size while it fades in or out (around its centre)
           property real calmScale: 1
           scale: calmScale
+          // apple: the banner spring, 0 = above its place, unseen, 1 = in place
+          property real bannerK: 1
+          property real bannerVelocity: 0
+          property real bannerTarget: 1
+          property bool bannerRunning: false
+          function startBanner(to) {
+            bannerTarget = to
+            if (column.reduced) { settleBanner(); return }
+            bannerRunning = true
+          }
+          function showBanner(k) {
+            fade = Math.max(0, Math.min(1, k))
+            calmScale = 0.96 + 0.04 * k
+            drift = Math.max(0, 1 - k)
+          }
+          function settleBanner() {
+            bannerRunning = false; bannerK = bannerTarget; bannerVelocity = 0
+            showBanner(bannerK)
+            if (bannerTarget <= 0 && leaving) column.finishLeave(slot.key)
+          }
+          FrameAnimation {
+            running: slot.bannerRunning
+            onTriggered: {
+              var rising = slot.bannerTarget > 0.5
+              var st = GlassMath.step(slot.bannerK, slot.bannerVelocity, slot.bannerTarget, Math.min(frameTime, 1 / 30),
+                                      GlassMath.omega(rising ? 0.42 : 0.24), rising ? 0.86 : 0.99)
+              slot.bannerK = st.x; slot.bannerVelocity = st.v
+              slot.showBanner(st.x)
+              if (GlassMath.settled(slot.bannerK, slot.bannerVelocity, slot.bannerTarget)) slot.settleBanner()
+            }
+          }
           // float: the morph (0 = the edge it grows from, 1 = the card, past 1
           // the overshoot); at rest the card draws itself again
           property real morph: 1
@@ -325,6 +361,7 @@ Item {
             target: column
             function onReducedChanged() {
               if (column.reduced && wetting.running) { wetting.stop(); slot.clearing = 1; slot.wet = 0 }
+              if (column.reduced && slot.bannerRunning) slot.settleBanner()
               if (column.reduced && slot.morphRunning) {
                 slot.morphRunning = false; slot.morph = slot.morphTarget; slot.morphVelocity = 0
                 slot.morphDone()
@@ -618,6 +655,12 @@ Item {
               presence = 1; spread = 1; arrived = true; fade = 0; ink = 1
               openness = open ? 1 : 0
               fadeIn.start()
+            } else if (column.apple) {
+              presence = 1; spread = 1; arrived = true; ink = 1
+              morph = morphTarget = 1; morphVelocity = 0
+              openness = open ? 1 : 0
+              bannerK = 0; bannerVelocity = 0; showBanner(0)
+              startBanner(1)
             } else if (column.calm) {
               presence = 1; spread = 1; arrived = true; ink = 1; drift = 0
               morph = morphTarget = 1; morphVelocity = 0
@@ -649,11 +692,18 @@ Item {
             }
             if (leaving) {
               if (column.calm) { unroll.stop(); calmIn.stop(); calmOut.start(); return }
+              if (column.apple) { unroll.stop(); startBanner(0); return }
               // float: shrinks back into where it came from, then the row is gone
               if (column.floating) { unroll.stop(); startMorph(0) }
               else run(column.bloom ? departBloom : depart)
             } else {
               // Back before it was gone: finish whatever its arrival left.
+              if (column.apple) {
+                presence = 1; spread = 1; arrived = true; ink = 1; ghost.opacity = 0
+                startBanner(1)
+                run(unroll)
+                return
+              }
               calmIn.stop(); calmOut.stop(); calmScale = 1
               presence = 1; spread = 1; arrived = true; ink = 1; ghost.opacity = 0; fade = 1; drift = 0
               if (column.floating) startMorph(1)
