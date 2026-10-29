@@ -612,10 +612,12 @@ Item {
   // a new file beside it and renamed over it, and a bindings.lua that is a
   // symlink or not a regular file is left alone.
   readonly property string bindingsGuard: "[ -f \"$1\" ] && [ ! -L \"$1\" ] || exit 0; "
-  // Replace the file with stdin, atomically.
+  // Replace the file with stdin, atomically. Umbriel takes Hyprland's
+  // bindings through Omarchy's translation, which is renewed after a change.
   readonly property string bindingsReplace:
-    "t=$(mktemp \"$1.island.XXXXXX\") || exit 1; cat > \"$t\" && chmod --reference=\"$1\" \"$t\" " +
-    "&& mv -f \"$t\" \"$1\" || rm -f \"$t\"; "
+    "t=$(mktemp \"$1.island.XXXXXX\") || exit 1; if cat > \"$t\" && chmod --reference=\"$1\" \"$t\" " +
+    "&& mv -f \"$t\" \"$1\"; then [ -z \"$UMBRIEL_SOCKET\" ] || omarchy-umbriel-keybinds >/dev/null 2>&1; " +
+    "else rm -f \"$t\"; fi; "
   readonly property string removeBindingsBlock:
     bindingsGuard +
     "grep -qxF -e \"-- BEGIN $2\" \"$1\" || exit 0; " +
