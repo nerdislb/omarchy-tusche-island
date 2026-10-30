@@ -76,7 +76,11 @@ Item {
   readonly property real unit: s(100) / 100
   readonly property string family: island ? island.fontFamily : ""
   readonly property real capTop: s(2)
-  readonly property real capH: Math.max(s(30), barH + s(6))
+  // the compact height: the island's `capsuleHeight` in screen pixels like the
+  // bar's own height (only the island's scale applies, not the spacing scale)
+  readonly property real capH: island && island.dynamicCapsuleHeight !== undefined
+    ? Math.round(island.dynamicCapsuleHeight * (island.scaleFactor > 0 ? island.scaleFactor : 1))
+    : Math.max(s(30), barH + s(6))
   readonly property real tuckH: Math.max(s(18), barH - s(6))
   readonly property real tuckTop: Math.round((barH - tuckH) / 2)
   readonly property real cardW: Math.max(s(200), Math.min(s(440), width - 2 * s(12)))

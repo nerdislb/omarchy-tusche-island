@@ -1298,6 +1298,9 @@ Item {
   // draws it over the bar; views/DynamicStage.qml moves it.
   // ------------------------------------------------------------------
   // The clock on the right of the capsule.
+  // the compact capsule's height in screen pixels: `capsuleHeight`, 22–44,
+  // 30 by default (from 2 px, so a touch below the 30 px bar; iOS draws 36.67 pt)
+  readonly property int dynamicCapsuleHeight: Math.max(22, Math.min(44, Math.round(Number(setting("capsuleHeight", 30)) || 30)))
   readonly property string dynamicClock: Qt.formatDateTime(idleClock.date, String(setting("format", "HH:mm")))
 
   // Live activities in order: working agents rank right after an agent
@@ -1676,8 +1679,9 @@ Item {
       }
       if (key === "corgi" && (v === "true" || v === "false")) { root.saveSettings({ corgi: v === "true" }); return v }
       if (key === "look" && (v === "dynamic" || v === "classic")) { root.saveSettings({ look: v }); return v }
+      if (key === "capsuleHeight" && Math.round(Number(v)) >= 22 && Math.round(Number(v)) <= 44) { root.saveSettings({ capsuleHeight: Math.round(Number(v)) }); return String(Math.round(Number(v))) }
       if (key === "notifications" && (v === "true" || v === "false")) { root.saveSettings({ notifications: v === "true" }); return v }
-      return "usage: set noteStyle window|bubble|float · set notifications true|false · set corgi true|false · set look dynamic|classic"
+      return "usage: set noteStyle window|bubble|float · set notifications true|false · set corgi true|false · set look dynamic|classic · set capsuleHeight 22–44"
     }
     // Sample notifications through the real queue (no sender behind them).
     function noteDemo(kind: string): string { return root.noteDemo(kind) }
