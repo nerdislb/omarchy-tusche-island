@@ -284,6 +284,13 @@ Item {
     swelling = false
     retarget("give")
   }
+  function swellingRow() {
+    for (var r = 0; r < rowRep.count; r++) {
+      var row = rowRep.itemAt(r)
+      if (row && !row.finished && row.phase === "swell") return true
+    }
+    return false
+  }
   // A card drawn back in: the capsule gulps it with a wobble.
   function gulp() {
     releaseHold()
@@ -336,6 +343,10 @@ Item {
       var occ = row.occupy
       y += occ + rowGap * Math.min(1, occ / s(12))
     }
+    // The capsule swells only for a card about to pour out of it. A card that
+    // never poured (withdrawn mid-swell, taken into the island, gone with its
+    // column) would otherwise leave it swollen over the bar beside its slot.
+    if (swelling && !swellingRow()) { giveBack(); moving = true }
     draw()
     settled = !moving
     if (!moving) clock.running = false

@@ -20,7 +20,8 @@ real IslandModel helpers and a small stand-in for the island:
             instead of a card, the waiting rows hanging under it) and shrinks
             back; several notes stack (open card, two rows, "+N"); the input
             region is only the capsules and the cards; Reduced Motion
-            cross-fades in place with nothing springing
+            cross-fades in place with nothing springing; a banner withdrawn
+            while the capsule still swells for it leaves the capsule compact
   clock     the stage's own frame clock runs while something moves and
             stops at rest
   shots     (with --shots) compact, minimal, expanded, a banner mid-pour and
@@ -362,6 +363,24 @@ FloatingWindow {
    isl.hudAlert = null
    Style.reduceMotion = false
    report.push("reduced: the island is there at once, its content fades")
+   next(16)
+  } else if (step === 16) {
+   if (ticks > 180) return fail("swell gone: compact did not settle")
+   if (!stage.settled) return
+   next(17)
+   key1 = svc.add({ app: "OmaMail", summary: "Lena Berger", body: "Kurz da", glyph: "\\u{f01ee}" })
+  } else if (step === 17) {
+   // a banner withdrawn while the capsule still swells for it (a notification
+   // replaced or closed at once): the capsule gives the swell back
+   if (ticks === 3) {
+    if (!row || row.phase !== "swell" || !stage.swelling) return fail("swell gone: no swell to interrupt (" + (row ? row.phase : "no row") + ")")
+    svc.dismiss(key1)
+   }
+   if (ticks > 240) return fail("swell gone: did not settle (capsule " + fmt({ x: stage.pillX, y: stage.pillY, w: stage.pillW, h: stage.pillH }) + ")")
+   if (ticks < 4 || rowsNow().length || !stage.settled) return
+   if (stage.swelling || !near(stage.pillW, compactW, 0.6) || !near(stage.pillH, 36, 0.3))
+    return fail("swell gone: the capsule stayed swollen: " + fmt({ x: stage.pillX, y: stage.pillY, w: stage.pillW, h: stage.pillH }) + " for " + Math.round(compactW) + "x36")
+   report.push("swell gone: a banner withdrawn mid-swell leaves the capsule compact")
    console.log("PASS liquid: " + report.join("; "))
    Qt.exit(0)
   }
