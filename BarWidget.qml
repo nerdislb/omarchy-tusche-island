@@ -208,7 +208,8 @@ BarWidget {
   property var shownSegment: null
   onSegmentChanged: if (segment) shownSegment = segment
 
-  readonly property bool bellShown: live && island.columnNotes
+  // (not while the bell is its own bar module: modules/Bell.qml)
+  readonly property bool bellShown: live && island.columnNotes && Bridge.IslandBus.bells === 0
   implicitWidth: button.implicitWidth + dynSpacer.width + (bellShown ? bell.implicitWidth : 0)
   implicitHeight: button.implicitHeight
 
@@ -437,10 +438,7 @@ BarWidget {
     readonly property bool dnd: root.live && root.island.doNotDisturb
     readonly property int unread: root.live ? root.island.unreadCount : 0
 
-    // A groove between the clock and the bell.
-    Rectangle { x: 0; anchors.verticalCenter: parent.verticalCenter; width: 1; height: parent.height * 0.6; color: Qt.darker(Commons.Color.bar.background, 1.6) }
-    Rectangle { x: 1; anchors.verticalCenter: parent.verticalCenter; width: 1; height: parent.height * 0.6; color: Util.alpha(button.foreground, 0.18) }
-
+    // (no groove before the bell: groups are set off by space, not rules)
     Row {
       id: bellRow
       anchors.centerIn: parent
@@ -474,7 +472,8 @@ BarWidget {
         renderType: Text.NativeRendering
         font.family: button.fontFamily
         font.pixelSize: button.fontSize
-        color: bell.dnd ? Util.alpha(button.foreground, 0.7) : (root.island ? root.island.accentColor : Commons.Color.accent)
+        // many unread are not a warning: the count in the bar's ink
+        color: bell.dnd ? Util.alpha(button.foreground, 0.7) : button.foreground
       }
     }
   }
