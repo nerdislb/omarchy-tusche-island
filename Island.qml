@@ -1331,6 +1331,16 @@ Item {
 
   // One activity as { kind, glyph, text, tone }: a status symbol and a short
   // value in the status colour. Minimal capsules keep only live data.
+  // A live activity's own place (its `open`: a shell IPC target, called with
+  // `open` and nothing else), e.g. the Tesla popup for the charging session.
+  function openLive(kind) {
+    if (String(kind || "").indexOf("live:") !== 0) return false
+    var e = liveSource.byId[String(kind).substring(5)]
+    if (!e || !e.open) return false
+    Quickshell.execDetached(["omarchy-shell", "-q", e.open, "open"])
+    return true
+  }
+
   function dynamicActivity(kind, minimal) {
     var c = clockSource
     if (kind.indexOf("live:") === 0) {

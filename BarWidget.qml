@@ -107,6 +107,8 @@ BarWidget {
     } else if (island.columnNotes && island.noteLine) {
       // The low-urgency line is the island's: a click opens it.
       island.notificationOpen(island.noteLine.key)
+    } else if (dyn && island.dynamicLead && island.openLive(island.dynamicLead.kind)) {
+      // a live activity in front opens its program (the Tesla popup)
     } else {
       toggle()
     }
@@ -115,6 +117,7 @@ BarWidget {
   function openFocused(kind) {
     if (!live) return
     if (kind === "inbox") { toggleInbox(); return }
+    if (island.openLive(kind)) return
     Bridge.IslandBus.owner = root
     island.openFocus = kind === "agents" ? "" : kind
     island.expand()

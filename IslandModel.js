@@ -100,7 +100,8 @@ var activityOrder = ["attention", "recording", "timer", "activity", "media", "st
 // or null when it is malformed or past its `until`. Times are epoch seconds;
 // the island counts down or up on its own, nobody has to rewrite the file.
 //   { title, icon, color, startedAt, warnAt, endsAt, until,
-//     show: "remaining" | "elapsed" | "value", value }
+//     show: "remaining" | "elapsed" | "value", value,
+//     open: a shell IPC target whose `open` shows the program (a click) }
 var liveColors = ["accent", "green", "orange", "yellow", "red", "foreground"]
 function liveEntry(id, v, nowS) {
   if (!/^[A-Za-z0-9._-]{1,64}$/.test(String(id || "")) || !v || typeof v !== "object" || Array.isArray(v)) return null
@@ -113,7 +114,9 @@ function liveEntry(id, v, nowS) {
     color: liveColors.indexOf(String(v.color)) !== -1 ? String(v.color) : "accent",
     startedAt: time(v.startedAt), warnAt: time(v.warnAt), endsAt: time(v.endsAt), until: time(v.until),
     show: show,
-    value: String(v.value || "").slice(0, 12)
+    value: String(v.value || "").slice(0, 12),
+    // a target name, never an option for omarchy-shell (no leading dash)
+    open: /^[A-Za-z0-9][A-Za-z0-9._-]{0,79}$/.test(String(v.open || "")) ? String(v.open) : ""
   }
   if (e.until && nowS > e.until) return null
   if ((show === "remaining" && !e.endsAt) || (show === "elapsed" && !e.startedAt)) return null

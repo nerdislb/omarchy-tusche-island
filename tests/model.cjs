@@ -78,6 +78,9 @@ assert.ok(!done({}).includes('--exec'), 'preview has no focus action');
   for (const [id, v] of [['../x', tesla], ['ok', null], ['ok', [1]], ['ok', { show: 'remaining' }], ['ok', { show: 'elapsed' }],
                          ['ok', { ...tesla, until: T0 - 1 }]])
     assert.equal(ctx.liveEntry(id, v, T0), null, JSON.stringify(id));
+  assert.equal(ctx.liveEntry('t', { ...tesla, open: 'nerdibeard.tesla' }, T0).open, 'nerdibeard.tesla');
+  for (const open of ['x; rm -rf ~', '--help', 'a b', '$(id)', 'x'.repeat(81)])
+    assert.equal(ctx.liveEntry('t', { ...tesla, open }, T0).open, '', open);
   const odd = ctx.liveEntry('odd', { title: 'x'.repeat(200), icon: '<b>long</b>', color: 'javascript:1', show: 'nope', value: 'v'.repeat(50) }, T0);
   assert.deepEqual([odd.title.length, odd.icon.length, odd.color, odd.show, odd.value.length], [60, 4, 'accent', 'value', 12]);
 }
