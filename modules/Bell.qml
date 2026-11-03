@@ -9,9 +9,11 @@ import "../bridge" as Bridge
 // alone sits in the middle of the bar (bar alignment, 3 Nov 2026). Custom QML
 // module, first in the section after the island:
 //   { "id": "tusche.bell", "source": ".../modules/Bell.qml" }   (centerEnd)
-// While one is mounted the island's widget leaves its own bell out. It shows
-// what the bell did: unread count, do not disturb; the inbox still opens from
-// the island.
+// On its monitor the island's widget then leaves out its own bell and the
+// room for the capsules beside the island: this module keeps that room, just
+// right of the island, so the island stays in the middle with them too. It
+// shows what the bell did: unread count, do not disturb; the inbox still
+// opens from the island. On a vertical bar the island keeps its own bell.
 //   left click    the inbox      right click   do not disturb
 Item {
   id: root
@@ -29,9 +31,15 @@ Item {
   Component.onCompleted: Bridge.IslandBus.registerBell(root)
   Component.onDestruction: Bridge.IslandBus.unregisterBell(root)
 
-  visible: live
+  // stands in for the island's bell only on a horizontal bar
+  readonly property bool replacing: !(bar && bar.vertical)
+  // the island widget on this monitor, and the room its side capsules take
+  readonly property var islandWidget: Bridge.IslandBus.widgetOn(screenName)
+  readonly property real reserve: replacing && islandWidget && islandWidget.extraReserve > 0 ? islandWidget.extraReserve : 0
+
+  visible: replacing && (live || reserve > 0)
   implicitHeight: barSize
-  implicitWidth: live ? button.width : 0
+  implicitWidth: !replacing ? 0 : reserve + (live ? button.width : 0)
 
   readonly property bool dnd: live && island.doNotDisturb
   readonly property int unread: live ? island.unreadCount : 0
@@ -39,6 +47,8 @@ Item {
   WidgetButton {
     id: button
     bar: root.bar
+    x: root.reserve
+    visible: root.live
     anchors.top: parent.top
     anchors.bottom: parent.bottom
     width: implicitWidth
@@ -53,8 +63,7 @@ Item {
     onPressed: function(b) {
       if (!root.live) return
       if (b === Qt.RightButton) { root.island.setDoNotDisturb(!root.island.doNotDisturb); return }
-      var w = Bridge.IslandBus.widgetOn(root.screenName)
-      if (w) w.toggleInbox()
+      if (root.islandWidget) root.islandWidget.toggleInbox()
     }
 
     Row {

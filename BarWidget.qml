@@ -208,8 +208,12 @@ BarWidget {
   property var shownSegment: null
   onSegmentChanged: if (segment) shownSegment = segment
 
-  // (not while the bell is its own bar module: modules/Bell.qml)
-  readonly property bool bellShown: live && island.columnNotes && Bridge.IslandBus.bells === 0
+  // A bell module on this monitor's bar (modules/Bell.qml) takes the bell and
+  // the room for the side capsules, so the island alone is centred.
+  readonly property bool externalBell: Bridge.IslandBus.bellOn(screenName)
+  readonly property bool bellShown: live && island.columnNotes && !externalBell
+  // the side capsules' room, for the bell module to keep beside the island
+  readonly property real extraReserve: dyn && externalBell ? Math.max(0, dynExtra.value) : 0
   implicitWidth: button.implicitWidth + dynSpacer.width + (bellShown ? bell.implicitWidth : 0)
   implicitHeight: button.implicitHeight
 
@@ -408,7 +412,7 @@ BarWidget {
   Item {
     id: dynSpacer
     anchors.left: button.right
-    width: root.dyn ? Math.max(0, dynExtra.value) : 0
+    width: root.dyn && !root.externalBell ? Math.max(0, dynExtra.value) : 0
     height: 1
   }
 
