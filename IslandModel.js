@@ -5,13 +5,21 @@
 
 // Use the desktop notification path: normal urgency opens a card and respects
 // DND. Keep agent-provided text and focus targets in literal argv, never a shell.
-function desktopAgents(flux, hermes, enabled, fluxEnabled, hermesEnabled, corgi, corgiEnabled) {
+function desktopAgents(flux, hermes, enabled, fluxEnabled, hermesEnabled, corgi, corgiEnabled, opencode, opencodeEnabled) {
   if (!enabled) return []
   var h = flux && flux.herdr
   var list = fluxEnabled && h && h.running && Array.isArray(h.agents) ? h.agents : []
   var extra = corgiEnabled && corgi && corgi.available && Array.isArray(corgi.agents) ? corgi.agents : []
-  return list.concat(hermesEnabled && hermes && hermes.available && Array.isArray(hermes.agents) ? hermes.agents : [], extra)
+  var oc = opencodeEnabled && opencode && opencode.available && Array.isArray(opencode.agents) ? opencode.agents : []
+  return list.concat(hermesEnabled && hermes && hermes.available && Array.isArray(hermes.agents) ? hermes.agents : [], extra, oc)
     .filter(function(a) { return a && typeof a === "object" })
+}
+
+// The island's helpers sit side by side in its bin/: the OpenCode one next to
+// the Corgi one the callers already pass.
+function siblingScript(corgiScript, name) {
+  var path = String(corgiScript || "")
+  return /\/corgi-status\.py$/.test(path) ? path.replace(/corgi-status\.py$/, name) : ""
 }
 
 function agentFocusCommand(agent, corgiScript) {
@@ -19,6 +27,12 @@ function agentFocusCommand(agent, corgiScript) {
   if (pane.indexOf("corgi:") === 0)
     return /^corgi:[1-9][0-9]{0,12}$/.test(pane) && agent.source === "corgi" && corgiScript
       ? ["python3", corgiScript, "--focus", pane.slice(6)] : []
+  // OpenCode: its TUI's terminal ("OC | <session title>")
+  if (pane.indexOf("opencode:") === 0) {
+    var helper = siblingScript(corgiScript, "opencode-status.py")
+    return /^opencode:ses_[A-Za-z0-9]{1,64}$/.test(pane) && agent.source === "opencode" && helper
+      ? ["python3", helper, "--focus", pane.slice(9)] : []
+  }
   // Hermes' window, by its app id: through Umbriel's window list there, else Hyprland.
   if (pane.indexOf("hermes:") === 0)
     return ["sh", "-c",

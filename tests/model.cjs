@@ -45,6 +45,37 @@ assert.ok(!done({}).includes('--exec'), 'preview has no focus action');
   step('working', 0);
   step('idle', 25000);
   assert.equal(completions.length, 1);
+  state.agentDoneEnabled = true;
+  // A long run that asked for a permission near its end still finishes.
+  step('working', 0);
+  step('blocked', 60000);
+  step('working', 30000);
+  step('idle', 5000);
+  assert.equal(completions.length, 2);
+  // ...but a lost observation in between starts the run over.
+  step('working', 0);
+  step('unknown', 1000);
+  step('working', 0);
+  step('idle', 5000);
+  assert.equal(completions.length, 2);
+}
+
+// OpenCode sessions: merged when enabled, focused only through the island's
+// own helper beside the Corgi one, with a literal session id.
+{
+  const oc = { available: true, agents: [{ pane: 'opencode:ses_e5fc7d404ffeXJ4n2FNaJPCb8A', source: 'opencode', agent: 'OpenCode', status: 'working' }] };
+  const plainList = x => JSON.parse(JSON.stringify(x));
+  assert.deepEqual(plainList(ctx.desktopAgents({}, {}, true, false, false, {}, false, oc, true)), oc.agents);
+  assert.deepEqual(plainList(ctx.desktopAgents({}, {}, true, false, false, {}, false, oc, false)), []);
+  assert.deepEqual(plainList(ctx.desktopAgents({}, {}, true, false, false, {}, false, { available: false, agents: oc.agents }, true)), []);
+  const helper = '/plugins/island/generations/g/bin/corgi-status.py';
+  assert.deepEqual(Array.from(ctx.agentFocusCommand(oc.agents[0], helper)),
+    ['python3', '/plugins/island/generations/g/bin/opencode-status.py', '--focus', 'ses_e5fc7d404ffeXJ4n2FNaJPCb8A']);
+  assert.deepEqual(Array.from(ctx.agentDoneCommand(oc.agents[0], helper)).slice(-4),
+    ['python3', '/plugins/island/generations/g/bin/opencode-status.py', '--focus', 'ses_e5fc7d404ffeXJ4n2FNaJPCb8A']);
+  for (const [agent, script] of [[oc.agents[0], ''], [oc.agents[0], '/evil.py'], [{ ...oc.agents[0], source: 'corgi' }, helper],
+      [{ ...oc.agents[0], pane: 'opencode:ses_x; rm -rf ~' }, helper], [{ ...oc.agents[0], pane: 'opencode:../x' }, helper]])
+    assert.deepEqual(Array.from(ctx.agentFocusCommand(agent, script)), [], JSON.stringify([agent.pane, agent.source, script]));
 }
 
 // FIFO: the oldest normal one is open, the rest wait in arrival order.

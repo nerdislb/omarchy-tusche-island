@@ -186,3 +186,25 @@ back to idle after at least 20 seconds of observed work, not proof of success.
 Set `corgi: false` in the Island's bar entry to stop the collector independently
 of Flux, Hermes and the other Island sources. You can also use
 `omarchy-shell tusche-island set corgi false` (or `true`) locally.
+
+### OpenCode status
+
+OpenCode sessions come from the running OpenCode V2 service while `agents` and
+`opencode` are enabled (both default to true). `bin/opencode-status.py` reads
+the service's registration (`~/.local/state/opencode/service.json`, a loopback
+URL only) and subscribes to its event stream for just the events that change a
+session's state: a run starting and ending, permission requests, questions and
+renames. It never starts the service and reads no prompts or messages; only
+session ids, titles and directories reach the island. A session is working
+while a run is in progress, blocked while it waits for a permission or an
+answer (subagents report to their top session), idle after a run succeeded.
+Failed or stopped runs are never announced as finished. After a reconnect the
+collector takes what runs now; events during a gap are missed by the service's
+contract. Open raises the OpenCode terminal titled `OC | <session title>`, else
+the only OpenCode window; it never guesses between several.
+
+A run counts from its start: waiting for a permission or an answer in between
+does not restart the 20 seconds a completion needs (for every agent source).
+Set `opencode: false` to stop the collector.
+
+Check: `PYTHONDONTWRITEBYTECODE=1 python3 -m unittest discover -s tests -p 'test_opencode_status.py'`.

@@ -10,6 +10,7 @@ import "../IslandModel.js" as Model
 //                             OpenClaw), the paired phone's battery
 //   Omarchy agent usage       subscription limits close to running out
 //   Hermes turn markers      live Desktop/TUI turns (read-only, one home)
+//   Corgi, OpenCode          their agents' and sessions' states (read-only)
 //
 // No chat bodies or credentials leave Hermes. Flux only receives "subscribe".
 Item {
@@ -141,8 +142,39 @@ Item {
     }
   }
 
+  // OpenCode: the running service's event stream (bin/opencode-status.py),
+  // session titles and states only; never starts the service.
+  readonly property bool opencodeEnabled: agentsEnabled && on("opencode")
+  readonly property string opencodeScript: decodeURIComponent(Qt.resolvedUrl("../bin/opencode-status.py").toString().replace(/^file:\/\//, ""))
+  property var opencodeState: ({})
+  property double opencodeReceived: 0
+  function handleOpencode(line) {
+    var next
+    try { next = JSON.parse(line) } catch (e) { next = {} }
+    opencodeReceived = Date.now()
+    if (JSON.stringify(next) !== JSON.stringify(opencodeState)) opencodeState = next
+  }
+  Process {
+    id: opencodeProcess
+    command: ["python3", desk.opencodeScript, "--watch"]
+    running: desk.opencodeEnabled
+    stdout: SplitParser { onRead: data => desk.handleOpencode(data) }
+    onRunningChanged: if (!running) { desk.opencodeState = ({}); desk.opencodeReceived = 0 }
+  }
+  onOpencodeEnabledChanged: opencodeProcess.running = opencodeEnabled
+  Timer {
+    interval: 2000
+    repeat: true
+    running: desk.opencodeEnabled
+    onTriggered: {
+      if (!opencodeProcess.running) opencodeProcess.running = true
+      else if (desk.opencodeReceived && Date.now() - desk.opencodeReceived > 8000) opencodeProcess.running = false
+    }
+  }
+
   // ---- agents
-  readonly property var agents: Model.desktopAgents(fluxState, hermesState, agentsEnabled, fluxEnabled, hermesEnabled, corgiState, corgiEnabled)
+  readonly property var agents: Model.desktopAgents(fluxState, hermesState, agentsEnabled, fluxEnabled, hermesEnabled, corgiState, corgiEnabled,
+                                                    opencodeState, opencodeEnabled)
   readonly property var panelAgents: agents.filter(function(a) {
     return a.source === "corgi" || a.status === "working" || a.status === "blocked"
   }).sort(function(a, b) {
@@ -175,7 +207,7 @@ Item {
     if (command.length) Quickshell.execDetached(command)
   }
 
-  // pane -> { status, since, title, agent }
+  // pane -> { status, since, busySince, title, agent }
   property var seen: ({})
   property bool primed: false
 
@@ -187,15 +219,18 @@ Item {
       if (!a || !a.pane) continue
       var before = seen[a.pane]
       var since = before && before.status === a.status ? before.since : now
-      next[a.pane] = { status: a.status, since: since, title: a.title || "", agent: a.agent || "" }
+      // the run's start: waiting for an answer or a permission does not end it
+      var busy = a.status === "working" || a.status === "blocked"
+      var busySince = !busy ? 0 : before && before.busySince ? before.busySince : now
+      next[a.pane] = { status: a.status, since: since, busySince: busySince, title: a.title || "", agent: a.agent || "" }
       if (primed && (a.source !== "corgi" || before) && a.status === "blocked" && (!before || before.status !== "blocked") && island) island.flash()
       // A run that finished after a real stretch of work (not a flicker).
       if (primed && agentDoneEnabled && before && before.status === "working" && a.status === "idle"
-          && now - before.since >= 20000 && island)
+          && now - (before.busySince || before.since) >= 20000 && island)
         island.announceAgentDone(a)
     }
     seen = next
-    if (fluxState.herdr || hermesState.available || corgiState.available) primed = true
+    if (fluxState.herdr || hermesState.available || corgiState.available || opencodeState.available) primed = true
     syncActivity()
   }
 
@@ -320,6 +355,8 @@ Item {
       hermesAgents: hermesEnabled && Array.isArray(hermesState.agents) ? hermesState.agents.length : 0,
       corgi: corgiEnabled && corgiState.available === true,
       corgiAgents: corgiEnabled && Array.isArray(corgiState.agents) ? corgiState.agents.length : 0,
+      opencode: opencodeEnabled && opencodeState.available === true,
+      opencodeAgents: opencodeEnabled && Array.isArray(opencodeState.agents) ? opencodeState.agents.length : 0,
       agents: agents.length,
       working: working.map(function(a) { return a.agent + ": " + (a.title || "") }),
       phone: phone,
