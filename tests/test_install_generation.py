@@ -40,5 +40,24 @@ class InstallTests(unittest.TestCase):
             # staging happens outside the plugin folder
             self.assertEqual(sorted(p.name for p in target.iterdir()), ['generations', 'installed-generation.json', 'manifest.json'])
 
+    def test_a_path_out_of_the_folder_is_left_alone(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            tmp = Path(tmp)
+            source = tmp / 'src'
+            (source / 'modules').mkdir(parents=True)
+            (source / 'manifest.json').write_text(json.dumps({'id': 'nerdibeard.tusche-island', 'entryPoints': {'barWidget': 'BarWidget.qml'}}))
+            (source / 'BarWidget.qml').write_text('import QtQuick\nItem {}\n')
+            (source / 'modules/Bell.qml').write_text('import QtQuick\nItem {}\n')
+            target = tmp / 'plugins' / 'nerdibeard.tusche-island'
+            config = tmp / 'shell.json'
+            config.write_text(json.dumps({'bar': {'layout': {}}}))
+            first = ig.install(source, target, config)
+            # a source that climbs out of the new generation into an older one
+            sneaky = {'id': 'tusche.bell', 'source': str(target / 'modules/../..' / first / 'modules/Bell.qml')}
+            config.write_text(json.dumps({'bar': {'layout': {'centerEnd': [sneaky]}}}))
+            (source / 'modules/Bell.qml').write_text('import QtQuick\nItem { }\n')
+            ig.install(source, target, config)
+            self.assertEqual(json.loads(config.read_text())['bar']['layout']['centerEnd'][0], sneaky)
+
 
 if __name__ == '__main__': unittest.main()
