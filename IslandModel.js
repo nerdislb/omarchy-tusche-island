@@ -95,6 +95,46 @@ var sizes = {
 // "attention" (an agent waiting for you) outranks everything.
 var activityOrder = ["attention", "recording", "timer", "activity", "media", "stopwatch", "calendar", "mic", "inbox"]
 
+// Live activity files ($XDG_STATE_HOME/live-activities/<id>.json, written by
+// other programs, e.g. the Tesla bar's charging session): a sanitised entry,
+// or null when it is malformed or past its `until`. Times are epoch seconds;
+// the island counts down or up on its own, nobody has to rewrite the file.
+//   { title, icon, color, startedAt, warnAt, endsAt, until,
+//     show: "remaining" | "elapsed" | "value", value }
+var liveColors = ["accent", "green", "orange", "yellow", "red", "foreground"]
+function liveEntry(id, v, nowS) {
+  if (!/^[A-Za-z0-9._-]{1,64}$/.test(String(id || "")) || !v || typeof v !== "object" || Array.isArray(v)) return null
+  function time(x) { return typeof x === "number" && isFinite(x) && x > 946684800 && x < 1e11 ? x : 0 }
+  var show = ["remaining", "elapsed", "value"].indexOf(v.show) !== -1 ? v.show : "value"
+  var e = {
+    id: String(id),
+    title: String(v.title || id).slice(0, 60),
+    icon: String(v.icon || "\u{f0e1e}").slice(0, 4),
+    color: liveColors.indexOf(String(v.color)) !== -1 ? String(v.color) : "accent",
+    startedAt: time(v.startedAt), warnAt: time(v.warnAt), endsAt: time(v.endsAt), until: time(v.until),
+    show: show,
+    value: String(v.value || "").slice(0, 12)
+  }
+  if (e.until && nowS > e.until) return null
+  if ((show === "remaining" && !e.endsAt) || (show === "elapsed" && !e.startedAt)) return null
+  return e
+}
+// "3:12", "47m", over the end "+6m"; remaining rounds up, elapsed down.
+function liveText(e, nowS) {
+  if (e.show === "value") return e.value
+  var s = e.show === "elapsed" ? nowS - e.startedAt : e.endsAt - nowS
+  var over = s < 0
+  var m = over ? Math.ceil(-s / 60) : e.show === "remaining" ? Math.ceil(s / 60) : Math.floor(s / 60)
+  var h = Math.floor(m / 60)
+  return (over ? "+" : "") + (h > 0 ? h + ":" + ("0" + (m % 60)).slice(-2) : m + "m")
+}
+// its own colour; from `warnAt` orange, from `endsAt` red
+function liveTone(e, nowS) {
+  if (e.endsAt && nowS >= e.endsAt) return "red"
+  if (e.warnAt && nowS >= e.warnAt) return "orange"
+  return e.color
+}
+
 function activities(flags) {
   var out = []
   for (var i = 0; i < activityOrder.length; i++)

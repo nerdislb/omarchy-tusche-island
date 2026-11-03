@@ -60,6 +60,28 @@ assert.ok(!done({}).includes('--exec'), 'preview has no focus action');
   assert.equal(completions.length, 2);
 }
 
+// Live activity files: sanitised, counted by the island itself, coloured by phase.
+{
+  const T0 = 1793700000;
+  const tesla = { title: 'Charging session', icon: '\u{f140b}', color: 'green', startedAt: T0, warnAt: T0 + 13500, endsAt: T0 + 14400, until: T0 + 86400, show: 'remaining' };
+  const e = ctx.liveEntry('tesla-charge', tesla, T0 + 60);
+  assert.equal(e.title, 'Charging session');
+  assert.equal(ctx.liveText(e, T0), '4:00');
+  assert.equal(ctx.liveText(e, T0 + 60), '3:59');
+  assert.equal(ctx.liveText(e, T0 + 14400 - 47 * 60), '47m');
+  assert.equal(ctx.liveText(e, T0 + 14400 - 30), '1m', 'remaining rounds up');
+  assert.equal(ctx.liveText(e, T0 + 14400 + 6 * 60), '+6m');
+  assert.deepEqual([T0, T0 + 13500, T0 + 14400].map(t => ctx.liveTone(e, t)), ['green', 'orange', 'red']);
+  assert.equal(ctx.liveText(ctx.liveEntry('w', { show: 'elapsed', startedAt: T0 }, T0), T0 + 3720), '1:02', 'elapsed rounds down');
+  assert.equal(ctx.liveText(ctx.liveEntry('v', { value: 'Backup 3/10' }, T0), T0), 'Backup 3/10');
+  // nothing from a file reaches the island unchecked
+  for (const [id, v] of [['../x', tesla], ['ok', null], ['ok', [1]], ['ok', { show: 'remaining' }], ['ok', { show: 'elapsed' }],
+                         ['ok', { ...tesla, until: T0 - 1 }]])
+    assert.equal(ctx.liveEntry(id, v, T0), null, JSON.stringify(id));
+  const odd = ctx.liveEntry('odd', { title: 'x'.repeat(200), icon: '<b>long</b>', color: 'javascript:1', show: 'nope', value: 'v'.repeat(50) }, T0);
+  assert.deepEqual([odd.title.length, odd.icon.length, odd.color, odd.show, odd.value.length], [60, 4, 'accent', 'value', 12]);
+}
+
 // OpenCode sessions: merged when enabled, focused only through the island's
 // own helper beside the Corgi one, with a literal session id.
 {

@@ -845,6 +845,8 @@ Item {
   Devices { island: root }
   Calendar { id: calendarSource; island: root }
   Activities { id: activitySource; island: root }
+  // live activity files from other programs (sources/LiveFiles.qml)
+  LiveFiles { id: liveSource; island: root }
   // Flux (agents, phone) and AI usage limits, read-only.
   Desktop { id: desktopSource; island: root }
 
@@ -853,6 +855,7 @@ Item {
   readonly property var activityStore: activitySource
   readonly property var desktop: desktopSource
   readonly property var activity: activitySource.current
+  readonly property var liveFiles: liveSource
 
   function endActivity(id) { activitySource.end(id, "") }
 
@@ -1315,6 +1318,14 @@ Item {
       while (at < list.length && (list[at] === "attention" || list[at] === "recording")) at++
       list.splice(at, 0, "agents")
     }
+    // Live activity files after what is more pressing (an agent waiting, a
+    // recording, working agents, a timer): one capsule each.
+    var live = dynamicLook ? liveSource.ids.map(function(id) { return "live:" + id }) : []
+    if (live.length > 0) {
+      var after = 0
+      while (after < list.length && ["attention", "recording", "agents", "timer"].indexOf(list[after]) !== -1) after++
+      list.splice.apply(list, [after, 0].concat(live))
+    }
     return list
   }
 
@@ -1322,6 +1333,12 @@ Item {
   // value in the status colour. Minimal capsules keep only live data.
   function dynamicActivity(kind, minimal) {
     var c = clockSource
+    if (kind.indexOf("live:") === 0) {
+      var e = liveSource.byId[kind.substring(5)]
+      if (!e) return null
+      var nowS = liveSource.now / 1000
+      return { kind: kind, glyph: e.icon, text: Model.liveText(e, nowS), tone: toneFor(Model.liveTone(e, nowS)) }
+    }
     if (kind === "agents")
       return { kind: kind, glyph: "\u{f06a9}", text: String(desktop.working.length), tone: yellowColor }
     if (kind === "attention")
@@ -1773,6 +1790,7 @@ Item {
         timer: root.clocks.timerActive ? Math.ceil(root.clocks.timerLeft / 1000) : null,
         stopwatch: root.clocks.stopwatchActive ? Math.round(root.clocks.stopwatchElapsed / 100) / 10 : null,
         activity: root.activity ? root.activity.id : null,
+        live: liveSource.ids,
         nextEvent: root.calendar.next ? root.calendar.next.title : null,
         attention: root.desktop.blocked.map(function(a) { return a.agent + ": " + (a.title || "") }),
         idle: { mode: root.idleMode, quiet: root.idleQuiet, signals: root.idleSignals.map(function(i) { return i.key }) },
