@@ -8,7 +8,7 @@ import "../bridge" as Bridge
 // The island's notification bell as a bar module of its own, so the island
 // alone sits in the middle of the bar (bar alignment, 3 Nov 2026). Custom QML
 // module, first in the section after the island:
-//   { "id": "tusche.bell", "source": ".../modules/Bell.qml" }   (centerEnd)
+//   { "id": "island.bell", "source": ".../modules/Bell.qml" }   (centerEnd)
 // On its monitor the island's widget then leaves out its own bell and the
 // room for the capsules beside the island: this module keeps that room, just
 // right of the island, so the island stays in the middle with them too. It
@@ -19,7 +19,7 @@ Item {
   id: root
 
   property var bar: null
-  property string moduleName: "tusche.bell"
+  property string moduleName: "island.bell"
   property var settings: ({})
 
   readonly property var island: Bridge.IslandBus.island

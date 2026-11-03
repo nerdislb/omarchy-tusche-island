@@ -22,7 +22,7 @@ class InstallTests(unittest.TestCase):
             bar = tmp / 'plugins' / 'nerdibeard.tusche-bar'
             config = tmp / 'shell.json'
             layout = {'center': [{'id': 'nerdibeard.tusche-island', 'look': 'dynamic'}],
-                      'centerEnd': [{'id': 'tusche.bell', 'source': str(target / 'modules/Bell.qml')},
+                      'centerEnd': [{'id': 'island.bell', 'source': str(target / 'modules/Bell.qml')},
                                     {'id': 'tusche.centre', 'source': str(bar / 'generations/abc/modules/Centre.qml')}]}
             config.write_text(json.dumps({'bar': {'layout': layout}}))
             first = ig.install(source, target, config)
@@ -53,7 +53,7 @@ class InstallTests(unittest.TestCase):
             config.write_text(json.dumps({'bar': {'layout': {}}}))
             first = ig.install(source, target, config)
             # a source that climbs out of the new generation into an older one
-            sneaky = {'id': 'tusche.bell', 'source': str(target / 'modules/../..' / first / 'modules/Bell.qml')}
+            sneaky = {'id': 'island.bell', 'source': str(target / 'modules/../..' / first / 'modules/Bell.qml')}
             config.write_text(json.dumps({'bar': {'layout': {'centerEnd': [sneaky]}}}))
             (source / 'modules/Bell.qml').write_text('import QtQuick\nItem { }\n')
             ig.install(source, target, config)
