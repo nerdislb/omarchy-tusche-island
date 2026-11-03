@@ -1,17 +1,26 @@
 import QtQuick
 import qs.Commons
 
-// "Braucht dich": an agent is waiting for input or approval (herdr
-// "blocked"). Styled like a requester window — title bar with drag
-// stripes, the question, and buttons left (positive) to right (negative).
-// Approving happens in the agent itself ("Open"); the bar never answers
-// for you.
+// An agent is waiting for input or approval (herdr, Corgi, OpenCode
+// "blocked"). Laid out like the expanded island's "Agent finished"
+// (views/DynamicAlert.qml, hybrid board 01): a round tile in the status
+// colour with its glyph in black, the title in sentence case and a line
+// under it, the actions as capsules. Approving happens in the agent itself
+// ("Open"); the bar never answers for you.
 Item {
   id: view
 
   property var island: null
   readonly property var agent: island ? island.attentionAgent : null
   readonly property var others: island ? island.desktop.blocked.slice(1) : []
+
+  function s(px) { return island ? island.s(px) : px }
+  function f(px) { return island ? island.f(px) : px }
+  readonly property string family: island ? island.fontFamily : ""
+  readonly property string words: island ? island.textFamily : ""
+  readonly property color tone: island ? island.orangeColor : "#ffb27a"
+  readonly property color ink: island ? island.fg : "#f2f2f2"
+  readonly property color dim: Util.alpha(ink, 0.62)
 
   function since(a) {
     if (!a || !island) return ""
@@ -21,101 +30,97 @@ Item {
     return m < 1 ? "just now" : "for " + m + " min"
   }
 
-  // title bar
+  readonly property var actions: [
+    { id: "open", label: "Open", primary: true },
+    { id: "snooze", label: "Later (10 min)", primary: false },
+    { id: "close", label: "Dismiss", primary: false }
+  ]
+  function run(id) {
+    var a = view.agent
+    if (id === "open") island.desktop.focusAgent(a)
+    else if (id === "snooze" && a) island.desktop.snooze(a.pane)
+    island.collapse()
+  }
+
   Rectangle {
-    id: titleBar
-    width: parent.width
-    height: island.s(24)
-    color: island.orangeColor
-    Rectangle {
-      x: island.s(8); anchors.verticalCenter: parent.verticalCenter
-      width: island.s(12); height: width
-      color: "transparent"; border.width: 1; border.color: island.accentText
-      Rectangle { anchors.centerIn: parent; width: 4; height: 4; color: island.accentText }
-    }
-    Text { textFormat: Text.PlainText;
-      x: island.s(28); anchors.verticalCenter: parent.verticalCenter
-      text: "An agent is waiting for you"
-      font.family: island.fontFamily
-      font.pixelSize: island.f(13)
-      font.bold: true
+    id: tile
+    x: view.s(18)
+    y: view.s(18)
+    width: view.s(44); height: width; radius: width / 2
+    color: view.tone
+    Text {
+      anchors.centerIn: parent
+      text: "\u{f0026}"
+      textFormat: Text.PlainText
       renderType: Text.NativeRendering
-      color: island.accentText
-    }
-    Column {
-      anchors.right: parent.right; anchors.rightMargin: island.s(10); anchors.verticalCenter: parent.verticalCenter
-      spacing: 2
-      Repeater { model: 4; Rectangle { width: island.s(90); height: 1; color: Util.alpha(island.accentText, 0.55) } }
+      font.family: view.family
+      font.pixelSize: view.f(22)
+      color: "#000000"
     }
   }
 
-  Column {
-    x: island.s(18)
-    y: titleBar.height + island.s(12)
-    width: parent.width - island.s(36)
-    spacing: island.s(4)
+  Text {
+    x: view.s(78)
+    y: view.s(30) - implicitHeight / 2
+    width: view.width - x - view.s(20)
+    text: view.agent ? (view.agent.agent || "An agent") + " is waiting for you" : ""
+    textFormat: Text.PlainText
+    renderType: Text.NativeRendering
+    elide: Text.ElideRight
+    font.family: view.words
+    font.pixelSize: view.f(15)
+    font.bold: true
+    color: view.ink
+  }
 
-    Text { renderType: Text.NativeRendering; textFormat: Text.PlainText;
-      width: parent.width
-      elide: Text.ElideRight
-      text: view.agent ? (view.agent.agent || "Agent") + (view.agent.project ? " · " + view.agent.project : "") : ""
-      font.family: island.fontFamily; font.pixelSize: island.f(11)
-      color: island.fgDim
-    }
-    Text { renderType: Text.NativeRendering; textFormat: Text.PlainText;
-      width: parent.width
-      elide: Text.ElideRight
-      text: view.agent ? (view.agent.title || "waiting for input") : ""
-      font.family: island.fontFamily; font.pixelSize: island.f(15); font.bold: true
-      color: island.fg
-    }
-    Text { renderType: Text.NativeRendering; textFormat: Text.PlainText;
-      text: view.since(view.agent) + (view.others.length ? "  ·  +" + view.others.length + " more" : "")
-      font.family: island.fontFamily; font.pixelSize: island.f(11)
-      color: island.orangeColor
-    }
+  Text {
+    x: view.s(78)
+    y: view.s(52) - implicitHeight / 2
+    width: view.width - x - view.s(20)
+    text: view.agent
+      ? [view.agent.title || "Waiting for input", view.agent.project || "", view.since(view.agent),
+         view.others.length ? "+" + view.others.length + " more" : ""].filter(function(t) { return !!t }).join(" · ")
+      : ""
+    textFormat: Text.PlainText
+    renderType: Text.NativeRendering
+    elide: Text.ElideRight
+    font.family: view.words
+    font.pixelSize: view.f(12)
+    color: view.dim
   }
 
   Row {
-    anchors.bottom: parent.bottom
-    anchors.bottomMargin: island.s(14)
-    x: island.s(18)
-    width: parent.width - island.s(36)
-    spacing: island.s(10)
-
+    x: view.s(78)
+    y: view.s(72)
+    spacing: view.s(10)
     Repeater {
-      model: [
-        { label: "Open", action: "open", primary: true },
-        { label: "Later (10 min)", action: "snooze", primary: false },
-        { label: "Dismiss", action: "close", primary: false }
-      ]
+      model: view.actions
       Rectangle {
         id: btn
         required property var modelData
-        width: (parent.width - island.s(20)) / 3
-        height: island.s(30)
-        radius: Math.min(Style.cornerRadius, Style.space(2))
-        color: modelData.primary ? Util.alpha(island.orangeColor, mouse.pressed ? 0.45 : mouse.containsMouse ? 0.34 : 0.24)
-          : Util.alpha(island.fg, mouse.pressed ? 0.2 : mouse.containsMouse ? 0.12 : 0.06)
-        border.width: 1
-        border.color: modelData.primary ? island.orangeColor : Util.alpha(island.fg, 0.2)
-        Text { renderType: Text.NativeRendering; textFormat: Text.PlainText;
+        readonly property bool primary: !!modelData.primary
+        width: Math.max(view.s(84), label.implicitWidth + view.s(28))
+        height: view.s(26)
+        radius: height / 2
+        color: primary ? Util.alpha(view.tone, area.pressed ? 0.42 : area.containsMouse ? 0.32 : 0.22)
+          : Util.alpha(view.ink, area.pressed ? 0.22 : area.containsMouse ? 0.16 : 0.10)
+        Text {
+          id: label
           anchors.centerIn: parent
           text: btn.modelData.label
-          font.family: island.fontFamily; font.pixelSize: island.f(12); font.bold: btn.modelData.primary
-          color: btn.modelData.primary ? island.orangeColor : island.fg
+          textFormat: Text.PlainText
+          renderType: Text.NativeRendering
+          font.family: view.family
+          font.pixelSize: view.f(12)
+          font.bold: btn.primary
+          color: btn.primary ? view.tone : view.ink
         }
         MouseArea {
-          id: mouse
+          id: area
           anchors.fill: parent
           hoverEnabled: true
           cursorShape: Qt.PointingHandCursor
-          onClicked: {
-            var a = view.agent
-            if (btn.modelData.action === "open") island.desktop.focusAgent(a)
-            else if (btn.modelData.action === "snooze" && a) island.desktop.snooze(a.pane)
-            island.collapse()
-          }
+          onClicked: view.run(btn.modelData.id)
         }
       }
     }
