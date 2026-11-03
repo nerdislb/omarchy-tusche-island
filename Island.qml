@@ -1308,6 +1308,9 @@ Item {
   readonly property var dynamicActivities: {
     var list = activityList.slice()
     if (dynamicLook && desktop.working.length > 0) {
+      // the agents' own live activity (Desktop.syncActivity) is this robot,
+      // not a second capsule beside it
+      if (activity && activity.id === "agents") list = list.filter(function(k) { return k !== "activity" })
       var at = 0
       while (at < list.length && (list[at] === "attention" || list[at] === "recording")) at++
       list.splice(at, 0, "agents")
