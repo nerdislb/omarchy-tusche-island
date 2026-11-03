@@ -3,7 +3,9 @@ import qs.Commons
 import qs.Commons as Commons
 import qs.Ui as Ui
 
-// Reuse Omarchy's control palette instead of an Apple disc.
+// Omarchy's control (hover, focus, accent) in the island's shape: a round,
+// borderless button on a quiet fill, like the capsules of the expanded
+// island and the requester (hybrid bar alignment, 3 Nov 2026).
 Item {
   id: button
   property string glyph: ""
@@ -15,6 +17,7 @@ Item {
   implicitWidth: Math.round(glyphSize * 2)
   implicitHeight: implicitWidth
   Ui.PanelActionButton {
+    id: control
     anchors.fill: parent
     iconText: button.glyph
     fontSize: button.glyphSize
@@ -23,8 +26,9 @@ Item {
     hoverColor: Commons.Color.accent
     enabled: button.available
     opacity: button.available ? 1 : 0.35
-    bordered: true
-    radius: Math.min(Style.cornerRadius, Style.space(2))
+    bordered: false
+    radius: height / 2
+    color: control._hot ? Style.hoverFillFor(control.hoverColor, control.hoverColor) : Util.alpha(button.color, 0.08)
     onClicked: button.clicked()
   }
 }
