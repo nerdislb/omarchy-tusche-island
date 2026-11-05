@@ -568,6 +568,25 @@ Item {
     onTriggered: if (!recordingProbe.running) recordingProbe.running = true
   }
 
+  // Omarchy's recorder script writes this pid file once its recorder runs and
+  // removes it on stop: probe at once then rather than on the next 2-s tick,
+  // so a banner a moment after the start already waits. Watched, not polled;
+  // the tick stays for recorders started some other way.
+  FileView {
+    path: Quickshell.env("XDG_RUNTIME_DIR") ? Quickshell.env("XDG_RUNTIME_DIR") + "/omarchy-screenrecord-pid" : ""
+    watchChanges: path !== "" && (root.showRecording || root.captureQuiet)
+    printErrors: false
+    onFileChanged: recordingKick.restart()
+  }
+  Timer {
+    id: recordingKick
+    interval: 60
+    onTriggered: {
+      if (!recordingProbe.running) recordingProbe.running = true
+      else restart()
+    }
+  }
+
   // ------------------------------------------------------------------
   // Takeovers: the island replaces Omarchy's notification service and its
   // on-screen display (the volume, brightness, microphone, keyboard light,
