@@ -749,13 +749,16 @@ Item {
     return false
   }
   readonly property bool capturing: setting("captureQuiet", true) !== false && (recording || screenShared)
+  // A fullscreen game in front (Compositor.gameFocused): banners wait too
+  // (option gameQuiet, on by default).
+  readonly property bool gaming: setting("gameQuiet", true) !== false && Commons.Compositor.gameFocused === true
 
   Notifications {
     id: notifications
     island: root
     active: root.notificationsReady
     columnMode: root.barMode
-    capturing: root.capturing
+    capturing: root.capturing || root.gaming
   }
 
   // In the bar the island serves notifications as a column under itself
@@ -1734,7 +1737,8 @@ Item {
       if (key === "capsuleHeight" && Math.round(Number(v)) >= 22 && Math.round(Number(v)) <= 44) { root.saveSettings({ capsuleHeight: Math.round(Number(v)) }); return String(Math.round(Number(v))) }
       if (key === "notifications" && (v === "true" || v === "false")) { root.saveSettings({ notifications: v === "true" }); return v }
       if (key === "captureQuiet" && (v === "true" || v === "false")) { root.saveSettings({ captureQuiet: v === "true" }); return v }
-      return "usage: set noteStyle window|bubble|float · set notifications true|false · set captureQuiet true|false · set corgi true|false · set look dynamic|classic · set capsuleHeight 22–44"
+      if (key === "gameQuiet" && (v === "true" || v === "false")) { root.saveSettings({ gameQuiet: v === "true" }); return v }
+      return "usage: set noteStyle window|bubble|float · set notifications true|false · set captureQuiet true|false · set gameQuiet true|false · set corgi true|false · set look dynamic|classic · set capsuleHeight 22–44"
     }
     // Sample notifications through the real queue (no sender behind them).
     function noteDemo(kind: string): string { return root.noteDemo(kind) }
