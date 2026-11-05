@@ -1828,6 +1828,9 @@ Item {
         secondary: root.secondary,
         expanded: root.userExpanded,
         hud: root.hud ? root.hud.layout : null,
+        // why banners wait (tests and tusche doctor read this)
+        quiet: { capturing: root.capturing, screenShared: root.screenShared, recording: root.recording,
+          gaming: root.gaming, banners: notifications.banners.length, unread: notifications.unread },
         media: { has: root.hasMedia, playing: root.mediaPlaying, title: root.mediaTitle },
         recording: root.recordingActivity,
         mic: root.micActivity,
