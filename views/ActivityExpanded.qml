@@ -26,7 +26,7 @@ Item {
     anchors.rightMargin: island.s(10)
     y: island.s(4)
     glyph: "󰅖"
-    glyphSize: island.f(16)
+    glyphSize: island.gf(16)
     color: island.fg
     fontFamily: island.fontFamily
     onClicked: island.collapse()
@@ -57,7 +57,7 @@ Item {
       textFormat: Text.PlainText
       renderType: Text.NativeRendering
       font.family: island.fontFamily
-      font.pixelSize: island.f(18)
+      font.pixelSize: island.gf(18)
       color: view.tone
     }
   }
@@ -69,7 +69,7 @@ Item {
     anchors.rightMargin: view.pad - island.s(6)
     anchors.verticalCenter: parent.verticalCenter
     glyph: "󰅖"
-    glyphSize: island.f(16)
+    glyphSize: island.gf(16)
     color: island.fg
     fontFamily: island.fontFamily
     onClicked: {

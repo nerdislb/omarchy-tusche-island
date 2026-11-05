@@ -74,6 +74,7 @@ Item {
   // ------------------------------------------------------------ measures
   function s(px) { return island ? island.s(px) : px }
   function f(px) { return island ? island.f(px) : px }
+  function gf(px) { return island ? island.gf(px) : px }
   readonly property real unit: s(100) / 100
   readonly property string family: island ? island.fontFamily : ""
   readonly property real capTop: s(2)
@@ -153,7 +154,7 @@ Item {
     return !!r && !r.leaving && ["swell", "pour", "rest", "drop"].indexOf(r.phase) !== -1 && r.ga > 0.5
   }
 
-  TextMetrics { id: leadGlyphM; font.family: stage.family; font.pixelSize: stage.f(15); text: stage.leadFront && stage.leadFront.glyph ? stage.leadFront.glyph : "" }
+  TextMetrics { id: leadGlyphM; font.family: stage.family; font.pixelSize: stage.gf(15); text: stage.leadFront && stage.leadFront.glyph ? stage.leadFront.glyph : "" }
   TextMetrics { id: leadTextM; font.family: stage.family; font.pixelSize: stage.f(13); font.bold: true; text: stage.leadFront && stage.leadFront.text ? stage.leadFront.text : "" }
   TextMetrics { id: clockM; font.family: stage.family; font.pixelSize: stage.f(13); font.bold: true; text: stage.clockText }
   function leadTextCap(l) { return l && l.wide ? s(260) : s(150) }
@@ -443,7 +444,7 @@ Item {
           textFormat: Text.PlainText
           renderType: Text.NativeRendering
           font.family: stage.family
-          font.pixelSize: stage.f(15)
+          font.pixelSize: stage.gf(15)
           color: leadRow.info ? stage.tone(leadRow.info.tone) : stage.ink
         }
         Text {
@@ -523,7 +524,7 @@ Item {
       property real goff: 0
       readonly property color keyTone: shown ? stage.tone(shown.tone) : stage.ink
 
-      TextMetrics { id: capGlyph; font.family: stage.family; font.pixelSize: stage.f(14); text: cap.want && cap.want.glyph ? cap.want.glyph : "" }
+      TextMetrics { id: capGlyph; font.family: stage.family; font.pixelSize: stage.gf(14); text: cap.want && cap.want.glyph ? cap.want.glyph : "" }
       TextMetrics { id: capText; font.family: stage.family; font.pixelSize: stage.f(12); font.bold: true; text: cap.want && cap.want.text ? cap.want.text : "" }
       readonly property real wantW: !want ? 0 : Math.max(stage.capH, Math.ceil(
         (want.glyph ? capGlyph.advanceWidth : 0) + (want.text ? (want.glyph ? stage.s(5) : 0) + Math.min(capText.advanceWidth, stage.s(90)) : 0) + stage.s(28)))
@@ -592,7 +593,7 @@ Item {
           textFormat: Text.PlainText
           renderType: Text.NativeRendering
           font.family: stage.family
-          font.pixelSize: stage.f(14)
+          font.pixelSize: stage.gf(14)
           color: cap.keyTone
         }
         Text {

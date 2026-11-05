@@ -27,6 +27,9 @@ BarWidget {
   moduleName: "nerdibeard.tusche-island"
 
   readonly property var island: Bridge.IslandBus.island
+  // A symbol in the pixel style keeps two screen pixels per symbol cell
+  // (island.pixelIcon); at text size Departure Mono draws it 7 px tall.
+  readonly property real glyphPx: island && island.pixelStyle ? Math.max(island.pixelIcon, button.fontSize) : button.fontSize
   readonly property bool live: island !== null && island.barMode
 
   // One popup, from the widget that was clicked (or the first one, when the
@@ -327,7 +330,7 @@ BarWidget {
             textFormat: Text.PlainText
             renderType: Text.NativeRendering
             font.family: button.fontFamily
-            font.pixelSize: button.fontSize
+            font.pixelSize: root.glyphPx
             color: chip.seg ? chip.seg.tone : button.foreground
           }
 
@@ -367,7 +370,7 @@ BarWidget {
             textFormat: Text.PlainText
             renderType: Text.NativeRendering
             font.family: button.fontFamily
-            font.pixelSize: button.fontSize
+            font.pixelSize: root.glyphPx
             color: Util.alpha(button.foreground, 0.6)
           }
         }

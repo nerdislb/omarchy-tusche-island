@@ -32,7 +32,7 @@ Item {
       textFormat: Text.PlainText
       renderType: Text.NativeRendering
       font.family: island.fontFamily
-      font.pixelSize: view.item && view.item.progress >= 0 ? island.f(10) : island.f(15)
+      font.pixelSize: view.item && view.item.progress >= 0 ? island.gf(10) : island.gf(15)
       color: view.tone
     }
   }

@@ -178,7 +178,7 @@ Item {
           textFormat: Text.PlainText
           renderType: Text.NativeRendering
           font.family: island.fontFamily
-          font.pixelSize: island.f(15)
+          font.pixelSize: island.gf(15)
           color: island.noteTone(row.modelData)
         }
       }

@@ -124,7 +124,7 @@ Item {
 
       IconButton {
         glyph: "󰒮"
-        glyphSize: island.f(17)
+        glyphSize: island.gf(17)
         color: island.fg
         fontFamily: island.fontFamily
         available: island.mediaCanPrevious
@@ -133,7 +133,7 @@ Item {
 
       IconButton {
         glyph: island.mediaPlaying ? "󰏤" : "󰐊"
-        glyphSize: island.f(21)
+        glyphSize: island.gf(21)
         color: island.fg
         fontFamily: island.fontFamily
         onClicked: island.mediaToggle()
@@ -141,7 +141,7 @@ Item {
 
       IconButton {
         glyph: "󰒭"
-        glyphSize: island.f(17)
+        glyphSize: island.gf(17)
         color: island.fg
         fontFamily: island.fontFamily
         available: island.mediaCanNext

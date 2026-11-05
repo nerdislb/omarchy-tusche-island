@@ -89,7 +89,7 @@ Item {
 
         IconButton {
           glyph: "󰅁"
-          glyphSize: island.f(13)
+          glyphSize: island.gf(13)
           color: island.fg
           fontFamily: island.fontFamily
           onClicked: view.shiftMonth(-1)
@@ -97,7 +97,7 @@ Item {
 
         IconButton {
           glyph: "󰅂"
-          glyphSize: island.f(13)
+          glyphSize: island.gf(13)
           color: island.fg
           fontFamily: island.fontFamily
           onClicked: view.shiftMonth(1)
@@ -232,7 +232,7 @@ Item {
         anchors.right: parent.right
         anchors.verticalCenter: parent.verticalCenter
         glyph: view.adding ? "󰅖" : "󰐕"
-        glyphSize: island.f(13)
+        glyphSize: island.gf(13)
         color: island.fg
         fontFamily: island.fontFamily
         onClicked: island.calendarAdding = !island.calendarAdding
@@ -623,7 +623,7 @@ Item {
             anchors.right: parent.right
             anchors.verticalCenter: parent.verticalCenter
             glyph: "󰅖"
-            glyphSize: island.f(10)
+            glyphSize: island.gf(10)
             color: island.fg
             fontFamily: island.fontFamily
             onClicked: island.removeCalendar(source.modelData)

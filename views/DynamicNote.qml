@@ -34,6 +34,7 @@ Item {
 
   function s(px) { return island ? island.s(px) : px }
   function f(px) { return island ? island.f(px) : px }
+  function gf(px) { return island ? island.gf(px) : px }
   readonly property string family: island ? island.fontFamily : ""
   readonly property string words: island ? island.textFamily : ""
 
@@ -71,7 +72,7 @@ Item {
   component Tile: Rectangle {
     id: tile
     property real d: card.tileD
-    property real glyphPx: card.f(18)
+    property real glyphPx: card.gf(18)
     width: d; height: d; radius: d / 2
     readonly property string icon: card.island && card.entry ? card.island.notificationIcon(card.entry) : ""
     readonly property bool hasIcon: icon !== "" && image.status === Image.Ready
@@ -253,7 +254,7 @@ Item {
 
     Tile {
       d: card.s(24)
-      glyphPx: card.f(12)
+      glyphPx: card.gf(12)
       x: card.s(10)
       anchors.verticalCenter: parent.verticalCenter
     }

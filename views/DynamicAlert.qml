@@ -27,6 +27,7 @@ Item {
 
   function s(px) { return island ? island.s(px) : px }
   function f(px) { return island ? island.f(px) : px }
+  function gf(px) { return island ? island.gf(px) : px }
   readonly property string family: island ? island.fontFamily : ""
   readonly property string words: island ? island.textFamily : ""
 
@@ -57,7 +58,7 @@ Item {
       textFormat: Text.PlainText
       renderType: Text.NativeRendering
       font.family: view.family
-      font.pixelSize: view.f(22)
+      font.pixelSize: view.gf(22)
       color: "#000000"
     }
   }

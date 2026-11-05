@@ -51,7 +51,7 @@ Item {
       textFormat: Text.PlainText
       renderType: Text.NativeRendering
       font.family: island.fontFamily
-      font.pixelSize: island.f(18)
+      font.pixelSize: island.gf(18)
       color: view.tone
     }
   }

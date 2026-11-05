@@ -181,7 +181,7 @@ Item {
     anchors.bottom: parent.bottom
     anchors.bottomMargin: island.s(16)
     glyph: island.outputGlyph(island.sink)
-    glyphSize: island.f(15)
+    glyphSize: island.gf(15)
     color: island.fgDim
     fontFamily: island.fontFamily
     onClicked: island.openOutputs()
@@ -196,7 +196,7 @@ Item {
     IconButton {
       anchors.verticalCenter: parent.verticalCenter
       glyph: "󰒮"
-      glyphSize: island.f(22)
+      glyphSize: island.gf(22)
       color: island.fg
       fontFamily: island.fontFamily
       available: island.mediaCanPrevious
@@ -235,7 +235,7 @@ Item {
     IconButton {
       anchors.verticalCenter: parent.verticalCenter
       glyph: "󰒭"
-      glyphSize: island.f(22)
+      glyphSize: island.gf(22)
       color: island.fg
       fontFamily: island.fontFamily
       available: island.mediaCanNext

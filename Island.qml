@@ -85,6 +85,10 @@ Item {
   readonly property bool pixelStyle: String((Commons.Color.shellValues || {})["tusche.style"] || "") === "pixel"
   readonly property int pixelEm: Math.max(1, Math.round(Number((Commons.Color.shellValues || {})["tusche.pixel-em"])) || 8)
   readonly property int pixelText: Math.max(1, Math.round(Number((Commons.Color.shellValues || {})["tusche.pixel-text"])) || 16)
+  // The smallest size for a symbol: two screen pixels per symbol cell (one
+  // cell is one font pixel). At Departure Mono's text size a 7x7 symbol is
+  // 7 px tall, too small to read; Tiny5's text size already gives two.
+  readonly property int pixelIcon: Math.max(pixelText, 2 * pixelEm)
   readonly property bool showMic: setting("mic", true) !== false
   readonly property var notchSize: null
   readonly property string idleFace: {
@@ -246,6 +250,12 @@ Item {
   // 1.6-px pixels that run together). pixelText is the smallest size the shell
   // itself uses in the pixel style.
   function pixelFontSize(size) { return Math.max(pixelText, Math.round(size / pixelEm) * pixelEm) }
+  // The size for a symbol glyph: f() outside the pixel style, in it the
+  // font's grid with at least pixelIcon.
+  function gf(px) {
+    var size = Math.max(6, Math.round(px * Style.fontScale * scaleFactor))
+    return pixelStyle ? Math.max(pixelIcon, pixelFontSize(size)) : size
+  }
 
   // Nothing announces itself for the first moments after (re)load, so the
   // initial volume/brightness/battery reads do not pop HUDs.

@@ -52,7 +52,7 @@ Item {
     // +1 min (timer) / reset (stopwatch)
     IconButton {
       glyph: view.timer ? "󰐕" : "󰑓"
-      glyphSize: island.f(18)
+      glyphSize: island.gf(18)
       color: island.fg
       fontFamily: island.fontFamily
       onClicked: view.timer ? view.clocks.addToTimer(60) : view.clocks.resetStopwatch()
@@ -87,7 +87,7 @@ Item {
     // Cancel
     IconButton {
       glyph: "󰅖"
-      glyphSize: island.f(18)
+      glyphSize: island.gf(18)
       color: island.fg
       fontFamily: island.fontFamily
       onClicked: {

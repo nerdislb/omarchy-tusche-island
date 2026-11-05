@@ -349,7 +349,7 @@ Item {
             textFormat: Text.PlainText
             renderType: Text.NativeRendering
             font.family: island.fontFamily
-            font.pixelSize: island.f(22)
+            font.pixelSize: island.gf(22)
             color: card.critical && (card.flat || card.bloom) ? island.urgentColor : card.ink
           }
         }
