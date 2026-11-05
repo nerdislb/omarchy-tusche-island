@@ -79,8 +79,12 @@ Item {
   // A shell without Compositor.displaysOn counts as always awake.
   readonly property bool screensAwake: Commons.Compositor.displaysOn !== false
   // The pixel style ([tusche] style = "pixel" in ~/.config/omarchy/shell.toml):
-  // square plates and cards, Tusche Pixel (Tiny5) from the shell's own font token.
+  // square plates and cards, the pixel font (Tusche Pixel or Tusche Departure)
+  // from the shell's own font token. `pixel-em` is that font's pixels per em,
+  // `pixel-text` its smallest text size (Tiny5: 8 and 16).
   readonly property bool pixelStyle: String((Commons.Color.shellValues || {})["tusche.style"] || "") === "pixel"
+  readonly property int pixelEm: Math.max(1, Math.round(Number((Commons.Color.shellValues || {})["tusche.pixel-em"])) || 8)
+  readonly property int pixelText: Math.max(1, Math.round(Number((Commons.Color.shellValues || {})["tusche.pixel-text"])) || 16)
   readonly property bool showMic: setting("mic", true) !== false
   readonly property var notchSize: null
   readonly property string idleFace: {
@@ -237,10 +241,11 @@ Item {
     var size = Math.max(6, Math.round(px * Style.fontScale * scaleFactor))
     return pixelStyle ? pixelFontSize(size) : size
   }
-  // Tiny5 sits on a grid of 8 px per em: only whole multiples keep every
-  // font pixel the same width (13 px gives 1.6-px pixels that run together).
-  // 16 is the smallest size the shell itself uses in the pixel style.
-  function pixelFontSize(size) { return Math.max(16, Math.round(size / 8) * 8) }
+  // A pixel font sits on a grid (Tiny5 8 px per em, Departure Mono 11): only
+  // whole multiples keep every font pixel the same width (Tiny5 at 13 px gives
+  // 1.6-px pixels that run together). pixelText is the smallest size the shell
+  // itself uses in the pixel style.
+  function pixelFontSize(size) { return Math.max(pixelText, Math.round(size / pixelEm) * pixelEm) }
 
   // Nothing announces itself for the first moments after (re)load, so the
   // initial volume/brightness/battery reads do not pop HUDs.
