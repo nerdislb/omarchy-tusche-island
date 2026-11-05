@@ -29,7 +29,7 @@ BarWidget {
   readonly property var island: Bridge.IslandBus.island
   // A symbol in the pixel style keeps two screen pixels per symbol cell
   // (island.pixelIcon); at text size Departure Mono draws it 7 px tall.
-  readonly property real glyphPx: island && island.pixelStyle ? Math.max(island.pixelIcon, button.fontSize) : button.fontSize
+  readonly property real glyphPx: island && island.pixelFace ? Math.max(island.pixelIcon, button.fontSize) : button.fontSize
   readonly property bool live: island !== null && island.barMode
 
   // One popup, from the widget that was clicked (or the first one, when the
@@ -470,7 +470,7 @@ BarWidget {
         textFormat: Text.PlainText
         renderType: Text.NativeRendering
         font.family: button.fontFamily
-        font.pixelSize: root.island && root.island.pixelStyle ? button.fontSize : Math.round(button.fontSize * 0.8)
+        font.pixelSize: root.island && root.island.pixelFace ? button.fontSize : Math.round(button.fontSize * 0.8)
         font.bold: true
         color: root.island ? root.island.accentColor : Commons.Color.accent
       }

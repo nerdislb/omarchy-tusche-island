@@ -89,6 +89,9 @@ Item {
   // cell is one font pixel). At Departure Mono's text size a 7x7 symbol is
   // 7 px tall, too small to read; Tiny5's text size already gives two.
   readonly property int pixelIcon: Math.max(pixelText, 2 * pixelEm)
+  // A pixel face in the pixel style ([tusche] pixel-face, true unless the
+  // style runs with the shell's own font): only then do sizes snap to its grid.
+  readonly property bool pixelFace: pixelStyle && String((Commons.Color.shellValues || {})["tusche.pixel-face"]) !== "false"
   readonly property bool showMic: setting("mic", true) !== false
   readonly property var notchSize: null
   readonly property string idleFace: {
@@ -243,7 +246,7 @@ Item {
   function showing(name) { return view === name && shapeSettled }
   function f(px) {
     var size = Math.max(6, Math.round(px * Style.fontScale * scaleFactor))
-    return pixelStyle ? pixelFontSize(size) : size
+    return pixelFace ? pixelFontSize(size) : size
   }
   // A pixel font sits on a grid (Tiny5 8 px per em, Departure Mono 11): only
   // whole multiples keep every font pixel the same width (Tiny5 at 13 px gives
@@ -254,7 +257,7 @@ Item {
   // font's grid with at least pixelIcon.
   function gf(px) {
     var size = Math.max(6, Math.round(px * Style.fontScale * scaleFactor))
-    return pixelStyle ? Math.max(pixelIcon, pixelFontSize(size)) : size
+    return pixelFace ? Math.max(pixelIcon, pixelFontSize(size)) : size
   }
 
   // Nothing announces itself for the first moments after (re)load, so the
