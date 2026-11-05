@@ -522,7 +522,8 @@ Item {
   Timer {
     interval: 2000
     repeat: true
-    running: root.showRecording && root.screensAwake
+    // also without the recording capsule: banners wait while recording
+    running: (root.showRecording || root.captureQuiet) && root.screensAwake
     triggeredOnStart: true
     onTriggered: if (!recordingProbe.running) recordingProbe.running = true
   }
@@ -755,7 +756,8 @@ Item {
     }
     return false
   }
-  readonly property bool capturing: setting("captureQuiet", true) !== false && (recording || screenShared)
+  readonly property bool captureQuiet: setting("captureQuiet", true) !== false
+  readonly property bool capturing: captureQuiet && (recording || screenShared)
   // A fullscreen game in front (Compositor.gameFocused): banners wait too
   // (option gameQuiet, on by default).
   readonly property bool gaming: setting("gameQuiet", true) !== false && Commons.Compositor.gameFocused === true

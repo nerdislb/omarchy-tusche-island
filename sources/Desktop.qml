@@ -88,15 +88,28 @@ Item {
   // scripts in bin/ do. Setting "agentd": false keeps the Python scripts.
   readonly property bool agentdEnabled: on("agentd")
   readonly property string agentdBundled: decodeURIComponent(Qt.resolvedUrl("../bin/tusche-agentd").toString().replace(/^file:\/\//, ""))
+  // A native collector that stops or stays silent before its first line three
+  // times is given up for this session: the Python scripts take over, also
+  // while the binary is still installed.
+  property int agentdFailures: 0
+  readonly property bool agentdUsable: agentdEnabled && agentdFailures < 3
+  function collectorStopped(started, received) {
+    if (agentdUsable && started > 0 && received === 0 && Date.now() - started < 30000) agentdFailures++
+  }
+  // the watchdog's verdict for a running collector: stale output, or none at all
+  function collectorStuck(started, received) {
+    var now = Date.now()
+    return received ? now - received > 8000 : started > 0 && now - started > 15000
+  }
   function collector(name, script, args) {
-    if (!agentdEnabled) return ["python3", script].concat(args)
+    if (!agentdUsable) return ["python3", script].concat(args)
     // $1 bundled binary, $2 collector, $3 Python script, then the arguments
     // of either; exec leaves no shell behind.
     return ["sh", "-c", 'b="$1" n="$2" s="$3"; shift 3; [ -x "$b" ] || b="$HOME/.local/bin/tusche-agentd"; '
             + '[ -x "$b" ] && exec "$b" "$n" "$@"; exec python3 "$s" "$@"',
             "tusche-agentd", agentdBundled, name, script].concat(args)
   }
-  onAgentdEnabledChanged: { hermesProcess.running = false; corgiProcess.running = false; opencodeProcess.running = false }
+  onAgentdUsableChanged: { hermesProcess.running = false; corgiProcess.running = false; opencodeProcess.running = false }
 
   // Hermes collector is a child of this source, not an independent service.
   // It reads the existing turn marker and title metadata; no REST token needed.
@@ -105,6 +118,7 @@ Item {
   readonly property string hermesScript: decodeURIComponent(Qt.resolvedUrl("../bin/hermes-status.py").toString().replace(/^file:\/\//, ""))
   property var hermesState: ({})
   property double hermesReceived: 0
+  property double hermesStarted: 0
   function handleHermes(line) {
     var next
     try { next = JSON.parse(line) } catch (e) { next = {} }
@@ -116,7 +130,11 @@ Item {
     command: desk.collector("hermes", desk.hermesScript, ["--home", desk.hermesHome, "--watch"])
     running: desk.hermesEnabled
     stdout: SplitParser { onRead: data => desk.handleHermes(data) }
-    onRunningChanged: if (!running) { desk.hermesState = ({}); desk.hermesReceived = 0 }
+    onRunningChanged: {
+      if (running) { desk.hermesStarted = Date.now(); return }
+      desk.collectorStopped(desk.hermesStarted, desk.hermesReceived)
+      desk.hermesState = ({}); desk.hermesReceived = 0; desk.hermesStarted = 0
+    }
   }
   onHermesEnabledChanged: hermesProcess.running = hermesEnabled
   onHermesHomeChanged: { hermesProcess.running = false; hermesState = ({}) }
@@ -126,7 +144,7 @@ Item {
     running: desk.hermesEnabled
     onTriggered: {
       if (!hermesProcess.running) hermesProcess.running = true
-      else if (desk.hermesReceived && Date.now() - desk.hermesReceived > 8000) hermesProcess.running = false
+      else if (desk.collectorStuck(desk.hermesStarted, desk.hermesReceived)) hermesProcess.running = false
     }
   }
 
@@ -135,6 +153,7 @@ Item {
   readonly property string corgiScript: decodeURIComponent(Qt.resolvedUrl("../bin/corgi-status.py").toString().replace(/^file:\/\//, ""))
   property var corgiState: ({})
   property double corgiReceived: 0
+  property double corgiStarted: 0
   function handleCorgi(line) {
     var next
     try { next = JSON.parse(line) } catch (e) { next = {} }
@@ -146,7 +165,11 @@ Item {
     command: desk.collector("corgi", desk.corgiScript, ["--watch"])
     running: desk.corgiEnabled
     stdout: SplitParser { onRead: data => desk.handleCorgi(data) }
-    onRunningChanged: if (!running) { desk.corgiState = ({}); desk.corgiReceived = 0 }
+    onRunningChanged: {
+      if (running) { desk.corgiStarted = Date.now(); return }
+      desk.collectorStopped(desk.corgiStarted, desk.corgiReceived)
+      desk.corgiState = ({}); desk.corgiReceived = 0; desk.corgiStarted = 0
+    }
   }
   onCorgiEnabledChanged: corgiProcess.running = corgiEnabled
   Timer {
@@ -155,7 +178,7 @@ Item {
     running: desk.corgiEnabled
     onTriggered: {
       if (!corgiProcess.running) corgiProcess.running = true
-      else if (desk.corgiReceived && Date.now() - desk.corgiReceived > 8000) corgiProcess.running = false
+      else if (desk.collectorStuck(desk.corgiStarted, desk.corgiReceived)) corgiProcess.running = false
     }
   }
 
@@ -166,6 +189,7 @@ Item {
   readonly property string opencodeScript: decodeURIComponent(Qt.resolvedUrl("../bin/opencode-status.py").toString().replace(/^file:\/\//, ""))
   property var opencodeState: ({})
   property double opencodeReceived: 0
+  property double opencodeStarted: 0
   function handleOpencode(line) {
     var next
     try { next = JSON.parse(line) } catch (e) { next = {} }
@@ -177,7 +201,11 @@ Item {
     command: desk.collector("opencode", desk.opencodeScript, ["--watch"])
     running: desk.opencodeEnabled
     stdout: SplitParser { onRead: data => desk.handleOpencode(data) }
-    onRunningChanged: if (!running) { desk.opencodeState = ({}); desk.opencodeReceived = 0 }
+    onRunningChanged: {
+      if (running) { desk.opencodeStarted = Date.now(); return }
+      desk.collectorStopped(desk.opencodeStarted, desk.opencodeReceived)
+      desk.opencodeState = ({}); desk.opencodeReceived = 0; desk.opencodeStarted = 0
+    }
   }
   onOpencodeEnabledChanged: opencodeProcess.running = opencodeEnabled
   Timer {
@@ -186,7 +214,7 @@ Item {
     running: desk.opencodeEnabled
     onTriggered: {
       if (!opencodeProcess.running) opencodeProcess.running = true
-      else if (desk.opencodeReceived && Date.now() - desk.opencodeReceived > 8000) opencodeProcess.running = false
+      else if (desk.collectorStuck(desk.opencodeStarted, desk.opencodeReceived)) opencodeProcess.running = false
     }
   }
 
