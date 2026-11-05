@@ -99,7 +99,7 @@ Item {
     y: card.notchH
     width: card.shapeW
     height: Math.max(0, card.visibleH - card.notchH)
-    radius: card.bubble ? island.s(10) : card.floating ? Style.cornerRadius : 0
+    radius: island && island.pixelStyle ? 0 : card.bubble ? island.s(10) : card.floating ? Style.cornerRadius : 0
     color: card.glassOn ? "transparent" : island.surface
     borderSpec: card.glassOn ? Border.flat("transparent", card.frame) : (card.critical && !card.flat) || !card.active ? Border.flat(card.frameColor, card.frame) : island.frameSpec
   }
@@ -329,7 +329,7 @@ Item {
         Rectangle {
           id: tile
           width: island.s(44); height: width
-          radius: card.soft ? island.s(6) : 0
+          radius: card.soft && !(island && island.pixelStyle) ? island.s(6) : 0
           color: card.mix(island.surface, card.ink, 0.22)
           readonly property string icon: island.notificationIcon(card.entry)
           Image {
@@ -397,7 +397,7 @@ Item {
             required property var modelData
             width: Math.max(island.s(84), label.implicitWidth + island.s(26))
             height: island.s(28)
-            radius: card.soft ? island.s(5) : 0
+            radius: card.soft && !(island && island.pixelStyle) ? island.s(5) : 0
             readonly property bool primary: !!modelData.primary
             readonly property color fill: primary ? (btnMouse.containsMouse ? Qt.lighter(island.accentColor, 1.12) : island.accentColor)
               : Util.alpha(island.fg, btnMouse.containsMouse ? 0.14 : 0.07)

@@ -78,6 +78,9 @@ Item {
   // only feed what is on screen stop probing then and probe again on wake.
   // A shell without Compositor.displaysOn counts as always awake.
   readonly property bool screensAwake: Commons.Compositor.displaysOn !== false
+  // The pixel style ([tusche] style = "pixel" in ~/.config/omarchy/shell.toml):
+  // square plates and cards, Tiny5 from the shell's own font token.
+  readonly property bool pixelStyle: String((Commons.Color.shellValues || {})["tusche.style"] || "") === "pixel"
   readonly property bool showMic: setting("mic", true) !== false
   readonly property var notchSize: null
   readonly property string idleFace: {

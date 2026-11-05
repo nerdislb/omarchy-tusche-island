@@ -388,7 +388,7 @@ Item {
             blobY: pad
             blobW: blob.width
             blobH: blob.height
-            radius: column.island.s(12)
+            radius: column.island && column.island.pixelStyle ? 0 : column.island.s(12)
             neck: slot.index === 0
             flare: column.island.s(14)
             barY: column.bloomMargin - y
@@ -415,7 +415,7 @@ Item {
             id: ghost
             visible: column.bloom && opacity > 0
             opacity: 0
-            radius: column.island.s(12)
+            radius: column.island && column.island.pixelStyle ? 0 : column.island.s(12)
             color: column.paper
           }
 
@@ -477,7 +477,7 @@ Item {
             y: slot.plateRect.y
             width: Math.max(1, slot.plateRect.w)
             height: Math.max(1, slot.plateRect.h)
-            radius: slot.morphFrom.h / 2 + (note.surfaceItem.radius - slot.morphFrom.h / 2) * slot.morphK
+            radius: column.island && column.island.pixelStyle ? 0 : slot.morphFrom.h / 2 + (note.surfaceItem.radius - slot.morphFrom.h / 2) * slot.morphK
             color: note.surfaceItem.color
             borderSpec: note.surfaceItem.borderSpec
             opacity: slot.fade

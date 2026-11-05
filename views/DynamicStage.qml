@@ -1,5 +1,6 @@
 import QtQuick
 import qs.Commons
+import qs.Commons as Commons
 import "Liquid.js" as L
 
 // The dynamic island on one bar (Island.qml `look: "dynamic"`; drawn over the
@@ -193,6 +194,10 @@ Item {
   property real pillW: 0
   property real pillH: 0
   property real pillR: 0
+  // The pixel style ([tusche] style = "pixel" in ~/.config/omarchy/shell.toml,
+  // read live): square plates that do not melt into each other.
+  readonly property bool pixel: String((Commons.Color.shellValues || {})["tusche.style"] || "") === "pixel"
+  onPixelChanged: wake()
   property real pillCx: 0
   // drawn: the content's opacities, the status crossfade
   property real compactAlpha: 1
@@ -355,7 +360,8 @@ Item {
   // The liquid shape and the input region from the drawn geometry.
   function draw() {
     var keyA = alertShown || leadFront ? 0.45 : 0.16
-    var boxes = [{ x: pillX, y: pillY, w: pillW, h: pillH, r: pillR, k: 0, a: 1, key: pillKey, keyAlpha: keyA }]
+    var px = stage.pixel
+    var boxes = [{ x: pillX, y: pillY, w: pillW, h: pillH, r: px ? 0 : pillR, k: 0, a: 1, key: pillKey, keyAlpha: keyA }]
     place(pillArea, pillX, pillY, pillW, pillH)
     var hits = [rowHitA, rowHitB, rowHitC, rowHitD, rowHitE, rowHitF]
     var h = 0
@@ -365,7 +371,7 @@ Item {
       var shown = row.ga > 0.001 && row.gw > 0.5 && row.gh > 0.5
       row.inShape = shown && boxes.length < 8
       if (row.inShape)
-        boxes.push({ x: row.gx, y: row.gy, w: row.gw, h: row.gh, r: row.gr, k: row.gk, a: row.ga, key: row.keyTone, keyAlpha: row.keyAlpha })
+        boxes.push({ x: row.gx, y: row.gy, w: row.gw, h: row.gh, r: px ? 0 : row.gr, k: px ? 0 : row.gk, a: row.ga, key: row.keyTone, keyAlpha: row.keyAlpha })
       if (shown && row.ga > 0.5 && h < hits.length) place(hits[h++], row.gx, row.gy, row.gw, row.gh)
     }
     for (; h < hits.length; h++) place(hits[h], 0, 0, 0, 0)
@@ -373,7 +379,7 @@ Item {
     for (var m = 0; m < 2; m++) {
       var c = minRep.itemAt(m)
       if (c && c.ga > 0.001 && c.gw > 0.5) {
-        boxes.push({ x: c.gx, y: c.gy, w: c.gw, h: c.gh, r: c.gh / 2, k: c.gk, a: c.ga, key: c.keyTone, keyAlpha: 0.45 })
+        boxes.push({ x: c.gx, y: c.gy, w: c.gw, h: c.gh, r: px ? 0 : c.gh / 2, k: px ? 0 : c.gk, a: c.ga, key: c.keyTone, keyAlpha: 0.45 })
         place(mins[m], c.gx, c.gy, c.ga > 0.5 ? c.gw : 0, c.gh)
       } else place(mins[m], 0, 0, 0, 0)
     }
@@ -888,7 +894,7 @@ Item {
       Rectangle {
         visible: !row.inShape && row.ga > 0.01 && row.phase !== "pill"
         x: row.gx; y: row.gy; width: row.gw; height: row.gh
-        radius: row.gr
+        radius: stage.pixel ? 0 : row.gr
         color: "#000000"
         opacity: row.ga
         border.width: 1
