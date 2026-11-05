@@ -74,6 +74,10 @@ Item {
   readonly property bool showCharging: setting("charging", true) !== false
   readonly property bool showTrackChange: setting("trackChange", true) !== false
   readonly property bool showRecording: setting("recording", true) !== false
+  // False while every screen is dark (DPMS off, lid closed): indicators that
+  // only feed what is on screen stop probing then and probe again on wake.
+  // A shell without Compositor.displaysOn counts as always awake.
+  readonly property bool screensAwake: Commons.Compositor.displaysOn !== false
   readonly property bool showMic: setting("mic", true) !== false
   readonly property var notchSize: null
   readonly property string idleFace: {
@@ -465,7 +469,7 @@ Item {
   Timer {
     interval: 350
     repeat: true
-    running: root.backlightDir !== "" && root.brightnessMax > 0 && root.showBrightness
+    running: root.backlightDir !== "" && root.brightnessMax > 0 && root.showBrightness && root.screensAwake
     onTriggered: {
       brightnessFile.reload()
       var raw = parseInt(brightnessFile.text(), 10)
@@ -508,7 +512,7 @@ Item {
   Timer {
     interval: 2000
     repeat: true
-    running: root.showRecording
+    running: root.showRecording && root.screensAwake
     triggeredOnStart: true
     onTriggered: if (!recordingProbe.running) recordingProbe.running = true
   }
@@ -946,7 +950,7 @@ Item {
   Timer {
     interval: 3000
     repeat: true
-    running: root.setting("camera", true) !== false
+    running: root.setting("camera", true) !== false && root.screensAwake
     triggeredOnStart: true
     onTriggered: if (!cameraProbe.running) cameraProbe.running = true
   }
