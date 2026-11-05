@@ -233,7 +233,14 @@ Item {
   readonly property bool shapeSettled: Math.abs(stage.w - s(viewSize.w)) < s(18)
     && Math.abs(stage.h - s(viewSize.h)) < s(12)
   function showing(name) { return view === name && shapeSettled }
-  function f(px) { return Math.max(6, Math.round(px * Style.fontScale * scaleFactor)) }
+  function f(px) {
+    var size = Math.max(6, Math.round(px * Style.fontScale * scaleFactor))
+    return pixelStyle ? pixelFontSize(size) : size
+  }
+  // Tiny5 sits on a grid of 8 px per em: only whole multiples keep every
+  // font pixel the same width (13 px gives 1.6-px pixels that run together).
+  // 16 is the smallest size the shell itself uses in the pixel style.
+  function pixelFontSize(size) { return Math.max(16, Math.round(size / 8) * 8) }
 
   // Nothing announces itself for the first moments after (re)load, so the
   // initial volume/brightness/battery reads do not pop HUDs.

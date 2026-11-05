@@ -467,7 +467,7 @@ BarWidget {
         textFormat: Text.PlainText
         renderType: Text.NativeRendering
         font.family: button.fontFamily
-        font.pixelSize: Math.round(button.fontSize * 0.8)
+        font.pixelSize: root.island && root.island.pixelStyle ? button.fontSize : Math.round(button.fontSize * 0.8)
         font.bold: true
         color: root.island ? root.island.accentColor : Commons.Color.accent
       }
