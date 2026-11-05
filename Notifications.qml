@@ -50,6 +50,16 @@ Item {
   property bool columnHovered: false
   readonly property int unread: Model.unreadCount(inbox)
   property bool doNotDisturb: false
+  // the screen is being recorded or shared: every banner waits in the inbox,
+  // and the ones on screen when it starts go there too
+  property bool capturing: false
+  onCapturingChanged: {
+    if (!capturing) return
+    if (line) retireLine()
+    var shown = banners
+    banners = []
+    shown.forEach(function(e) { if (!Model.isEphemeralApp(e.app)) addToInbox(e) })
+  }
   property int serial: 0
   property bool tearingDown: false
 
@@ -141,7 +151,7 @@ Item {
   }
 
   function admit(entry, n) {
-    if (doNotDisturb && !bypassesDnd(entry)) {
+    if (capturing || (doNotDisturb && !bypassesDnd(entry))) {
       // Silenced: no banner, straight to the inbox so nothing is missed.
       if (Model.isEphemeralApp(entry.app)) { if (n) n.tracked = false }
       else addToInbox(entry)
