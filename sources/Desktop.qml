@@ -81,10 +81,28 @@ Item {
     }
   }
 
+  // The collectors below print one JSON snapshot per line. tusche-agentd is
+  // one small native program with the same protocol (tusche-agentd hermes|
+  // corgi|opencode, same arguments); it runs when installed, bundled as
+  // bin/tusche-agentd or at ~/.local/bin/tusche-agentd, else the Python
+  // scripts in bin/ do. Setting "agentd": false keeps the Python scripts.
+  readonly property bool agentdEnabled: on("agentd")
+  readonly property string agentdBundled: decodeURIComponent(Qt.resolvedUrl("../bin/tusche-agentd").toString().replace(/^file:\/\//, ""))
+  function collector(name, script, args) {
+    if (!agentdEnabled) return ["python3", script].concat(args)
+    // $1 bundled binary, $2 collector, $3 Python script, then the arguments
+    // of either; exec leaves no shell behind.
+    return ["sh", "-c", 'b="$1" n="$2" s="$3"; shift 3; [ -x "$b" ] || b="$HOME/.local/bin/tusche-agentd"; '
+            + '[ -x "$b" ] && exec "$b" "$n" "$@"; exec python3 "$s" "$@"',
+            "tusche-agentd", agentdBundled, name, script].concat(args)
+  }
+  onAgentdEnabledChanged: { hermesProcess.running = false; corgiProcess.running = false; opencodeProcess.running = false }
+
   // Hermes collector is a child of this source, not an independent service.
   // It reads the existing turn marker and title metadata; no REST token needed.
   readonly property string hermesHome: String(island ? island.setting("hermesHome", "") : "")
     || Quickshell.env("HERMES_HOME") || (Quickshell.env("HOME") + "/.hermes")
+  readonly property string hermesScript: decodeURIComponent(Qt.resolvedUrl("../bin/hermes-status.py").toString().replace(/^file:\/\//, ""))
   property var hermesState: ({})
   property double hermesReceived: 0
   function handleHermes(line) {
@@ -95,8 +113,7 @@ Item {
   }
   Process {
     id: hermesProcess
-    command: ["python3", decodeURIComponent(Qt.resolvedUrl("../bin/hermes-status.py").toString().replace(/^file:\/\//, "")),
-              "--home", desk.hermesHome, "--watch"]
+    command: desk.collector("hermes", desk.hermesScript, ["--home", desk.hermesHome, "--watch"])
     running: desk.hermesEnabled
     stdout: SplitParser { onRead: data => desk.handleHermes(data) }
     onRunningChanged: if (!running) { desk.hermesState = ({}); desk.hermesReceived = 0 }
@@ -126,7 +143,7 @@ Item {
   }
   Process {
     id: corgiProcess
-    command: ["python3", desk.corgiScript, "--watch"]
+    command: desk.collector("corgi", desk.corgiScript, ["--watch"])
     running: desk.corgiEnabled
     stdout: SplitParser { onRead: data => desk.handleCorgi(data) }
     onRunningChanged: if (!running) { desk.corgiState = ({}); desk.corgiReceived = 0 }
@@ -142,8 +159,9 @@ Item {
     }
   }
 
-  // OpenCode: the running service's event stream (bin/opencode-status.py),
-  // session titles and states only; never starts the service.
+  // OpenCode: the running service's event stream (tusche-agentd opencode or
+  // bin/opencode-status.py), session titles and states only; never starts
+  // the service.
   readonly property bool opencodeEnabled: agentsEnabled && on("opencode")
   readonly property string opencodeScript: decodeURIComponent(Qt.resolvedUrl("../bin/opencode-status.py").toString().replace(/^file:\/\//, ""))
   property var opencodeState: ({})
@@ -156,7 +174,7 @@ Item {
   }
   Process {
     id: opencodeProcess
-    command: ["python3", desk.opencodeScript, "--watch"]
+    command: desk.collector("opencode", desk.opencodeScript, ["--watch"])
     running: desk.opencodeEnabled
     stdout: SplitParser { onRead: data => desk.handleOpencode(data) }
     onRunningChanged: if (!running) { desk.opencodeState = ({}); desk.opencodeReceived = 0 }
