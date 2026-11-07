@@ -73,6 +73,7 @@ STUBS = '''
   id: isl
   function s(px) { return px }
   function f(px) { return px }
+  function gf(px) { return px }
   property string fontFamily: "FONT"
   property string textFamily: "FONT"
   property color islandInk: "#efeaf6"
@@ -506,7 +507,7 @@ FloatingWindow {
 def run_scene(tmp, name, qml, env, timeout=120):
     scene_dir = tmp / f"scene-{name}"
     scene_dir.mkdir()
-    for item in ("views", "Commons", "IslandModel.js"):
+    for item in ("views", "Commons", "IslandModel.js", "assets"):
         src = tmp / item
         dst = scene_dir / item
         if src.is_dir():
@@ -526,7 +527,7 @@ def run_scene(tmp, name, qml, env, timeout=120):
     return proc.returncode, log.read_text()
 
 
-def run(shots=None):
+def run(shots=None, scenes=None):
     with tempfile.TemporaryDirectory(prefix="island-dynamic-", dir=os.environ.get("TMPDIR")) as tmp:
         tmp = Path(tmp)
         commons = tmp / "Commons"
@@ -542,10 +543,11 @@ import QtQuick
 QtObject { property bool reduceMotion: false; property int cornerRadius: 6; function space(n) { return n } function duration(n) { return reduceMotion ? 0 : n } }
 ''')
         shutil.copytree(ROOT / "views", tmp / "views")
+        shutil.copytree(ROOT / "assets", tmp / "assets")
         shutil.copy2(ROOT / "IslandModel.js", tmp / "IslandModel.js")
         env = {**os.environ, "QT_QPA_PLATFORM": "xcb", "QSG_RHI_BACKEND": "opengl", "LIBGL_ALWAYS_SOFTWARE": "1",
                "QT_LOGGING_RULES": "qml=true;qml.*=true;quickshell.dbus*=false", "QT_FORCE_STDERR_LOGGING": "1"}
-        scenes = {"liquid": LIQUID, "clock": CLOCK}
+        scenes = scenes or {"liquid": LIQUID, "clock": CLOCK}
         if shots:
             shots = Path(shots).resolve()
             shots.mkdir(parents=True, exist_ok=True)

@@ -278,6 +278,7 @@ FloatingWindow {
   property string textFamily: "sans"
   function s(px) { return px }
   function f(px) { return px }
+  function gf(px) { return px }
   function outputGlyph(n) { return "o" }
   function outputLabel(n) { return n.name }
   function selectOutput(n) { sink = n }
