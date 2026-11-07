@@ -1,0 +1,12 @@
+{
+  "render_node": "renderD129",
+  "compositor_pid": 3160151,
+  "shell_pid": 3160177,
+  "runtime": "/tmp/island-flavor-w7xd8ika/run",
+  "home": "/tmp/island-flavor-w7xd8ika/home",
+  "socket": "/tmp/island-flavor-w7xd8ika/run/umbriel-wayland-0.sock",
+  "dbus": "unix:path=/tmp/dbus-YFqivFjpCc,guid=fe89d84d38e8a6362febb6fa6aef8aa7",
+  "shell_source": "/home/nerdi/Data/Development/projects/omarchy-umbriel-pixel-20261104",
+  "island_source": "/home/nerdi/Data/Development/projects/tusche-island-looks-20261107",
+  "bar_source": "/home/nerdi/Data/Development/projects/tusche-bar-pixel-20261104"
+}

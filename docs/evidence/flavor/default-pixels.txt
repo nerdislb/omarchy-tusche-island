@@ -1,0 +1,1 @@
+PASS empty flavor is pixel-identical to d3dd40d: {"compact": {"identical": true, "difference_bounds": null}, "minimal": {"identical": true, "difference_bounds": null}, "expanded": {"identical": true, "difference_bounds": null}, "banner": {"identical": true, "difference_bounds": null}}

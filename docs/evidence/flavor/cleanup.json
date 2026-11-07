@@ -1,0 +1,10 @@
+{
+  "root": "/tmp/island-flavor-w7xd8ika",
+  "removed": true,
+  "owned_pids": [
+    3160151,
+    3160176,
+    3160177
+  ],
+  "all_reaped": true
+}

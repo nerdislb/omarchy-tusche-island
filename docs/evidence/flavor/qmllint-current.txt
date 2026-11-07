@@ -1,0 +1,747 @@
+Warning: Island.qml:187:11: Unqualified access [unqualified]
+    path: Commons.Color.currentThemePath + "/colors.toml"
+          ^^^^^^^
+Warning: Island.qml:192:13: Unqualified access [unqualified]
+    target: Commons.Color
+            ^^^^^^^
+Warning: Island.qml:292:53: Unqualified access [unqualified]
+        if (modelData.isPlaying && Model.candidates(root.players).indexOf(modelData) !== -1)
+                                                    ^^^^
+Info: Set "pragma ComponentBehavior: Bound" in order to use IDs from outer components in nested components.
+Suggested change:
+pragma ComponentBehavior: Bound
+import QtQuick
+Warning: Island.qml:293:11: Unqualified access [unqualified]
+          root.currentPlayerKey = Model.playerKey(modelData)
+          ^^^^
+Info: Set "pragma ComponentBehavior: Bound" in order to use IDs from outer components in nested components.
+Suggested change:
+pragma ComponentBehavior: Bound
+import QtQuick
+Warning: Island.qml:294:9: Unqualified access [unqualified]
+        root.playerTick++
+        ^^^^
+Info: Set "pragma ComponentBehavior: Bound" in order to use IDs from outer components in nested components.
+Suggested change:
+pragma ComponentBehavior: Bound
+import QtQuick
+Warning: Island.qml:296:40: Unqualified access [unqualified]
+      function onTrackTitleChanged() { root.playerTick++ }
+                                       ^^^^
+Info: Set "pragma ComponentBehavior: Bound" in order to use IDs from outer components in nested components.
+Suggested change:
+pragma ComponentBehavior: Bound
+import QtQuick
+Warning: Island.qml:297:41: Unqualified access [unqualified]
+      function onTrackArtistChanged() { root.playerTick++ }
+                                        ^^^^
+Info: Set "pragma ComponentBehavior: Bound" in order to use IDs from outer components in nested components.
+Suggested change:
+pragma ComponentBehavior: Bound
+import QtQuick
+Warning: Island.qml:1879:102: Unqualified access [unqualified]
+          exclusiveZone: win.exclusiveZone, corner: root.corner, topMargin: root.topMargin, gapsOut: Style.gapsOut },
+                                                                                                     ^^^^^
+Warning: Island.qml:1881:24: Unqualified access [unqualified]
+        reducedMotion: Style.reduceMotion,
+                       ^^^^^
+Warning: Island.qml:1989:22: Cannot assign binding of type Ui.BorderSurface to QQuickItem [incompatible-type]
+      Region { item: bubble; intersection: Intersection.Combine }
+                     ^^^^^^^
+Warning: Island.qml:2038:59: Unqualified access [unqualified]
+        Behavior on opacity { NumberAnimation { duration: Style.duration(160) } }
+                                                          ^^^^^
+Warning: Island.qml:2257:18: Unqualified access [unqualified]
+        visible: opacity > 0.01
+                 ^^^^^^^
+Info: opacity is a member of a parent element.
+      You can qualify the access with its id to avoid this warning.
+
+Suggested change:
+        visible: root.opacity > 0.01
+                 ^^^^^
+Warning: Island.qml:2266:59: Unqualified access [unqualified]
+        Behavior on opacity { NumberAnimation { duration: Style.duration(200) } }
+                                                          ^^^^^
+Warning: sources/Desktop.qml:57:13: Unqualified access [unqualified]
+      path: desk.socketPath
+            ^^^^
+Info: Set "pragma ComponentBehavior: Bound" in order to use IDs from outer components in nested components.
+Suggested change:
+pragma ComponentBehavior: Bound
+import QtQuick
+Warning: sources/Desktop.qml:60:24: Unqualified access [unqualified]
+        if (socket !== desk.sock) return
+                       ^^^^
+Info: Set "pragma ComponentBehavior: Bound" in order to use IDs from outer components in nested components.
+Suggested change:
+pragma ComponentBehavior: Bound
+import QtQuick
+Warning: sources/Desktop.qml:62:11: Unqualified access [unqualified]
+          desk.retryDelay = 3000
+          ^^^^
+Info: Set "pragma ComponentBehavior: Bound" in order to use IDs from outer components in nested components.
+Suggested change:
+pragma ComponentBehavior: Bound
+import QtQuick
+Warning: sources/Desktop.qml:66:11: Unqualified access [unqualified]
+          desk.fluxState = ({})
+          ^^^^
+Info: Set "pragma ComponentBehavior: Bound" in order to use IDs from outer components in nested components.
+Suggested change:
+pragma ComponentBehavior: Bound
+import QtQuick
+Warning: sources/Desktop.qml:58:45: Unqualified access [unqualified]
+      parser: SplitParser { onRead: data => desk.handle(data) }
+                                            ^^^^
+Info: Set "pragma ComponentBehavior: Bound" in order to use IDs from outer components in nested components.
+Suggested change:
+pragma ComponentBehavior: Bound
+import QtQuick
+Warning: sources/Desktop.qml:380:13: Unqualified access [unqualified]
+      path: desk.usageDir + "/" + modelData + ".json"
+            ^^^^
+Info: Set "pragma ComponentBehavior: Bound" in order to use IDs from outer components in nested components.
+Suggested change:
+pragma ComponentBehavior: Bound
+import QtQuick
+Warning: sources/Desktop.qml:384:17: Unqualified access [unqualified]
+      onLoaded: desk.setUsage(modelData, Model.usageLimits(text(), modelData))
+                ^^^^
+Info: Set "pragma ComponentBehavior: Bound" in order to use IDs from outer components in nested components.
+Suggested change:
+pragma ComponentBehavior: Bound
+import QtQuick
+Warning: sources/Desktop.qml:385:21: Unqualified access [unqualified]
+      onLoadFailed: desk.setUsage(modelData, [])
+                    ^^^^
+Info: Set "pragma ComponentBehavior: Bound" in order to use IDs from outer components in nested components.
+Suggested change:
+pragma ComponentBehavior: Bound
+import QtQuick
+Warning: views/DynamicAlert.qml:2:1: Warnings occurred while importing module "qs.Commons": [import]
+import qs.Commons
+^^^^^^
+---
+Warning: 2:1: Failed to import qs.Commons. Are your import paths set up properly? [import]
+---
+
+Warning: views/DynamicAlert.qml:25:32: Unqualified access [unqualified]
+  readonly property color dim: Util.alpha(ink, 0.62)
+                               ^^^^
+Warning: views/DynamicAlert.qml:123:25: Unqualified access [unqualified]
+        width: Math.max(view.s(100), label.implicitWidth + view.s(28))
+                        ^^^^
+Info: Set "pragma ComponentBehavior: Bound" in order to use IDs from outer components in nested components.
+Suggested change:
+pragma ComponentBehavior: Bound
+import QtQuick
+Warning: views/DynamicAlert.qml:123:60: Unqualified access [unqualified]
+        width: Math.max(view.s(100), label.implicitWidth + view.s(28))
+                                                           ^^^^
+Info: Set "pragma ComponentBehavior: Bound" in order to use IDs from outer components in nested components.
+Suggested change:
+pragma ComponentBehavior: Bound
+import QtQuick
+Warning: views/DynamicAlert.qml:124:17: Unqualified access [unqualified]
+        height: view.s(24)
+                ^^^^
+Info: Set "pragma ComponentBehavior: Bound" in order to use IDs from outer components in nested components.
+Suggested change:
+pragma ComponentBehavior: Bound
+import QtQuick
+Warning: views/DynamicAlert.qml:126:26: Unqualified access [unqualified]
+        color: primary ? Util.alpha(view.tone, area.containsMouse ? 0.32 : 0.22)
+                         ^^^^
+Warning: views/DynamicAlert.qml:126:37: Unqualified access [unqualified]
+        color: primary ? Util.alpha(view.tone, area.containsMouse ? 0.32 : 0.22)
+                                    ^^^^
+Info: Set "pragma ComponentBehavior: Bound" in order to use IDs from outer components in nested components.
+Suggested change:
+pragma ComponentBehavior: Bound
+import QtQuick
+Warning: views/DynamicAlert.qml:127:13: Unqualified access [unqualified]
+          : Util.alpha(view.ink, area.containsMouse ? 0.16 : 0.10)
+            ^^^^
+Warning: views/DynamicAlert.qml:127:24: Unqualified access [unqualified]
+          : Util.alpha(view.ink, area.containsMouse ? 0.16 : 0.10)
+                       ^^^^
+Info: Set "pragma ComponentBehavior: Bound" in order to use IDs from outer components in nested components.
+Suggested change:
+pragma ComponentBehavior: Bound
+import QtQuick
+Warning: views/DynamicAlert.qml:137:32: Unqualified access [unqualified]
+          color: btn.primary ? view.tone : view.ink
+                               ^^^^
+Info: Set "pragma ComponentBehavior: Bound" in order to use IDs from outer components in nested components.
+Suggested change:
+pragma ComponentBehavior: Bound
+import QtQuick
+Warning: views/DynamicAlert.qml:137:44: Unqualified access [unqualified]
+          color: btn.primary ? view.tone : view.ink
+                                           ^^^^
+Info: Set "pragma ComponentBehavior: Bound" in order to use IDs from outer components in nested components.
+Suggested change:
+pragma ComponentBehavior: Bound
+import QtQuick
+Warning: views/DynamicAlert.qml:134:24: Unqualified access [unqualified]
+          font.family: view.family
+                       ^^^^
+Info: Set "pragma ComponentBehavior: Bound" in order to use IDs from outer components in nested components.
+Suggested change:
+pragma ComponentBehavior: Bound
+import QtQuick
+Warning: views/DynamicAlert.qml:135:27: Unqualified access [unqualified]
+          font.pixelSize: view.f(12)
+                          ^^^^
+Info: Set "pragma ComponentBehavior: Bound" in order to use IDs from outer components in nested components.
+Suggested change:
+pragma ComponentBehavior: Bound
+import QtQuick
+Warning: views/DynamicAlert.qml:144:22: Unqualified access [unqualified]
+          onClicked: view.action(btn.modelData.id)
+                     ^^^^
+Info: Set "pragma ComponentBehavior: Bound" in order to use IDs from outer components in nested components.
+Suggested change:
+pragma ComponentBehavior: Bound
+import QtQuick
+Warning: views/DynamicNote.qml:31:32: Unqualified access [unqualified]
+  readonly property color dim: Util.alpha(ink, 0.62)
+                               ^^^^
+Warning: views/DynamicNote.qml:78:22: Unqualified access [unqualified]
+    property real d: card.tileD
+                     ^^^^
+Info: Set "pragma ComponentBehavior: Bound" in order to use IDs from outer components in nested components.
+Suggested change:
+pragma ComponentBehavior: Bound
+import QtQuick
+Warning: views/DynamicNote.qml:79:28: Unqualified access [unqualified]
+    property real glyphPx: card.gf(18)
+                           ^^^^
+Info: Set "pragma ComponentBehavior: Bound" in order to use IDs from outer components in nested components.
+Suggested change:
+pragma ComponentBehavior: Bound
+import QtQuick
+Warning: views/DynamicNote.qml:81:36: Unqualified access [unqualified]
+    readonly property string icon: card.island && card.entry ? card.island.notificationIcon(card.entry) : ""
+                                   ^^^^
+Info: Set "pragma ComponentBehavior: Bound" in order to use IDs from outer components in nested components.
+Suggested change:
+pragma ComponentBehavior: Bound
+import QtQuick
+Warning: views/DynamicNote.qml:81:51: Unqualified access [unqualified]
+    readonly property string icon: card.island && card.entry ? card.island.notificationIcon(card.entry) : ""
+                                                  ^^^^
+Info: Set "pragma ComponentBehavior: Bound" in order to use IDs from outer components in nested components.
+Suggested change:
+pragma ComponentBehavior: Bound
+import QtQuick
+Warning: views/DynamicNote.qml:81:64: Unqualified access [unqualified]
+    readonly property string icon: card.island && card.entry ? card.island.notificationIcon(card.entry) : ""
+                                                               ^^^^
+Info: Set "pragma ComponentBehavior: Bound" in order to use IDs from outer components in nested components.
+Suggested change:
+pragma ComponentBehavior: Bound
+import QtQuick
+Warning: views/DynamicNote.qml:81:93: Unqualified access [unqualified]
+    readonly property string icon: card.island && card.entry ? card.island.notificationIcon(card.entry) : ""
+                                                                                            ^^^^
+Info: Set "pragma ComponentBehavior: Bound" in order to use IDs from outer components in nested components.
+Suggested change:
+pragma ComponentBehavior: Bound
+import QtQuick
+Warning: views/DynamicNote.qml:83:22: Unqualified access [unqualified]
+    color: hasIcon ? Util.alpha(card.tone, 0.22) : card.tone
+                     ^^^^
+Warning: views/DynamicNote.qml:83:33: Unqualified access [unqualified]
+    color: hasIcon ? Util.alpha(card.tone, 0.22) : card.tone
+                                ^^^^
+Info: Set "pragma ComponentBehavior: Bound" in order to use IDs from outer components in nested components.
+Suggested change:
+pragma ComponentBehavior: Bound
+import QtQuick
+Warning: views/DynamicNote.qml:83:52: Unqualified access [unqualified]
+    color: hasIcon ? Util.alpha(card.tone, 0.22) : card.tone
+                                                   ^^^^
+Info: Set "pragma ComponentBehavior: Bound" in order to use IDs from outer components in nested components.
+Suggested change:
+pragma ComponentBehavior: Bound
+import QtQuick
+Warning: views/DynamicNote.qml:98:13: Unqualified access [unqualified]
+      text: card.entry && card.entry.glyph ? card.entry.glyph : (card.critical ? "\u{f0ecc}" : "\u{f009a}")
+            ^^^^
+Info: Set "pragma ComponentBehavior: Bound" in order to use IDs from outer components in nested components.
+Suggested change:
+pragma ComponentBehavior: Bound
+import QtQuick
+Warning: views/DynamicNote.qml:98:27: Unqualified access [unqualified]
+      text: card.entry && card.entry.glyph ? card.entry.glyph : (card.critical ? "\u{f0ecc}" : "\u{f009a}")
+                          ^^^^
+Info: Set "pragma ComponentBehavior: Bound" in order to use IDs from outer components in nested components.
+Suggested change:
+pragma ComponentBehavior: Bound
+import QtQuick
+Warning: views/DynamicNote.qml:98:46: Unqualified access [unqualified]
+      text: card.entry && card.entry.glyph ? card.entry.glyph : (card.critical ? "\u{f0ecc}" : "\u{f009a}")
+                                             ^^^^
+Info: Set "pragma ComponentBehavior: Bound" in order to use IDs from outer components in nested components.
+Suggested change:
+pragma ComponentBehavior: Bound
+import QtQuick
+Warning: views/DynamicNote.qml:98:66: Unqualified access [unqualified]
+      text: card.entry && card.entry.glyph ? card.entry.glyph : (card.critical ? "\u{f0ecc}" : "\u{f009a}")
+                                                                 ^^^^
+Info: Set "pragma ComponentBehavior: Bound" in order to use IDs from outer components in nested components.
+Suggested change:
+pragma ComponentBehavior: Bound
+import QtQuick
+Warning: views/DynamicNote.qml:101:20: Unqualified access [unqualified]
+      font.family: card.family
+                   ^^^^
+Info: Set "pragma ComponentBehavior: Bound" in order to use IDs from outer components in nested components.
+Suggested change:
+pragma ComponentBehavior: Bound
+import QtQuick
+Warning: views/DynamicNote.qml:206:27: Unqualified access [unqualified]
+          width: Math.max(card.s(88), label.implicitWidth + card.s(28))
+                          ^^^^
+Info: Set "pragma ComponentBehavior: Bound" in order to use IDs from outer components in nested components.
+Suggested change:
+pragma ComponentBehavior: Bound
+import QtQuick
+Warning: views/DynamicNote.qml:206:61: Unqualified access [unqualified]
+          width: Math.max(card.s(88), label.implicitWidth + card.s(28))
+                                                            ^^^^
+Info: Set "pragma ComponentBehavior: Bound" in order to use IDs from outer components in nested components.
+Suggested change:
+pragma ComponentBehavior: Bound
+import QtQuick
+Warning: views/DynamicNote.qml:207:19: Unqualified access [unqualified]
+          height: card.s(26)
+                  ^^^^
+Info: Set "pragma ComponentBehavior: Bound" in order to use IDs from outer components in nested components.
+Suggested change:
+pragma ComponentBehavior: Bound
+import QtQuick
+Warning: views/DynamicNote.qml:209:28: Unqualified access [unqualified]
+          color: primary ? Util.alpha(card.tone, btnArea.containsMouse ? 0.32 : 0.22)
+                           ^^^^
+Warning: views/DynamicNote.qml:209:39: Unqualified access [unqualified]
+          color: primary ? Util.alpha(card.tone, btnArea.containsMouse ? 0.32 : 0.22)
+                                      ^^^^
+Info: Set "pragma ComponentBehavior: Bound" in order to use IDs from outer components in nested components.
+Suggested change:
+pragma ComponentBehavior: Bound
+import QtQuick
+Warning: views/DynamicNote.qml:210:15: Unqualified access [unqualified]
+            : Util.alpha(card.ink, btnArea.containsMouse ? 0.16 : 0.10)
+              ^^^^
+Warning: views/DynamicNote.qml:210:26: Unqualified access [unqualified]
+            : Util.alpha(card.ink, btnArea.containsMouse ? 0.16 : 0.10)
+                         ^^^^
+Info: Set "pragma ComponentBehavior: Bound" in order to use IDs from outer components in nested components.
+Suggested change:
+pragma ComponentBehavior: Bound
+import QtQuick
+Warning: views/DynamicNote.qml:220:34: Unqualified access [unqualified]
+            color: btn.primary ? card.tone : card.ink
+                                 ^^^^
+Info: Set "pragma ComponentBehavior: Bound" in order to use IDs from outer components in nested components.
+Suggested change:
+pragma ComponentBehavior: Bound
+import QtQuick
+Warning: views/DynamicNote.qml:220:46: Unqualified access [unqualified]
+            color: btn.primary ? card.tone : card.ink
+                                             ^^^^
+Info: Set "pragma ComponentBehavior: Bound" in order to use IDs from outer components in nested components.
+Suggested change:
+pragma ComponentBehavior: Bound
+import QtQuick
+Warning: views/DynamicNote.qml:217:26: Unqualified access [unqualified]
+            font.family: card.family
+                         ^^^^
+Info: Set "pragma ComponentBehavior: Bound" in order to use IDs from outer components in nested components.
+Suggested change:
+pragma ComponentBehavior: Bound
+import QtQuick
+Warning: views/DynamicNote.qml:218:29: Unqualified access [unqualified]
+            font.pixelSize: card.f(12)
+                            ^^^^
+Info: Set "pragma ComponentBehavior: Bound" in order to use IDs from outer components in nested components.
+Suggested change:
+pragma ComponentBehavior: Bound
+import QtQuick
+Warning: views/DynamicNote.qml:229:33: Unqualified access [unqualified]
+              if (k === "open") card.opened()
+                                ^^^^
+Info: Set "pragma ComponentBehavior: Bound" in order to use IDs from outer components in nested components.
+Suggested change:
+pragma ComponentBehavior: Bound
+import QtQuick
+Warning: views/DynamicNote.qml:230:39: Unqualified access [unqualified]
+              else if (k === "later") card.later()
+                                      ^^^^
+Info: Set "pragma ComponentBehavior: Bound" in order to use IDs from outer components in nested components.
+Suggested change:
+pragma ComponentBehavior: Bound
+import QtQuick
+Warning: views/DynamicNote.qml:231:41: Unqualified access [unqualified]
+              else if (k === "dismiss") card.dismissed()
+                                        ^^^^
+Info: Set "pragma ComponentBehavior: Bound" in order to use IDs from outer components in nested components.
+Suggested change:
+pragma ComponentBehavior: Bound
+import QtQuick
+Warning: views/DynamicNote.qml:232:20: Unqualified access [unqualified]
+              else card.action(btn.modelData.id)
+                   ^^^^
+Info: Set "pragma ComponentBehavior: Bound" in order to use IDs from outer components in nested components.
+Suggested change:
+pragma ComponentBehavior: Bound
+import QtQuick
+Warning: views/DynamicStage.qml:884:40: Unqualified access [unqualified]
+          if (t >= L.tune.swellHold || stage.instant) pour()
+                                       ^^^^^
+Info: Set "pragma ComponentBehavior: Bound" in order to use IDs from outer components in nested components.
+Suggested change:
+pragma ComponentBehavior: Bound
+import QtQuick
+Warning: views/DynamicStage.qml:887:11: Unqualified access [unqualified]
+          stage.go(sp.cy, cy); stage.go(sp.h, restH); stage.go(sp.w, stage.cardW); stage.go(sp.cx, stage.cardCx)
+          ^^^^^
+Info: Set "pragma ComponentBehavior: Bound" in order to use IDs from outer components in nested components.
+Suggested change:
+pragma ComponentBehavior: Bound
+import QtQuick
+Warning: views/DynamicStage.qml:887:32: Unqualified access [unqualified]
+          stage.go(sp.cy, cy); stage.go(sp.h, restH); stage.go(sp.w, stage.cardW); stage.go(sp.cx, stage.cardCx)
+                               ^^^^^
+Info: Set "pragma ComponentBehavior: Bound" in order to use IDs from outer components in nested components.
+Suggested change:
+pragma ComponentBehavior: Bound
+import QtQuick
+Warning: views/DynamicStage.qml:887:55: Unqualified access [unqualified]
+          stage.go(sp.cy, cy); stage.go(sp.h, restH); stage.go(sp.w, stage.cardW); stage.go(sp.cx, stage.cardCx)
+                                                      ^^^^^
+Info: Set "pragma ComponentBehavior: Bound" in order to use IDs from outer components in nested components.
+Suggested change:
+pragma ComponentBehavior: Bound
+import QtQuick
+Warning: views/DynamicStage.qml:887:70: Unqualified access [unqualified]
+          stage.go(sp.cy, cy); stage.go(sp.h, restH); stage.go(sp.w, stage.cardW); stage.go(sp.cx, stage.cardCx)
+                                                                     ^^^^^
+Info: Set "pragma ComponentBehavior: Bound" in order to use IDs from outer components in nested components.
+Suggested change:
+pragma ComponentBehavior: Bound
+import QtQuick
+Warning: views/DynamicStage.qml:887:84: Unqualified access [unqualified]
+          stage.go(sp.cy, cy); stage.go(sp.h, restH); stage.go(sp.w, stage.cardW); stage.go(sp.cx, stage.cardCx)
+                                                                                   ^^^^^
+Info: Set "pragma ComponentBehavior: Bound" in order to use IDs from outer components in nested components.
+Suggested change:
+pragma ComponentBehavior: Bound
+import QtQuick
+Warning: views/DynamicStage.qml:887:100: Unqualified access [unqualified]
+          stage.go(sp.cy, cy); stage.go(sp.h, restH); stage.go(sp.w, stage.cardW); stage.go(sp.cx, stage.cardCx)
+                                                                                                   ^^^^^
+Info: Set "pragma ComponentBehavior: Bound" in order to use IDs from outer components in nested components.
+Suggested change:
+pragma ComponentBehavior: Bound
+import QtQuick
+Warning: views/DynamicStage.qml:888:72: Unqualified access [unqualified]
+          if (!neckFree && t >= L.tune.neckRelease) { neckFree = true; stage.go(sp.neck, 0, L.tune.neckResponse, 0.99) }
+                                                                       ^^^^^
+Info: Set "pragma ComponentBehavior: Bound" in order to use IDs from outer components in nested components.
+Suggested change:
+pragma ComponentBehavior: Bound
+import QtQuick
+Warning: views/DynamicStage.qml:889:91: Unqualified access [unqualified]
+          if (!textIn && t >= L.tune.textAfter && sp.h.x > 0.75 * restH) { textIn = true; stage.fadeTo(sp.text, 1, 0.20) }
+                                                                                          ^^^^^
+Info: Set "pragma ComponentBehavior: Bound" in order to use IDs from outer components in nested components.
+Suggested change:
+pragma ComponentBehavior: Bound
+import QtQuick
+Warning: views/DynamicStage.qml:895:11: Unqualified access [unqualified]
+          stage.go(sp.cy, cy); stage.go(sp.h, restH); stage.go(sp.w, stage.cardW); stage.go(sp.cx, stage.cardCx)
+          ^^^^^
+Info: Set "pragma ComponentBehavior: Bound" in order to use IDs from outer components in nested components.
+Suggested change:
+pragma ComponentBehavior: Bound
+import QtQuick
+Warning: views/DynamicStage.qml:895:32: Unqualified access [unqualified]
+          stage.go(sp.cy, cy); stage.go(sp.h, restH); stage.go(sp.w, stage.cardW); stage.go(sp.cx, stage.cardCx)
+                               ^^^^^
+Info: Set "pragma ComponentBehavior: Bound" in order to use IDs from outer components in nested components.
+Suggested change:
+pragma ComponentBehavior: Bound
+import QtQuick
+Warning: views/DynamicStage.qml:895:55: Unqualified access [unqualified]
+          stage.go(sp.cy, cy); stage.go(sp.h, restH); stage.go(sp.w, stage.cardW); stage.go(sp.cx, stage.cardCx)
+                                                      ^^^^^
+Info: Set "pragma ComponentBehavior: Bound" in order to use IDs from outer components in nested components.
+Suggested change:
+pragma ComponentBehavior: Bound
+import QtQuick
+Warning: views/DynamicStage.qml:895:70: Unqualified access [unqualified]
+          stage.go(sp.cy, cy); stage.go(sp.h, restH); stage.go(sp.w, stage.cardW); stage.go(sp.cx, stage.cardCx)
+                                                                     ^^^^^
+Info: Set "pragma ComponentBehavior: Bound" in order to use IDs from outer components in nested components.
+Suggested change:
+pragma ComponentBehavior: Bound
+import QtQuick
+Warning: views/DynamicStage.qml:895:84: Unqualified access [unqualified]
+          stage.go(sp.cy, cy); stage.go(sp.h, restH); stage.go(sp.w, stage.cardW); stage.go(sp.cx, stage.cardCx)
+                                                                                   ^^^^^
+Info: Set "pragma ComponentBehavior: Bound" in order to use IDs from outer components in nested components.
+Suggested change:
+pragma ComponentBehavior: Bound
+import QtQuick
+Warning: views/DynamicStage.qml:895:100: Unqualified access [unqualified]
+          stage.go(sp.cy, cy); stage.go(sp.h, restH); stage.go(sp.w, stage.cardW); stage.go(sp.cx, stage.cardCx)
+                                                                                                   ^^^^^
+Info: Set "pragma ComponentBehavior: Bound" in order to use IDs from outer components in nested components.
+Suggested change:
+pragma ComponentBehavior: Bound
+import QtQuick
+Warning: views/DynamicStage.qml:902:11: Unqualified access [unqualified]
+          stage.go(sp.cy, h1.cy); stage.go(sp.cx, h1.cx)
+          ^^^^^
+Info: Set "pragma ComponentBehavior: Bound" in order to use IDs from outer components in nested components.
+Suggested change:
+pragma ComponentBehavior: Bound
+import QtQuick
+Warning: views/DynamicStage.qml:902:35: Unqualified access [unqualified]
+          stage.go(sp.cy, h1.cy); stage.go(sp.cx, h1.cx)
+                                  ^^^^^
+Info: Set "pragma ComponentBehavior: Bound" in order to use IDs from outer components in nested components.
+Suggested change:
+pragma ComponentBehavior: Bound
+import QtQuick
+Warning: views/DynamicStage.qml:903:39: Unqualified access [unqualified]
+          if (!swallowed && sp.cy.x < stage.pillY + stage.pillH) {
+                                      ^^^^^
+Info: Set "pragma ComponentBehavior: Bound" in order to use IDs from outer components in nested components.
+Suggested change:
+pragma ComponentBehavior: Bound
+import QtQuick
+Warning: views/DynamicStage.qml:903:53: Unqualified access [unqualified]
+          if (!swallowed && sp.cy.x < stage.pillY + stage.pillH) {
+                                                    ^^^^^
+Info: Set "pragma ComponentBehavior: Bound" in order to use IDs from outer components in nested components.
+Suggested change:
+pragma ComponentBehavior: Bound
+import QtQuick
+Warning: views/DynamicStage.qml:905:13: Unqualified access [unqualified]
+            stage.go(sp.neck, 0, 0.30, 0.99)
+            ^^^^^
+Info: Set "pragma ComponentBehavior: Bound" in order to use IDs from outer components in nested components.
+Suggested change:
+pragma ComponentBehavior: Bound
+import QtQuick
+Warning: views/DynamicStage.qml:906:13: Unqualified access [unqualified]
+            stage.gulp()
+            ^^^^^
+Info: Set "pragma ComponentBehavior: Bound" in order to use IDs from outer components in nested components.
+Suggested change:
+pragma ComponentBehavior: Bound
+import QtQuick
+Warning: views/DynamicStage.qml:920:78: Unqualified access [unqualified]
+        stretchK = phase === "pour" || phase === "draw" ? L.stretch(sp.cy.v, stage.unit) : 0
+                                                                             ^^^^^
+Info: Set "pragma ComponentBehavior: Bound" in order to use IDs from outer components in nested components.
+Suggested change:
+pragma ComponentBehavior: Bound
+import QtQuick
+Warning: views/DynamicStage.qml:925:54: Unqualified access [unqualified]
+        gr = Math.min(kind === "note" && shownOpen ? stage.s(24) : stage.s(20), hh, hw)
+                                                     ^^^^^
+Info: Set "pragma ComponentBehavior: Bound" in order to use IDs from outer components in nested components.
+Suggested change:
+pragma ComponentBehavior: Bound
+import QtQuick
+Warning: views/DynamicStage.qml:925:68: Unqualified access [unqualified]
+        gr = Math.min(kind === "note" && shownOpen ? stage.s(24) : stage.s(20), hh, hw)
+                                                                   ^^^^^
+Info: Set "pragma ComponentBehavior: Bound" in order to use IDs from outer components in nested components.
+Suggested change:
+pragma ComponentBehavior: Bound
+import QtQuick
+Warning: views/DynamicStage.qml:746:29: Unqualified access [unqualified]
+        sp = { cx: L.spring(stage.cardCx), cy: L.spring(0), w: L.spring(0), h: L.spring(0), neck: L.spring(0),
+                            ^^^^^
+Info: Set "pragma ComponentBehavior: Bound" in order to use IDs from outer components in nested components.
+Suggested change:
+pragma ComponentBehavior: Bound
+import QtQuick
+Warning: views/DynamicStage.qml:751:51: Unqualified access [unqualified]
+      Component.onDestruction: if (note.hovering) stage.hoverCount = Math.max(0, stage.hoverCount - 1)
+                                                  ^^^^^
+Info: Set "pragma ComponentBehavior: Bound" in order to use IDs from outer components in nested components.
+Suggested change:
+pragma ComponentBehavior: Bound
+import QtQuick
+Warning: views/DynamicStage.qml:751:82: Unqualified access [unqualified]
+      Component.onDestruction: if (note.hovering) stage.hoverCount = Math.max(0, stage.hoverCount - 1)
+                                                                                 ^^^^^
+Info: Set "pragma ComponentBehavior: Bound" in order to use IDs from outer components in nested components.
+Suggested change:
+pragma ComponentBehavior: Bound
+import QtQuick
+Warning: views/DynamicStage.qml:943:17: Unqualified access [unqualified]
+        radius: stage.pixel ? 0 : row.gr
+                ^^^^^
+Info: Set "pragma ComponentBehavior: Bound" in order to use IDs from outer components in nested components.
+Suggested change:
+pragma ComponentBehavior: Bound
+import QtQuick
+Warning: views/DynamicStage.qml:947:23: Unqualified access [unqualified]
+        border.color: Util.alpha(row.keyTone, row.keyAlpha)
+                      ^^^^
+Warning: views/DynamicStage.qml:951:17: Unqualified access [unqualified]
+        flavor: stage.flavor
+                ^^^^^
+Info: Set "pragma ComponentBehavior: Bound" in order to use IDs from outer components in nested components.
+Suggested change:
+pragma ComponentBehavior: Bound
+import QtQuick
+Warning: views/DynamicStage.qml:952:111: Unqualified access [unqualified]
+        active: note.completion && row.shownOpen && row.phase !== "pill" && row.ga > 0.01 && row.gt > 0.01 && stage.live
+                                                                                                              ^^^^^
+Info: Set "pragma ComponentBehavior: Bound" in order to use IDs from outer components in nested components.
+Suggested change:
+pragma ComponentBehavior: Bound
+import QtQuick
+Warning: views/DynamicStage.qml:954:18: Unqualified access [unqualified]
+        reduced: stage.reduced
+                 ^^^^^
+Info: Set "pragma ComponentBehavior: Bound" in order to use IDs from outer components in nested components.
+Suggested change:
+pragma ComponentBehavior: Bound
+import QtQuick
+Warning: views/DynamicStage.qml:955:17: Unqualified access [unqualified]
+        accent: stage.island && stage.island.accentColor !== undefined ? stage.island.accentColor : stage.ink
+                ^^^^^
+Info: Set "pragma ComponentBehavior: Bound" in order to use IDs from outer components in nested components.
+Suggested change:
+pragma ComponentBehavior: Bound
+import QtQuick
+Warning: views/DynamicStage.qml:955:33: Unqualified access [unqualified]
+        accent: stage.island && stage.island.accentColor !== undefined ? stage.island.accentColor : stage.ink
+                                ^^^^^
+Info: Set "pragma ComponentBehavior: Bound" in order to use IDs from outer components in nested components.
+Suggested change:
+pragma ComponentBehavior: Bound
+import QtQuick
+Warning: views/DynamicStage.qml:955:74: Unqualified access [unqualified]
+        accent: stage.island && stage.island.accentColor !== undefined ? stage.island.accentColor : stage.ink
+                                                                         ^^^^^
+Info: Set "pragma ComponentBehavior: Bound" in order to use IDs from outer components in nested components.
+Suggested change:
+pragma ComponentBehavior: Bound
+import QtQuick
+Warning: views/DynamicStage.qml:955:101: Unqualified access [unqualified]
+        accent: stage.island && stage.island.accentColor !== undefined ? stage.island.accentColor : stage.ink
+                                                                                                    ^^^^^
+Info: Set "pragma ComponentBehavior: Bound" in order to use IDs from outer components in nested components.
+Suggested change:
+pragma ComponentBehavior: Bound
+import QtQuick
+Warning: views/DynamicStage.qml:956:15: Unqualified access [unqualified]
+        unit: stage.unit
+              ^^^^^
+Info: Set "pragma ComponentBehavior: Bound" in order to use IDs from outer components in nested components.
+Suggested change:
+pragma ComponentBehavior: Bound
+import QtQuick
+Warning: views/DynamicStage.qml:958:30: Unqualified access [unqualified]
+        stampY: height / 2 + stage.s(8)
+                             ^^^^^
+Info: Set "pragma ComponentBehavior: Bound" in order to use IDs from outer components in nested components.
+Suggested change:
+pragma ComponentBehavior: Bound
+import QtQuick
+Warning: views/DynamicStage.qml:964:17: Unqualified access [unqualified]
+        island: stage.island
+                ^^^^^
+Info: Set "pragma ComponentBehavior: Bound" in order to use IDs from outer components in nested components.
+Suggested change:
+pragma ComponentBehavior: Bound
+import QtQuick
+Warning: views/DynamicStage.qml:967:20: Unqualified access [unqualified]
+        moreCount: stage.rows ? stage.rows.hiddenCount : 0
+                   ^^^^^
+Info: Set "pragma ComponentBehavior: Bound" in order to use IDs from outer components in nested components.
+Suggested change:
+pragma ComponentBehavior: Bound
+import QtQuick
+Warning: views/DynamicStage.qml:967:33: Unqualified access [unqualified]
+        moreCount: stage.rows ? stage.rows.hiddenCount : 0
+                                ^^^^^
+Info: Set "pragma ComponentBehavior: Bound" in order to use IDs from outer components in nested components.
+Suggested change:
+pragma ComponentBehavior: Bound
+import QtQuick
+Warning: views/DynamicStage.qml:971:14: Unqualified access [unqualified]
+        ink: stage.ink
+             ^^^^^
+Info: Set "pragma ComponentBehavior: Bound" in order to use IDs from outer components in nested components.
+Suggested change:
+pragma ComponentBehavior: Bound
+import QtQuick
+Warning: views/DynamicStage.qml:974:16: Unqualified access [unqualified]
+        width: stage.cardW
+               ^^^^^
+Info: Set "pragma ComponentBehavior: Bound" in order to use IDs from outer components in nested components.
+Suggested change:
+pragma ComponentBehavior: Bound
+import QtQuick
+Warning: views/DynamicStage.qml:978:28: Unqualified access [unqualified]
+        onHoveringChanged: stage.hoverCount = Math.max(0, stage.hoverCount + (hovering ? 1 : -1))
+                           ^^^^^
+Info: Set "pragma ComponentBehavior: Bound" in order to use IDs from outer components in nested components.
+Suggested change:
+pragma ComponentBehavior: Bound
+import QtQuick
+Warning: views/DynamicStage.qml:978:59: Unqualified access [unqualified]
+        onHoveringChanged: stage.hoverCount = Math.max(0, stage.hoverCount + (hovering ? 1 : -1))
+                                                          ^^^^^
+Info: Set "pragma ComponentBehavior: Bound" in order to use IDs from outer components in nested components.
+Suggested change:
+pragma ComponentBehavior: Bound
+import QtQuick
+Warning: views/DynamicStage.qml:979:19: Unqualified access [unqualified]
+        onOpened: stage.noteOpened(row.key)
+                  ^^^^^
+Info: Set "pragma ComponentBehavior: Bound" in order to use IDs from outer components in nested components.
+Suggested change:
+pragma ComponentBehavior: Bound
+import QtQuick
+Warning: views/DynamicStage.qml:980:22: Unqualified access [unqualified]
+        onDismissed: stage.noteDismissed(row.key)
+                     ^^^^^
+Info: Set "pragma ComponentBehavior: Bound" in order to use IDs from outer components in nested components.
+Suggested change:
+pragma ComponentBehavior: Bound
+import QtQuick
+Warning: views/DynamicStage.qml:981:18: Unqualified access [unqualified]
+        onLater: stage.noteLater(row.key)
+                 ^^^^^
+Info: Set "pragma ComponentBehavior: Bound" in order to use IDs from outer components in nested components.
+Suggested change:
+pragma ComponentBehavior: Bound
+import QtQuick
+Warning: views/DynamicStage.qml:982:34: Unqualified access [unqualified]
+        onAction: function(id) { stage.noteAction(row.key, id) }
+                                 ^^^^^
+Info: Set "pragma ComponentBehavior: Bound" in order to use IDs from outer components in nested components.
+Suggested change:
+pragma ComponentBehavior: Bound
+import QtQuick
+Warning: views/DynamicStage.qml:983:21: Unqualified access [unqualified]
+        onPromoted: stage.notePromoted(row.key, row.kind)
+                    ^^^^^
+Info: Set "pragma ComponentBehavior: Bound" in order to use IDs from outer components in nested components.
+Suggested change:
+pragma ComponentBehavior: Bound
+import QtQuick

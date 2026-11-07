@@ -1,0 +1,597 @@
+{
+  "default": {
+    "view": "idle",
+    "barMode": true,
+    "look": "dynamic",
+    "flavor": "",
+    "workingAgents": 2,
+    "dynamic": {
+      "lead": "agents",
+      "minimal": [],
+      "alert": null
+    },
+    "geometry": {
+      "x": -63,
+      "y": 5,
+      "width": 126,
+      "height": 32,
+      "exclusiveZone": 0,
+      "corner": 0,
+      "topMargin": 5,
+      "gapsOut": 5
+    },
+    "palette": {
+      "background": "#a314101c",
+      "foreground": "#e9edf5",
+      "accent": "#8fd6e3"
+    },
+    "reducedMotion": false,
+    "primary": "",
+    "secondary": "",
+    "expanded": false,
+    "hud": null,
+    "quiet": {
+      "capturing": false,
+      "screenShared": false,
+      "recording": false,
+      "gaming": false,
+      "banners": 0,
+      "unread": 0
+    },
+    "media": {
+      "has": false,
+      "playing": false,
+      "title": ""
+    },
+    "recording": false,
+    "mic": false,
+    "battery": null,
+    "brightness": -1,
+    "timer": null,
+    "stopwatch": null,
+    "activity": null,
+    "live": [],
+    "nextEvent": null,
+    "attention": [],
+    "idle": {
+      "mode": "auto",
+      "quiet": false,
+      "signals": [
+        "agents"
+      ]
+    },
+    "bar": {
+      "edge": "none",
+      "material": false
+    },
+    "desktop": {
+      "flux": false,
+      "hermes": false,
+      "hermesAgents": 0,
+      "corgi": false,
+      "corgiAgents": 0,
+      "opencode": false,
+      "opencodeAgents": 0,
+      "herdrCore": false,
+      "herdrCoreAgents": 0,
+      "agents": 0,
+      "working": [
+        "Codex: Building the island",
+        "Claude: Reviewing the island"
+      ],
+      "phone": null,
+      "topLimit": null
+    },
+    "camera": false,
+    "outputs": 0,
+    "calendarTyping": false,
+    "calendar": {
+      "sources": 0,
+      "status": [],
+      "upcoming": 0,
+      "omamail": 0,
+      "justAdded": false
+    },
+    "notifications": {
+      "serving": true,
+      "wants": true,
+      "requested": true,
+      "omarchyDisabled": true,
+      "showing": null,
+      "pending": 0,
+      "inbox": 0,
+      "dnd": false,
+      "column": true,
+      "style": "float",
+      "current": null,
+      "waiting": [],
+      "line": null,
+      "unread": 0
+    },
+    "companion": {
+      "unread": 0,
+      "alerts": 0,
+      "dnd": false,
+      "blocked": 0,
+      "working": 2,
+      "doneSerial": 0
+    },
+    "screen": "HEADLESS-1"
+  },
+  "funk": {
+    "view": "idle",
+    "barMode": true,
+    "look": "dynamic",
+    "flavor": "funk",
+    "workingAgents": 2,
+    "dynamic": {
+      "lead": "agents",
+      "minimal": [],
+      "alert": null
+    },
+    "geometry": {
+      "x": -63,
+      "y": 5,
+      "width": 126,
+      "height": 32,
+      "exclusiveZone": 0,
+      "corner": 0,
+      "topMargin": 5,
+      "gapsOut": 5
+    },
+    "palette": {
+      "background": "#a314101c",
+      "foreground": "#e9edf5",
+      "accent": "#8fd6e3"
+    },
+    "reducedMotion": false,
+    "primary": "",
+    "secondary": "",
+    "expanded": false,
+    "hud": null,
+    "quiet": {
+      "capturing": false,
+      "screenShared": false,
+      "recording": false,
+      "gaming": false,
+      "banners": 0,
+      "unread": 0
+    },
+    "media": {
+      "has": false,
+      "playing": false,
+      "title": ""
+    },
+    "recording": false,
+    "mic": false,
+    "battery": null,
+    "brightness": -1,
+    "timer": null,
+    "stopwatch": null,
+    "activity": null,
+    "live": [],
+    "nextEvent": null,
+    "attention": [],
+    "idle": {
+      "mode": "auto",
+      "quiet": false,
+      "signals": [
+        "agents"
+      ]
+    },
+    "bar": {
+      "edge": "none",
+      "material": false
+    },
+    "desktop": {
+      "flux": false,
+      "hermes": false,
+      "hermesAgents": 0,
+      "corgi": false,
+      "corgiAgents": 0,
+      "opencode": false,
+      "opencodeAgents": 0,
+      "herdrCore": false,
+      "herdrCoreAgents": 0,
+      "agents": 0,
+      "working": [
+        "Codex: Building the island",
+        "Claude: Reviewing the island"
+      ],
+      "phone": null,
+      "topLimit": null
+    },
+    "camera": false,
+    "outputs": 0,
+    "calendarTyping": false,
+    "calendar": {
+      "sources": 0,
+      "status": [],
+      "upcoming": 0,
+      "omamail": 0,
+      "justAdded": false
+    },
+    "notifications": {
+      "serving": true,
+      "wants": true,
+      "requested": true,
+      "omarchyDisabled": true,
+      "showing": null,
+      "pending": 0,
+      "inbox": 0,
+      "dnd": false,
+      "column": true,
+      "style": "float",
+      "current": null,
+      "waiting": [],
+      "line": null,
+      "unread": 0
+    },
+    "companion": {
+      "unread": 0,
+      "alerts": 0,
+      "dnd": false,
+      "blocked": 0,
+      "working": 2,
+      "doneSerial": 2
+    },
+    "screen": "HEADLESS-1"
+  },
+  "register": {
+    "view": "idle",
+    "barMode": true,
+    "look": "dynamic",
+    "flavor": "register",
+    "workingAgents": 2,
+    "dynamic": {
+      "lead": "agents",
+      "minimal": [],
+      "alert": null
+    },
+    "geometry": {
+      "x": -63,
+      "y": 5,
+      "width": 126,
+      "height": 32,
+      "exclusiveZone": 0,
+      "corner": 0,
+      "topMargin": 5,
+      "gapsOut": 5
+    },
+    "palette": {
+      "background": "#a314101c",
+      "foreground": "#e9edf5",
+      "accent": "#8fd6e3"
+    },
+    "reducedMotion": false,
+    "primary": "",
+    "secondary": "",
+    "expanded": false,
+    "hud": null,
+    "quiet": {
+      "capturing": false,
+      "screenShared": false,
+      "recording": false,
+      "gaming": false,
+      "banners": 0,
+      "unread": 0
+    },
+    "media": {
+      "has": false,
+      "playing": false,
+      "title": ""
+    },
+    "recording": false,
+    "mic": false,
+    "battery": null,
+    "brightness": -1,
+    "timer": null,
+    "stopwatch": null,
+    "activity": null,
+    "live": [],
+    "nextEvent": null,
+    "attention": [],
+    "idle": {
+      "mode": "auto",
+      "quiet": false,
+      "signals": [
+        "agents"
+      ]
+    },
+    "bar": {
+      "edge": "none",
+      "material": false
+    },
+    "desktop": {
+      "flux": false,
+      "hermes": false,
+      "hermesAgents": 0,
+      "corgi": false,
+      "corgiAgents": 0,
+      "opencode": false,
+      "opencodeAgents": 0,
+      "herdrCore": false,
+      "herdrCoreAgents": 0,
+      "agents": 0,
+      "working": [
+        "Codex: Building the island",
+        "Claude: Reviewing the island"
+      ],
+      "phone": null,
+      "topLimit": null
+    },
+    "camera": false,
+    "outputs": 0,
+    "calendarTyping": false,
+    "calendar": {
+      "sources": 0,
+      "status": [],
+      "upcoming": 0,
+      "omamail": 0,
+      "justAdded": false
+    },
+    "notifications": {
+      "serving": true,
+      "wants": true,
+      "requested": true,
+      "omarchyDisabled": true,
+      "showing": null,
+      "pending": 0,
+      "inbox": 0,
+      "dnd": false,
+      "column": true,
+      "style": "float",
+      "current": null,
+      "waiting": [],
+      "line": null,
+      "unread": 0
+    },
+    "companion": {
+      "unread": 0,
+      "alerts": 0,
+      "dnd": false,
+      "blocked": 0,
+      "working": 2,
+      "doneSerial": 4
+    },
+    "screen": "HEADLESS-1"
+  },
+  "umbra": {
+    "view": "idle",
+    "barMode": true,
+    "look": "dynamic",
+    "flavor": "umbra",
+    "workingAgents": 2,
+    "dynamic": {
+      "lead": "agents",
+      "minimal": [],
+      "alert": null
+    },
+    "geometry": {
+      "x": -63,
+      "y": 5,
+      "width": 126,
+      "height": 32,
+      "exclusiveZone": 0,
+      "corner": 0,
+      "topMargin": 5,
+      "gapsOut": 5
+    },
+    "palette": {
+      "background": "#a314101c",
+      "foreground": "#e9edf5",
+      "accent": "#8fd6e3"
+    },
+    "reducedMotion": false,
+    "primary": "",
+    "secondary": "",
+    "expanded": false,
+    "hud": null,
+    "quiet": {
+      "capturing": false,
+      "screenShared": false,
+      "recording": false,
+      "gaming": false,
+      "banners": 0,
+      "unread": 0
+    },
+    "media": {
+      "has": false,
+      "playing": false,
+      "title": ""
+    },
+    "recording": false,
+    "mic": false,
+    "battery": null,
+    "brightness": -1,
+    "timer": null,
+    "stopwatch": null,
+    "activity": null,
+    "live": [],
+    "nextEvent": null,
+    "attention": [],
+    "idle": {
+      "mode": "auto",
+      "quiet": false,
+      "signals": [
+        "agents"
+      ]
+    },
+    "bar": {
+      "edge": "none",
+      "material": false
+    },
+    "desktop": {
+      "flux": false,
+      "hermes": false,
+      "hermesAgents": 0,
+      "corgi": false,
+      "corgiAgents": 0,
+      "opencode": false,
+      "opencodeAgents": 0,
+      "herdrCore": false,
+      "herdrCoreAgents": 0,
+      "agents": 0,
+      "working": [
+        "Codex: Building the island",
+        "Claude: Reviewing the island"
+      ],
+      "phone": null,
+      "topLimit": null
+    },
+    "camera": false,
+    "outputs": 0,
+    "calendarTyping": false,
+    "calendar": {
+      "sources": 0,
+      "status": [],
+      "upcoming": 0,
+      "omamail": 0,
+      "justAdded": false
+    },
+    "notifications": {
+      "serving": true,
+      "wants": true,
+      "requested": true,
+      "omarchyDisabled": true,
+      "showing": null,
+      "pending": 0,
+      "inbox": 0,
+      "dnd": false,
+      "column": true,
+      "style": "float",
+      "current": null,
+      "waiting": [],
+      "line": null,
+      "unread": 0
+    },
+    "companion": {
+      "unread": 0,
+      "alerts": 0,
+      "dnd": false,
+      "blocked": 0,
+      "working": 2,
+      "doneSerial": 6
+    },
+    "screen": "HEADLESS-1"
+  },
+  "tusche": {
+    "view": "idle",
+    "barMode": true,
+    "look": "dynamic",
+    "flavor": "tusche",
+    "workingAgents": 2,
+    "dynamic": {
+      "lead": "agents",
+      "minimal": [],
+      "alert": null
+    },
+    "geometry": {
+      "x": -63,
+      "y": 5,
+      "width": 126,
+      "height": 32,
+      "exclusiveZone": 0,
+      "corner": 0,
+      "topMargin": 5,
+      "gapsOut": 5
+    },
+    "palette": {
+      "background": "#a314101c",
+      "foreground": "#e9edf5",
+      "accent": "#8fd6e3"
+    },
+    "reducedMotion": false,
+    "primary": "",
+    "secondary": "",
+    "expanded": false,
+    "hud": null,
+    "quiet": {
+      "capturing": false,
+      "screenShared": false,
+      "recording": false,
+      "gaming": false,
+      "banners": 0,
+      "unread": 0
+    },
+    "media": {
+      "has": false,
+      "playing": false,
+      "title": ""
+    },
+    "recording": false,
+    "mic": false,
+    "battery": null,
+    "brightness": -1,
+    "timer": null,
+    "stopwatch": null,
+    "activity": null,
+    "live": [],
+    "nextEvent": null,
+    "attention": [],
+    "idle": {
+      "mode": "auto",
+      "quiet": false,
+      "signals": [
+        "agents"
+      ]
+    },
+    "bar": {
+      "edge": "none",
+      "material": false
+    },
+    "desktop": {
+      "flux": false,
+      "hermes": false,
+      "hermesAgents": 0,
+      "corgi": false,
+      "corgiAgents": 0,
+      "opencode": false,
+      "opencodeAgents": 0,
+      "herdrCore": false,
+      "herdrCoreAgents": 0,
+      "agents": 0,
+      "working": [
+        "Codex: Building the island",
+        "Claude: Reviewing the island"
+      ],
+      "phone": null,
+      "topLimit": null
+    },
+    "camera": false,
+    "outputs": 0,
+    "calendarTyping": false,
+    "calendar": {
+      "sources": 0,
+      "status": [],
+      "upcoming": 0,
+      "omamail": 0,
+      "justAdded": false
+    },
+    "notifications": {
+      "serving": true,
+      "wants": true,
+      "requested": true,
+      "omarchyDisabled": true,
+      "showing": null,
+      "pending": 0,
+      "inbox": 0,
+      "dnd": false,
+      "column": true,
+      "style": "float",
+      "current": null,
+      "waiting": [],
+      "line": null,
+      "unread": 0
+    },
+    "companion": {
+      "unread": 0,
+      "alerts": 0,
+      "dnd": false,
+      "blocked": 0,
+      "working": 2,
+      "doneSerial": 8
+    },
+    "screen": "HEADLESS-1"
+  }
+}

@@ -1,0 +1,30 @@
+[32m  INFO[0m: Launching config: "/home/nerdi/Data/Development/projects/omarchy-umbriel-pixel-20261104/shell/shell.qml"
+[32m  INFO[0m: Shell ID: "c201d4d829be685daccf648d785b5574" Path ID "c201d4d829be685daccf648d785b5574"
+[32m  INFO[0m: Saving logs to "/tmp/island-flavor-w7xd8ika/run/quickshell/by-id/peqv1nof5ot/log.qslog"
+[33m  WARN[0m: $HYPRLAND_INSTANCE_SIGNATURE is unset. Cannot connect to hyprland.
+[34m DEBUG[97m qml[0m: omarchy-shell paths omarchyPath=/home/nerdi/Data/Development/projects/omarchy-umbriel-pixel-20261104 shellDir=/home/nerdi/Data/Development/projects/omarchy-umbriel-pixel-20261104/shell firstPartyPluginsDir=/home/nerdi/Data/Development/projects/omarchy-umbriel-pixel-20261104/shell/plugins defaultsPath=/home/nerdi/Data/Development/projects/omarchy-umbriel-pixel-20261104/config/omarchy/shell.json userConfigPath=/tmp/island-flavor-w7xd8ika/home/.config/omarchy/shell.json
+[34m DEBUG[97m qml[0m: omarchy startup started settled=false backgroundActive=false backgroundReady=false desktopReady=false
+[32m  INFO[0m: Configuration Loaded
+[33m  WARN[97m quickshell.qmlscanner[0m: Module path "/tmp/island-flavor-w7xd8ika/home/.config/omarchy/plugins/nerdibeard.tusche-island/generations/e353b258a04e93a7/views" is outside of the config folder.
+[33m  WARN[97m quickshell.qmlscanner[0m: Module path "/tmp/island-flavor-w7xd8ika/home/.config/omarchy/plugins/nerdibeard.tusche-island/generations/e353b258a04e93a7/sources" is outside of the config folder.
+[33m  WARN[97m quickshell.qmlscanner[0m: Module path "/tmp/island-flavor-w7xd8ika/home/.config/omarchy/plugins/nerdibeard.tusche-island/generations/e353b258a04e93a7" is outside of the config folder.
+[33m  WARN[97m quickshell.qmlscanner[0m: Module path contains invalid characters for a module name:  "/plugins/image-picker"
+[33m  WARN[97m quickshell.qmlscanner[0m: Module path "/tmp/island-flavor-w7xd8ika/home/.config/omarchy/plugins/nerdibeard.tusche-bar/generations/b6b4cfc6b4b06c30/modules" is outside of the config folder.
+[33m  WARN[97m quickshell.qmlscanner[0m: Module path "/tmp/island-flavor-w7xd8ika/home/.config/omarchy/plugins/nerdibeard.tusche-bar/generations/b6b4cfc6b4b06c30" is outside of the config folder.
+[33m  WARN[97m quickshell.service.upower[0m: Could not connect to DBus. UPower service will not work.
+[33m  WARN[97m quickshell.service.powerprofiles[0m: Could not connect to DBus. PowerProfiles services will not work.
+[34m DEBUG[97m qml[0m: omarchy idle 2026-11-07T20:31:37.006Z service-ready
+[31m ERROR[97m quickshell.service.pipewire.loop[0m: Failed to connect pipewire context. Errno: 112
+[33m  WARN[97m quickshell.qmlscanner[0m: Module path contains invalid characters for a module name:  "/plugins/services/remote-session"
+[34m DEBUG[97m qml[0m: omarchy startup intro-settled settled=true backgroundActive=true backgroundReady=false desktopReady=true
+[33m  WARN[97m qt.qpa.services[0m: Failed to register with host portal QDBusError("org.freedesktop.portal.Error.Failed", "Could not register app ID: Connection already associated with an application ID")
+[33m  WARN[97m quickshell.service.polkit.listener[0m: failed to register listener: Could not connect: No such file or directory
+[33m  WARN[97m quickshell.service.polkit[0m: failed to register listener on path "/org/omarchy/PolkitAgent"
+[34m DEBUG[97m qml[0m: omarchy idle 2026-11-07T20:31:37.111Z stay-awake: disabled state-file
+[33m  WARN[97m quickshell.io.socket[0m: Socket error for Socket(0x7f1e3598e280) QLocalSocket::ServerNotFoundError
+[34m DEBUG[97m qml[0m: omarchy idle 2026-11-07T20:31:37.117Z idle-monitor: active
+[33m  WARN[97m quickshell.bluetooth[0m: Could not connect to DBus. Bluetooth integration is not available.
+[33m  WARN[97m scene[0m: QML FileView at qs:///tmp/island-flavor-w7xd8ika/home/.config/omarchy/plugins/nerdibeard.tusche-island/generations/e353b258a04e93a7/Notifications.qml[561:3]: Read of /tmp/island-flavor-w7xd8ika/home/.local/state/omarchy/notifications.json failed: File does not exist.
+[34m DEBUG[97m qml[0m: omarchy startup fade-started settled=true backgroundActive=true backgroundReady=true desktopReady=true
+[33m  WARN[97m scene[0m: QML FileView at qs:///tmp/island-flavor-w7xd8ika/home/.config/omarchy/plugins/nerdibeard.tusche-bar/generations/b6b4cfc6b4b06c30/OmiKit.qml[21:3]: Read of /tmp/island-flavor-w7xd8ika/home/.local/share/tusche-bar/current failed: File does not exist.
+[34m DEBUG[97m qml[0m: omarchy startup revealed settled=true backgroundActive=true backgroundReady=true desktopReady=true

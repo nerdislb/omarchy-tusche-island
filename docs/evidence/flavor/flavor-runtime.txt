@@ -1,0 +1,1 @@
+ DEBUG qml: PASS flavor: corona static; diamond expires; stamp settles; dismissal clears; switch cancels; register settles; reduced fades only; hidden stage cancels; default restored at rest

@@ -1,0 +1,4 @@
+ DEBUG qml: PASS shape: settle 4.5 x 2.6 px past the new size, the lip dips 0.32 px, lands exactly, retargets with its velocity, no clock at rest, Reduced Motion and unmapped at once
+ DEBUG qml: PASS slot: grows in from 96 % to exactly 100 % (20 frames), fades out faster without a zoom, unseen and Reduced Motion at once
+ DEBUG qml: PASS switch: thrown with 0.30 px of give, the track colour follows the knob (within 0.000), widens a fifth while pressed toward its free side, Reduced Motion at once
+ DEBUG qml: PASS outputs: one plate glides with the leading edge first (stretch 23.6 px), lands without a bounce, retargets without a jump, follows rebuilt rows at once, rows give up their plate under it, Reduced Motion and unseen at once

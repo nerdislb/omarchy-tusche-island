@@ -1,0 +1,41 @@
+{
+  "baseline": "d3dd40d",
+  "python_unittest_count": 33,
+  "python_unittest": "passed",
+  "node_model": "passed",
+  "node_corgi": "passed",
+  "node_flavor": "passed",
+  "node_hermes": "pre-existing failure reproduced on d3dd40d",
+  "qt_runtime": {
+    "shape": "passed",
+    "slot": "passed",
+    "switch": "passed",
+    "outputs": "passed",
+    "liquid": "passed",
+    "clock": "passed",
+    "flavor": "passed"
+  },
+  "default_pixels": "RGBA-identical to d3dd40d in compact, minimal, expanded and banner resting states",
+  "qmllint": {
+    "exit": 0,
+    "completion_warnings": 0,
+    "baseline_categories": [
+      "unqualified",
+      "import",
+      "incompatible-type"
+    ],
+    "new_warning_category": "none"
+  },
+  "png_count": 81,
+  "final_shell_qml_errors": false,
+  "cleanup": {
+    "root": "/tmp/island-flavor-w7xd8ika",
+    "removed": true,
+    "owned_pids": [
+      3160151,
+      3160176,
+      3160177
+    ],
+    "all_reaped": true
+  }
+}

@@ -1,0 +1,42 @@
+Baseline d3dd40d, exit 1
+node:internal/assert/utils:146
+  throw error;
+  ^
+
+AssertionError [ERR_ASSERTION]: Expected values to be strictly deep-equal:
++ actual - expected
+
+  [
++   'sh',
++   '-c',
++   `if [ -n "$UMBRIEL_SOCKET" ]; then id=$(umbriel windows --json | jq -r '[.[] | select(.app_id == "com.nousresearch.hermes")][0].id // empty') && [ -n "$id" ] && exec umbriel msg "window-focus:$id"; else exec hyprctl dispatch 'hl.dsp.focus({ window = "class:^com[.]nousresearch[.]hermes$" })'; fi`
+-   'hyprctl',
+-   'dispatch',
+-   'hl.dsp.focus({ window = "class:^com[.]nousresearch[.]hermes$" })'
+  ]
+
+    at Object.<anonymous> (/tmp/island-baseline-xmjwkyie/tests/hermes.cjs:17:8)
+    at Module._compile (node:internal/modules/cjs/loader:1968:14)
+    at Object..js (node:internal/modules/cjs/loader:2108:10)
+    at Module.load (node:internal/modules/cjs/loader:1690:32)
+    at Module._load (node:internal/modules/cjs/loader:1480:12)
+    at wrapModuleLoad (node:internal/modules/cjs/loader:261:19)
+    at Module.executeUserEntryPoint [as runMain] (node:internal/modules/run_main:171:5)
+    at node:internal/main/run_main_module:33:47 {
+  generatedMessage: true,
+  code: 'ERR_ASSERTION',
+  actual: [
+    'sh',
+    '-c',
+    `if [ -n "$UMBRIEL_SOCKET" ]; then id=$(umbriel windows --json | jq -r '[.[] | select(.app_id == "com.nousresearch.hermes")][0].id // empty') && [ -n "$id" ] && exec umbriel msg "window-focus:$id"; else exec hyprctl dispatch 'hl.dsp.focus({ window = "class:^com[.]nousresearch[.]hermes$" })'; fi`
+  ],
+  expected: [
+    'hyprctl',
+    'dispatch',
+    'hl.dsp.focus({ window = "class:^com[.]nousresearch[.]hermes$" })'
+  ],
+  operator: 'deepStrictEqual',
+  diff: 'simple'
+}
+
+Node.js v26.13.0
