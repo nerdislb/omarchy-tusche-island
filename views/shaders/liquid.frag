@@ -15,6 +15,7 @@ layout(std140, binding = 0) uniform buf {
     vec2 size;      // this item's size, px
     vec2 origin;    // its top-left in the stage, px (the boxes are in stage px)
     float dpr;      // device pixels per px
+    float corona;
     float line;     // key line width, px
     // per box: rect (x, y, w, h) · shape (radius, neck k, opacity, key alpha) · key colour
     vec4 b0; vec4 s0; vec4 c0;
@@ -74,5 +75,18 @@ void main() {
     // the key line: the band of `line` px just inside the edge
     float band = (inside - clamp(0.5 - (dist + line) * px, 0.0, 1.0)) * key.a * alpha;
     float a = band + fill * (1.0 - band);
-    fragColor = vec4(key.rgb * band, a) * qt_Opacity;
+    vec4 result = vec4(key.rgb * band, a);
+    if (corona > 0.001) {
+        // Use the union distance, so a melting minimal capsule or banner
+        // removes the interior seam. Limit the halo to the main capsule.
+        float nearCap = 1.0 - smoothstep(1.5, 8.0, sdBox(p, b0, s0.x));
+        float ring = 1.0 - smoothstep(0.55, 1.05, abs(dist));
+        float glow = exp(-max(dist, 0.0) * max(dist, 0.0) / 8.0)
+                     * step(0.0, dist) * 0.32;
+        float ca = max(ring, glow) * corona * nearCap;
+        float t = clamp((p.x - b0.x) / max(b0.z, 1.0) - (p.y - b0.y) / max(b0.w, 1.0) * 0.15, 0.0, 1.0);
+        vec3 light = mix(vec3(0.561, 0.839, 0.890), vec3(1.0, 0.698, 0.478), t);
+        result = vec4(light * ca + result.rgb * (1.0 - ca), ca + result.a * (1.0 - ca));
+    }
+    fragColor = result * qt_Opacity;
 }

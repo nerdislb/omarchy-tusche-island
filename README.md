@@ -112,6 +112,7 @@ Settings live in the island's entry in `~/.config/omarchy/shell.json` (in `bar.l
 | `idleFace` | `"ticker"` | `ticker` (glances), `clock` or `none` |
 | `notifications` | `false` | take over Omarchy's notifications (see above) |
 | `noteStyle` | `"window"` | `window`, `bubble` or `float` (the former value `workbench` reads as `window`) |
+| `flavor` | `""` | Optional dynamic-island detail: `funk`, `register`, `umbra`, `tusche`; empty keeps the existing presentation. Changes live through `set flavor` (see [handoff](docs/HANDOFF-flavor.md)). |
 | `look` | `"classic"` | `dynamic`: the island as a black capsule hanging from a top bar, notes pouring out of it (see *Dynamic look*); `classic`: the clock with a live segment |
 | `inbox` | `true` | keep missed notifications in the inbox |
 | `osd` | `false` | take over Omarchy's on-screen display (volume, brightness, … as island HUDs) |
@@ -137,6 +138,7 @@ Target `tusche-island`, e.g. `omarchy-shell tusche-island state`:
 
 - `expand`, `collapse`, `toggle`, `calendar`, `show '<json>'`, `toast <title> <body> <icon> <color>`
 - `set noteStyle window|bubble|float`, `set notifications true|false`, `set look dynamic|classic`
+- `set flavor ""|funk|register|umbra|tusche` (live; empty restores the existing presentation)
 - `note open|dismiss|later|next|action:<id>` (the column's buttons, for keybinds), `markRead`
 - `alert open|later|dismiss|again` (the expanded dynamic island's buttons, for keybinds)
 - `timer 25m [label]`, `timerToggle`, `timerCancel`, `stopwatch start|pause|toggle|reset`

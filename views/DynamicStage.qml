@@ -94,6 +94,28 @@ Item {
   property real dpr: 1                      // device pixels per px (the window's)
   readonly property bool reduced: Style.reduceMotion
   readonly property bool instant: reduced || !live
+  readonly property string flavor: island && island.flavor !== undefined ? island.flavor : ""
+  readonly property bool agentsWorking: !!island && island.workingAgents > 0
+  property real corona: flavor === "umbra" && agentsWorking && !alertShown && live ? 0.7 : 0
+  Behavior on corona { NumberAnimation { duration: 300 } }
+  property real flareAlpha: 0
+  function clearFlare() { diamond.stop(); flareAlpha = 0 }
+  onFlavorChanged: { clearFlare(); retarget() }
+  Connections {
+    target: stage.island
+    ignoreUnknownSignals: true
+    function onDoneSerialChanged() {
+      if (stage.flavor !== "umbra" || !stage.live) return
+      stage.clearFlare()
+      diamond.start()
+    }
+  }
+  SequentialAnimation {
+    id: diamond
+    NumberAnimation { target: stage; property: "flareAlpha"; from: 0; to: 1; duration: 100 }
+    PauseAnimation { duration: 140 }
+    NumberAnimation { target: stage; property: "flareAlpha"; to: 0; duration: 660; easing.type: Easing.InQuad }
+  }
 
   // ------------------------------------------------------------ colours
   readonly property color ink: island && island.islandInk !== undefined ? island.islandInk : "#f2f2f2"
@@ -174,7 +196,7 @@ Item {
     if (Math.abs(cx - sp.px.x) > s(60)) L.place(sp.px, cx)
     retarget()
   }
-  onLiveChanged: retarget()
+  onLiveChanged: { retarget(); if (!live) clearFlare() }
   onReducedChanged: retarget()
 
   // ------------------------------------------------------------ the clock
@@ -231,7 +253,9 @@ Item {
   }
 
   function pillTargets() {
-    if (alertNow) return { w: alertW, h: Math.max(s(84), alertView.implicitHeight), top: capTop }
+    // Keep the outer registration marks inside the screen; compact is unchanged.
+    if (alertNow) return { w: alertW, h: Math.max(s(84), alertView.implicitHeight),
+      top: flavor === "register" && alertNow.kind === "agent" ? Math.max(capTop, 5) : capTop }
     if (popupOpen) return { w: compactW, h: tuckH, top: tuckTop }
     return { w: compactW, h: capH, top: capTop }
   }
@@ -402,6 +426,17 @@ Item {
     id: liquid
     dpr: stage.dpr
     line: 1
+    corona: stage.corona
+  }
+
+  Image {
+    x: stage.pillX + stage.pillW - stage.pillR * 0.293 - width / 2
+    y: stage.pillY + stage.pillR * 0.293 - height / 2
+    width: stage.s(32); height: width
+    source: stage.flavor === "umbra" ? "../assets/umbra/flare.svg" : ""
+    sourceSize.width: Math.ceil(width * 2); sourceSize.height: Math.ceil(width * 2)
+    opacity: stage.flareAlpha
+    visible: opacity > 0.001 && stage.live
   }
 
   // The capsule: its input region, its clicks (left opens the island's
@@ -502,6 +537,18 @@ Item {
     onImplicitHeightChanged: stage.retarget()
     onAction: function(id) { stage.alertAction(id) }
     onDismissed: stage.alertDismissed()
+  }
+
+  CompletionFlavor {
+    flavor: stage.flavor
+    active: !!stage.shownAlert && stage.shownAlert.kind === "agent" && (stage.alertShown || stage.alertAlpha > 0.01) && stage.live
+    eventKey: stage.shownAlert ? String(stage.shownAlert.source) + ":" + stage.shownAlert.key + ":" + (stage.island && stage.island.doneSerial || 0) : ""
+    reduced: stage.reduced
+    accent: stage.island && stage.island.accentColor !== undefined ? stage.island.accentColor : stage.ink
+    unit: stage.unit
+    x: stage.pillX; y: stage.pillY; width: stage.pillW; height: stage.pillH
+    stampY: stage.s(58)
+    opacity: stage.alertAlpha
   }
 
   // ------------------------------------------------------------ minimal
@@ -900,6 +947,18 @@ Item {
         opacity: row.ga
         border.width: 1
         border.color: Util.alpha(row.keyTone, row.keyAlpha)
+      }
+
+      CompletionFlavor {
+        flavor: stage.flavor
+        active: note.completion && row.shownOpen && row.phase !== "pill" && row.ga > 0.01 && row.gt > 0.01 && stage.live
+        eventKey: String(row.key)
+        reduced: stage.reduced
+        accent: stage.island && stage.island.accentColor !== undefined ? stage.island.accentColor : stage.ink
+        unit: stage.unit
+        x: row.gx; y: row.gy; width: row.gw; height: row.gh
+        stampY: height / 2 + stage.s(8)
+        opacity: row.gt * row.ga
       }
 
       DynamicNote {

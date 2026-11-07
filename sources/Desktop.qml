@@ -263,7 +263,9 @@ Item {
     var rank = { blocked: 0, working: 1, idle: 2, unknown: 3 }
     return (rank[a.status] || 0) - (rank[b.status] || 0)
   })
-  readonly property var working: agents.filter(function(a) { return a && a.status === "working" })
+  // Explicit IPC preview data never feeds completion detection or external actions.
+  property var demoAgents: null
+  readonly property var working: (demoAgents !== null ? demoAgents : agents).filter(function(a) { return a && a.status === "working" })
   // Agents waiting for input or approval (herdr "blocked"), minus the ones
   // snoozed from the requester ("Later", 10 minutes).
   property var snoozed: ({})     // pane -> until (ms)
@@ -273,7 +275,7 @@ Item {
   Timer { interval: 30000; running: Object.keys(desk.snoozed).length > 0; repeat: true; onTriggered: desk.clock = Date.now() }
   readonly property var blocked: {
     clock
-    return demoBlocked.concat(agents.filter(function(a) { return a && a.status === "blocked" && !(desk.snoozed[a.pane] > Date.now()) }))
+    return demoBlocked.concat((demoAgents !== null ? demoAgents : agents).filter(function(a) { return a && a.status === "blocked" && !(desk.snoozed[a.pane] > Date.now()) }))
   }
   function snooze(pane) {
     var s = {}

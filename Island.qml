@@ -106,6 +106,8 @@ Item {
   // notes in their own column) or "dynamic" (Apple's Dynamic Island: a black
   // capsule hanging from a top bar, notes pouring out of it; DynamicIsland.qml).
   readonly property string look: Model.look(setting("look", "classic"))
+  readonly property string flavor: Model.flavor(setting("flavor", ""))
+  readonly property int workingAgents: desktop.working.length
   // Dynamic only where a top bar holds the island; anywhere else classic.
   readonly property bool dynamicLook: barMode && look === "dynamic"
     && Bridge.IslandBus.list.some(function(w) { return !!w && w.dynamicCapable === true })
@@ -1421,7 +1423,7 @@ Item {
       return { kind: kind, glyph: e.icon, text: Model.liveText(e, nowS), tone: toneFor(Model.liveTone(e, nowS)) }
     }
     if (kind === "agents")
-      return { kind: kind, glyph: "\u{f06a9}", text: String(desktop.working.length), tone: yellowColor }
+      return Model.agentLead(desktop.working.length, flavor, minimal, yellowColor)
     if (kind === "attention")
       return { kind: kind, glyph: "\u{f0026}", text: minimal ? "" : String(attentionAgent && attentionAgent.agent || "Agent"), tone: orangeColor }
     if (kind === "recording")
@@ -1620,7 +1622,20 @@ Item {
     var media = { playing: true, title: "Midnight City", artist: "M83", art: art, length: 243 }
     if (kind === "off") {
       demo = null; hud = null; collapse(); recordingProbe.running = true; cameraProbe.running = true
+      desktop.demoAgents = null; desktop.demoBlocked = []
       clocks.cancelTimer(); clocks.resetStopwatch(); activitySource.end("demo", ""); calendarSource.refresh()
+    } else if (kind === "agents" || kind === "agents-waiting") {
+      desktop.demoAgents = kind === "agents" ? [
+        { pane: "demo:1", agent: "Codex", status: "working", title: "Building the island" },
+        { pane: "demo:2", agent: "Claude", status: "working", title: "Reviewing the island" }
+      ] : [{ pane: "demo:1", agent: "Codex", status: "blocked", title: "Review requested" }]
+    } else if (kind === "agentdone" || kind === "agentdone-banner") {
+      desktop.demoAgents = []
+      doneSerial++
+      if (kind === "agentdone-banner")
+        notifications.inject({ app: "Codex", summary: "Agent finished", body: "Done · Island build", glyph: Model.agentDoneGlyph,
+                               critical: true, actions: [{ id: "open", text: "Open" }] })
+      else toast({ title: "Island build", agentName: "Codex", alert: "agent", color: "green", duration: 6000 })
     } else if (kind === "media") {
       demo = { media: media }; mediaPosition = 71
     } else if (kind === "paused") {
@@ -1779,12 +1794,13 @@ Item {
         return style
       }
       if (key === "corgi" && (v === "true" || v === "false")) { root.saveSettings({ corgi: v === "true" }); return v }
+      if (key === "flavor" && Model.flavors.indexOf(v) !== -1) { root.saveSettings({ flavor: v }); return v || "default" }
       if (key === "look" && (v === "dynamic" || v === "classic")) { root.saveSettings({ look: v }); return v }
       if (key === "capsuleHeight" && Math.round(Number(v)) >= 22 && Math.round(Number(v)) <= 44) { root.saveSettings({ capsuleHeight: Math.round(Number(v)) }); return String(Math.round(Number(v))) }
       if (key === "notifications" && (v === "true" || v === "false")) { root.saveSettings({ notifications: v === "true" }); return v }
       if (key === "captureQuiet" && (v === "true" || v === "false")) { root.saveSettings({ captureQuiet: v === "true" }); return v }
       if (key === "gameQuiet" && (v === "true" || v === "false")) { root.saveSettings({ gameQuiet: v === "true" }); return v }
-      return "usage: set noteStyle window|bubble|float · set notifications true|false · set captureQuiet true|false · set gameQuiet true|false · set corgi true|false · set look dynamic|classic · set capsuleHeight 22–44"
+      return "usage: set noteStyle window|bubble|float · set notifications true|false · set captureQuiet true|false · set gameQuiet true|false · set corgi true|false · set look dynamic|classic · set capsuleHeight 22–44 · set flavor \"\"|funk|register|umbra|tusche"
     }
     // Sample notifications through the real queue (no sender behind them).
     function noteDemo(kind: string): string { return root.noteDemo(kind) }
@@ -1852,6 +1868,8 @@ Item {
         view: root.view,
         barMode: root.barMode,
         look: root.look,
+        flavor: root.flavor,
+        workingAgents: root.workingAgents,
         dynamic: root.dynamicLook ? {
           lead: root.dynamicLead ? root.dynamicLead.kind : null,
           minimal: root.dynamicMinimal.map(function(m) { return m.kind }),

@@ -1,5 +1,6 @@
 import QtQuick
 import qs.Commons
+import "../IslandModel.js" as Model
 
 // One notification of the dynamic island (Island.qml `look: "dynamic"`), the
 // content of a black banner card that pours out of the capsule
@@ -24,6 +25,9 @@ Item {
   property string stateLabel: "now"     // now | next | paused | ""
   property color tone: "white"
   property color ink: "#f2f2f2"         // text on the island's black
+  readonly property string flavor: island && island.flavor !== undefined ? island.flavor : ""
+  readonly property bool completion: Model.isAgentCompletion(entry)
+  readonly property real sealSpace: completion && flavor === "tusche" ? s(64) : 0
   readonly property color dim: Util.alpha(ink, 0.62)
 
   signal opened()
@@ -115,7 +119,7 @@ Item {
       x: card.textX
       y: card.pad + card.s(1)
       width: appText.x - x - card.s(12)
-      text: card.entry ? (card.entry.summary || card.entry.app || "") : ""
+      text: card.entry ? (card.completion ? Model.completionTitle(card.entry.summary, card.flavor) : card.entry.summary || card.entry.app || "") : ""
       textFormat: Text.PlainText
       renderType: Text.NativeRendering
       elide: Text.ElideRight
@@ -173,7 +177,7 @@ Item {
       id: bodyText
       x: card.textX
       y: titleText.y + titleText.implicitHeight + card.s(3)
-      width: card.width - x - card.s(18)
+      width: card.width - x - card.s(18) - card.sealSpace
       visible: text !== ""
       text: card.entry ? card.entry.body : ""
       textFormat: Text.PlainText

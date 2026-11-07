@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="256" height="256" viewBox="0 0 256 256">
+  <defs>
+    <filter id="filter-1" filterUnits="userSpaceOnUse" x="41" y="41" width="174" height="174" color-interpolation-filters="sRGB"><feGaussianBlur in="SourceGraphic" stdDeviation="13"/></filter>
+    <filter id="filter-2" filterUnits="userSpaceOnUse" x="105.5" y="105.5" width="45" height="45" color-interpolation-filters="sRGB"><feGaussianBlur in="SourceGraphic" stdDeviation="1.5"/></filter>
+  </defs>
+  <title>flare</title>
+  <g id="Layer_1" data-name="Layer 1">
+    <g filter="url(#filter-1)">
+      <circle cx="128" cy="128" r="46" fill="#ffe7cc" opacity="0.7"/>
+    </g>
+    <polygon points="10,128 128,133 246,128 128,123" fill="#ffffff"/>
+    <polygon points="128,10 123,128 128,246 133,128" fill="#ffffff"/>
+    <polygon points="95.5,95.5 125.9,130.1 160.5,160.5 130.1,125.9" fill="#ffffff"/>
+    <polygon points="160.5,95.5 125.9,125.9 95.5,160.5 130.1,130.1" fill="#ffffff"/>
+    <g filter="url(#filter-2)">
+      <circle cx="128" cy="128" r="16" fill="#ffffff"/>
+    </g>
+    <circle cx="128" cy="128" r="9" fill="#ffffff"/>
+  </g>
+</svg>

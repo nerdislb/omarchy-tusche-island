@@ -782,6 +782,7 @@ var defaultSettings = {
   // column) or "dynamic" (a black capsule hanging from a top bar, notes
   // pouring out of it, the island expanding for what matters).
   look: "classic",
+  flavor: "",
   inbox: true,
   osd: false,
   volume: false,
@@ -820,12 +821,30 @@ function look(value) {
   return String(value || "") === "dynamic" ? "dynamic" : "classic"
 }
 
+// Flavor is independent of the island's layout. Unknown stored values are inert.
+var flavors = ["", "funk", "register", "umbra", "tusche"]
+function flavor(value) {
+  var v = String(value || "")
+  return flavors.indexOf(v) !== -1 ? v : ""
+}
+function agentLead(count, value, minimal, workingTone) {
+  var radio = flavor(value) === "funk" && !minimal
+  return { kind: "agents", glyph: radio ? "●" : "\u{f06a9}",
+           text: String(count) + (radio ? " ON AIR" : ""), tone: radio ? "#ff6b7d" : workingTone }
+}
+function completionTitle(title, value) {
+  return flavor(value) === "funk" ? "SIGNAL · " + title : title
+}
+function isAgentCompletion(entry) {
+  return !!entry && String(entry.summary || "") === "Agent finished"
+    && (entry.glyph === agentDoneGlyph || /^Done · /.test(String(entry.body || "")))
+}
+
 // An agent's completion notification (agentDoneCommand): the dynamic island
 // expands for it instead of pouring a banner.
 var agentDoneGlyph = "\u{f012c}"
 function isAlertNote(entry) {
-  return !!entry && !entry.critical && String(entry.summary || "") === "Agent finished"
-    && (entry.glyph === agentDoneGlyph || /^Done · /.test(String(entry.body || "")))
+  return isAgentCompletion(entry) && !entry.critical
 }
 // Its line in the expanded island: what was done, and who did it.
 function alertSubtitle(entry) {

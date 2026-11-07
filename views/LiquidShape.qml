@@ -14,10 +14,12 @@ ShaderEffect {
   property var boxes: []
   property real dpr: 1
   property real line: 1
+  property real corona: 0
 
   readonly property var bounds: {
+    var halo = corona > 0.001 ? 8 : 2
     var b = boxes || []
-    var x0 = 1e9, y0 = 1e9, x1 = -1e9, y1 = -1e9, reach = 2
+    var x0 = 1e9, y0 = 1e9, x1 = -1e9, y1 = -1e9, reach = halo
     for (var i = 0; i < b.length && i < 10; i++) {
       var o = b[i]
       if (!o || !(o.w > 0) || !(o.h > 0) || !(o.a > 0.001)) continue

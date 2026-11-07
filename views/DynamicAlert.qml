@@ -1,5 +1,6 @@
 import QtQuick
 import qs.Commons
+import "../IslandModel.js" as Model
 
 // The expanded dynamic island (views/DynamicStage.qml): for the events that
 // matter (an agent finished, the battery runs low, a timer ran out) the
@@ -18,6 +19,9 @@ Item {
   property var alert: null      // { glyph, tone, title, subtitle, actions: [{ id, label, primary }] }
   property string clock: ""
   property color ink: "#f2f2f2"
+  readonly property string flavor: island && island.flavor !== undefined ? island.flavor : ""
+  readonly property bool completion: !!alert && alert.title === "Agent finished"
+  readonly property real sealSpace: completion && flavor === "tusche" ? s(64) : 0
   readonly property color dim: Util.alpha(ink, 0.62)
   readonly property color tone: alert && alert.tone ? alert.tone : ink
   readonly property var actions: alert && Array.isArray(alert.actions) ? alert.actions : []
@@ -82,7 +86,7 @@ Item {
     x: view.s(78)
     y: view.s(30) - implicitHeight / 2
     width: clockText.x - x - view.s(16)
-    text: view.alert ? view.alert.title || "" : ""
+    text: view.alert ? (view.completion ? Model.completionTitle(view.alert.title, view.flavor) : view.alert.title || "") : ""
     textFormat: Text.PlainText
     renderType: Text.NativeRendering
     elide: Text.ElideRight
@@ -95,7 +99,7 @@ Item {
   Text {
     x: view.s(78)
     y: view.s(52) - implicitHeight / 2
-    width: view.width - x - view.s(20)
+    width: view.width - x - view.s(20) - view.sealSpace
     text: view.alert ? view.alert.subtitle || "" : ""
     textFormat: Text.PlainText
     renderType: Text.NativeRendering
