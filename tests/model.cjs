@@ -103,6 +103,22 @@ assert.ok(!done({}).includes('--exec'), 'preview has no focus action');
     assert.deepEqual(Array.from(ctx.agentFocusCommand(agent, script)), [], JSON.stringify([agent.pane, agent.source, script]));
 }
 
+// Herdr desktop app (herdr-core): merged when enabled, focused only through the
+// island's own helper with a literal terminal address.
+{
+  const hc = { available: true, agents: [{ pane: 'hc:t13', source: 'herdr-core', agent: 'pi', status: 'working' }] };
+  const plainList = x => JSON.parse(JSON.stringify(x));
+  assert.deepEqual(plainList(ctx.desktopAgents({}, {}, true, false, false, {}, false, {}, false, hc, true)), hc.agents);
+  assert.deepEqual(plainList(ctx.desktopAgents({}, {}, true, false, false, {}, false, {}, false, hc, false)), []);
+  assert.deepEqual(plainList(ctx.desktopAgents({}, {}, true, false, false, {}, false, {}, false, { available: false, agents: hc.agents }, true)), []);
+  const helper = '/plugins/island/generations/g/bin/corgi-status.py';
+  assert.deepEqual(Array.from(ctx.agentFocusCommand(hc.agents[0], helper)),
+    ['python3', '/plugins/island/generations/g/bin/herdr-core-status.py', '--focus', 't13']);
+  for (const [agent, script] of [[hc.agents[0], ''], [{ ...hc.agents[0], source: 'corgi' }, helper],
+      [{ ...hc.agents[0], pane: 'hc:t13; rm -rf ~' }, helper], [{ ...hc.agents[0], pane: 'hc:../x' }, helper]])
+    assert.deepEqual(Array.from(ctx.agentFocusCommand(agent, script)), [], JSON.stringify([agent.pane, agent.source, script]));
+}
+
 // FIFO: the oldest normal one is open, the rest wait in arrival order.
 let q = ctx.noteQueue([n(3), n(1), n(2)]);
 assert.equal(q.current.key, 1);

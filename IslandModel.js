@@ -5,13 +5,15 @@
 
 // Use the desktop notification path: normal urgency opens a card and respects
 // DND. Keep agent-provided text and focus targets in literal argv, never a shell.
-function desktopAgents(flux, hermes, enabled, fluxEnabled, hermesEnabled, corgi, corgiEnabled, opencode, opencodeEnabled) {
+function desktopAgents(flux, hermes, enabled, fluxEnabled, hermesEnabled, corgi, corgiEnabled, opencode, opencodeEnabled, herdrCore, herdrCoreEnabled) {
   if (!enabled) return []
   var h = flux && flux.herdr
   var list = fluxEnabled && h && h.running && Array.isArray(h.agents) ? h.agents : []
   var extra = corgiEnabled && corgi && corgi.available && Array.isArray(corgi.agents) ? corgi.agents : []
   var oc = opencodeEnabled && opencode && opencode.available && Array.isArray(opencode.agents) ? opencode.agents : []
-  return list.concat(hermesEnabled && hermes && hermes.available && Array.isArray(hermes.agents) ? hermes.agents : [], extra, oc)
+  // The Herdr desktop app's agents live in herdr-core, which Flux doesn't read.
+  var hc = herdrCoreEnabled && herdrCore && herdrCore.available && Array.isArray(herdrCore.agents) ? herdrCore.agents : []
+  return list.concat(hermesEnabled && hermes && hermes.available && Array.isArray(hermes.agents) ? hermes.agents : [], extra, oc, hc)
     .filter(function(a) { return a && typeof a === "object" })
 }
 
@@ -32,6 +34,12 @@ function agentFocusCommand(agent, corgiScript) {
     var helper = siblingScript(corgiScript, "opencode-status.py")
     return /^opencode:ses_[A-Za-z0-9]{1,64}$/.test(pane) && agent.source === "opencode" && helper
       ? ["python3", helper, "--focus", pane.slice(9)] : []
+  }
+  // Herdr desktop app (herdr-core): show the terminal in the app
+  if (pane.indexOf("hc:") === 0) {
+    var hcHelper = siblingScript(corgiScript, "herdr-core-status.py")
+    return /^hc:t[0-9]{1,12}$/.test(pane) && agent.source === "herdr-core" && hcHelper
+      ? ["python3", hcHelper, "--focus", pane.slice(3)] : []
   }
   // Hermes' window, by its app id: through Umbriel's window list there, else Hyprland.
   if (pane.indexOf("hermes:") === 0)

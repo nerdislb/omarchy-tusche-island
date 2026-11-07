@@ -11,6 +11,7 @@ import "../IslandModel.js" as Model
 //   Omarchy agent usage       subscription limits close to running out
 //   Hermes turn markers      live Desktop/TUI turns (read-only, one home)
 //   Corgi, OpenCode          their agents' and sessions' states (read-only)
+//   Herdr desktop app        its agents, from herdr-core (hc ls; read-only)
 //
 // No chat bodies or credentials leave Hermes. Flux only receives "subscribe".
 Item {
@@ -218,9 +219,44 @@ Item {
     }
   }
 
+  // Herdr desktop app: its agents run in herdr-core (`hc ls`), which Flux
+  // doesn't read. bin/herdr-core-status.py lists live agent terminals, names
+  // and states only; it repeats a snapshot every few seconds as a heartbeat.
+  readonly property bool herdrCoreEnabled: agentsEnabled && on("herdrCore")
+  readonly property string herdrCoreScript: decodeURIComponent(Qt.resolvedUrl("../bin/herdr-core-status.py").toString().replace(/^file:\/\//, ""))
+  property var herdrCoreState: ({})
+  property double herdrCoreReceived: 0
+  property double herdrCoreStarted: 0
+  function handleHerdrCore(line) {
+    var next
+    try { next = JSON.parse(line) } catch (e) { next = {} }
+    herdrCoreReceived = Date.now()
+    if (JSON.stringify(next) !== JSON.stringify(herdrCoreState)) herdrCoreState = next
+  }
+  Process {
+    id: herdrCoreProcess
+    command: ["python3", desk.herdrCoreScript, "--watch"]
+    running: desk.herdrCoreEnabled
+    stdout: SplitParser { onRead: data => desk.handleHerdrCore(data) }
+    onRunningChanged: {
+      if (running) { desk.herdrCoreStarted = Date.now(); return }
+      desk.herdrCoreState = ({}); desk.herdrCoreReceived = 0; desk.herdrCoreStarted = 0
+    }
+  }
+  onHerdrCoreEnabledChanged: herdrCoreProcess.running = herdrCoreEnabled
+  Timer {
+    interval: 2000
+    repeat: true
+    running: desk.herdrCoreEnabled
+    onTriggered: {
+      if (!herdrCoreProcess.running) herdrCoreProcess.running = true
+      else if (desk.collectorStuck(desk.herdrCoreStarted, desk.herdrCoreReceived)) herdrCoreProcess.running = false
+    }
+  }
+
   // ---- agents
   readonly property var agents: Model.desktopAgents(fluxState, hermesState, agentsEnabled, fluxEnabled, hermesEnabled, corgiState, corgiEnabled,
-                                                    opencodeState, opencodeEnabled)
+                                                    opencodeState, opencodeEnabled, herdrCoreState, herdrCoreEnabled)
   readonly property var panelAgents: agents.filter(function(a) {
     return a.source === "corgi" || a.status === "working" || a.status === "blocked"
   }).sort(function(a, b) {
@@ -276,7 +312,7 @@ Item {
         island.announceAgentDone(a)
     }
     seen = next
-    if (fluxState.herdr || hermesState.available || corgiState.available || opencodeState.available) primed = true
+    if (fluxState.herdr || hermesState.available || corgiState.available || opencodeState.available || herdrCoreState.available) primed = true
     syncActivity()
   }
 
@@ -403,6 +439,8 @@ Item {
       corgiAgents: corgiEnabled && Array.isArray(corgiState.agents) ? corgiState.agents.length : 0,
       opencode: opencodeEnabled && opencodeState.available === true,
       opencodeAgents: opencodeEnabled && Array.isArray(opencodeState.agents) ? opencodeState.agents.length : 0,
+      herdrCore: herdrCoreEnabled && herdrCoreState.available === true,
+      herdrCoreAgents: herdrCoreEnabled && Array.isArray(herdrCoreState.agents) ? herdrCoreState.agents.length : 0,
       agents: agents.length,
       working: working.map(function(a) { return a.agent + ": " + (a.title || "") }),
       phone: phone,
