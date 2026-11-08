@@ -1,0 +1,56 @@
+Warning: sources/Desktop.qml:57:13: Unqualified access [unqualified]
+      path: desk.socketPath
+            ^^^^
+Info: Set "pragma ComponentBehavior: Bound" in order to use IDs from outer components in nested components.
+Suggested change:
+pragma ComponentBehavior: Bound
+import QtQuick
+Warning: sources/Desktop.qml:60:24: Unqualified access [unqualified]
+        if (socket !== desk.sock) return
+                       ^^^^
+Info: Set "pragma ComponentBehavior: Bound" in order to use IDs from outer components in nested components.
+Suggested change:
+pragma ComponentBehavior: Bound
+import QtQuick
+Warning: sources/Desktop.qml:62:11: Unqualified access [unqualified]
+          desk.retryDelay = 3000
+          ^^^^
+Info: Set "pragma ComponentBehavior: Bound" in order to use IDs from outer components in nested components.
+Suggested change:
+pragma ComponentBehavior: Bound
+import QtQuick
+Warning: sources/Desktop.qml:66:11: Unqualified access [unqualified]
+          desk.fluxState = ({})
+          ^^^^
+Info: Set "pragma ComponentBehavior: Bound" in order to use IDs from outer components in nested components.
+Suggested change:
+pragma ComponentBehavior: Bound
+import QtQuick
+Warning: sources/Desktop.qml:58:45: Unqualified access [unqualified]
+      parser: SplitParser { onRead: data => desk.handle(data) }
+                                            ^^^^
+Info: Set "pragma ComponentBehavior: Bound" in order to use IDs from outer components in nested components.
+Suggested change:
+pragma ComponentBehavior: Bound
+import QtQuick
+Warning: sources/Desktop.qml:380:13: Unqualified access [unqualified]
+      path: desk.usageDir + "/" + modelData + ".json"
+            ^^^^
+Info: Set "pragma ComponentBehavior: Bound" in order to use IDs from outer components in nested components.
+Suggested change:
+pragma ComponentBehavior: Bound
+import QtQuick
+Warning: sources/Desktop.qml:384:17: Unqualified access [unqualified]
+      onLoaded: desk.setUsage(modelData, Model.usageLimits(text(), modelData))
+                ^^^^
+Info: Set "pragma ComponentBehavior: Bound" in order to use IDs from outer components in nested components.
+Suggested change:
+pragma ComponentBehavior: Bound
+import QtQuick
+Warning: sources/Desktop.qml:385:21: Unqualified access [unqualified]
+      onLoadFailed: desk.setUsage(modelData, [])
+                    ^^^^
+Info: Set "pragma ComponentBehavior: Bound" in order to use IDs from outer components in nested components.
+Suggested change:
+pragma ComponentBehavior: Bound
+import QtQuick

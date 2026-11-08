@@ -1,0 +1,21 @@
+test_bad_input (test_herdr_core_status.HerdrCoreStatus.test_bad_input) ... ok
+test_cli_parity (test_herdr_core_status.HerdrCoreStatus.test_cli_parity) ... ok
+test_deltas_and_sequence_fence (test_herdr_core_status.HerdrCoreStatus.test_deltas_and_sequence_fence) ... ok
+test_endpoint_resolution (test_herdr_core_status.HerdrCoreStatus.test_endpoint_resolution) ... ok
+test_focus_rejects_odd_address (test_herdr_core_status.HerdrCoreStatus.test_focus_rejects_odd_address) ... ok
+test_labels_record_and_missed (test_herdr_core_status.HerdrCoreStatus.test_labels_record_and_missed) ... ok
+test_limit_and_creation_order (test_herdr_core_status.HerdrCoreStatus.test_limit_and_creation_order) ... ok
+test_remote_groups_follow_cli_machine_order (test_herdr_core_status.HerdrCoreStatus.test_remote_groups_follow_cli_machine_order) ... ok
+test_retry_backoff_caps_at_thirty_seconds (test_herdr_core_status.HerdrCoreStatus.test_retry_backoff_caps_at_thirty_seconds) ... ok
+test_silent_core_deadlines (test_herdr_core_status.HerdrCoreStatus.test_silent_core_deadlines) ... ok
+test_snapshot (test_herdr_core_status.HerdrCoreStatus.test_snapshot) ... ok
+test_unrelated_events_and_gaps (test_herdr_core_status.HerdrCoreStatus.test_unrelated_events_and_gaps) ... ok
+test_bad_response_and_sequence_gap_reconnect (test_herdr_core_status.SocketWatch.test_bad_response_and_sequence_gap_reconnect) ... ok
+test_missing_socket_keeps_heartbeat_without_cli (test_herdr_core_status.SocketWatch.test_missing_socket_keeps_heartbeat_without_cli) ... ok
+test_remote_machine_metadata_is_read_only_on_topology_change (test_herdr_core_status.SocketWatch.test_remote_machine_metadata_is_read_only_on_topology_change) ... ok
+test_stream_heartbeat_missed_and_reconnect (test_herdr_core_status.SocketWatch.test_stream_heartbeat_missed_and_reconnect) ... ok
+
+----------------------------------------------------------------------
+Ran 16 tests in 9.810s
+
+OK

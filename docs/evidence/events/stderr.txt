@@ -1,0 +1,4 @@
+core.stderr
+events.stderr
+polling.stderr
+smoke.stderr

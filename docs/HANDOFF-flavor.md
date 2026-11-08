@@ -168,3 +168,122 @@ shell logs include unavailable PipeWire/Hyprland-service warnings, expected
 without the owner's buses. There are no flavor QML exceptions or binding loops
 in the final private-shell log. No new idle CPU benchmark was taken; runtime
 checks verify that the stage clock and decoration animations stop at rest.
+
+## Strand K — herdr-core event subscription (08 November 2026)
+
+Implementation: `4c4dd7b`, continuing this branch from `1879de1`. New payload
+generation: `edffac8c736634c7`; rollback payload: `e353b258a04e93a7`.
+The contract, flavor behavior and settings are unchanged. No live files,
+services, plugins, compositor or default core session were changed or started.
+
+`--watch` now opens the Unix socket directly and sends plain-mode JSON-RPC
+`events.subscribe {}`. It consumes the atomic snapshot, applies terminal fact
+changes and replaces the records on `missed`. Duplicate/old sequences are
+ignored; a sequence gap reconnects for a fresh snapshot. Every reconnect
+starts a new sequence fence. Loss leaves a kept terminal live with no PID or
+foreground; finish removes it from the displayed live list. Created/restarted
+records replace earlier records, including reappearing remote terminals.
+
+API records are normalized exactly as hc 0.1.18's `cli/output.rs::short`:
+agent = root `status.app`, otherwise argv[0]'s basename; where = `labels.where`;
+status = root `status.state`. An explicitly empty app remains empty. The
+existing filters, status mapping, field lengths, LIMIT, compact sorted JSON
+and ASCII escaping are shared with `--once`. OSC terminal titles and
+foreground folders do not change the displayed title/directory. Local records
+retain numeric terminal order. With remote terminals, `machine.list {}` reads
+configured machine order only when the set of represented remote machines
+changes; terminal numbers sort within each group. Both methods exist in
+`released.openrpc.json` for 0.1.18. No terminal output is read.
+
+The collector emits changed lists/availability immediately and repeats the
+current line every **3 seconds**. `Desktop.collectorStuck` expires a received
+line after 8 seconds (first-line grace: 15 seconds), so using the core's
+15-second heartbeat directly would cause restarts. This watchdog is unchanged.
+The core heartbeat maintains connection health: an initial response has a
+5-second deadline; 45 seconds without complete core messages forces a fresh
+connection. Socket failure/EOF/protocol failure emits `available:false`, clears
+displayed agents and retries after 1, 2, 4, 8, 16, then 30 seconds. Output
+heartbeats continue during backoff. Watch mode never invokes `hc`, including
+when the socket is missing and the executable is present. `--once` retains
+`hc ls --json`; the entire `--focus` implementation is unchanged.
+
+Endpoint resolution follows HC_SOCKET, the optional config `socket`, then
+XDG_RUNTIME_DIR/herdr-core/<HC_SESSION-or-default>.sock. Without a runtime
+override it uses an existing /run/user/<uid> directory, otherwise the XDG state
+home. These are read-only path lookups; the collector does not create a core.
+
+### Verification and evidence
+
+See [event evidence](evidence/events/README.md), with raw measurements,
+fixtures, output observations, test logs and cleanup records. Reproduce:
+
+```bash
+cd ~/Data/Development/projects/tusche-island-looks-20261107
+PYTHONDONTWRITEBYTECODE=1 python3 -m unittest discover -s tests -p 'test_*.py' -v
+PYTHONDONTWRITEBYTECODE=1 python3 tools/events-evidence.py
+PYTHONDONTWRITEBYTECODE=1 python3 tools/events-reload-evidence.py
+```
+
+The real-core harness starts installed hc 0.1.18 in a private, foreground
+`HC_SESSION=islandtest` core with its own HOME and every XDG directory under
+`/tmp/island-events-*`. It calls `hc run --bg` with a script reporting OSC 7501
+`state=working:app=island-fixture` and then `state=done:app=island-fixture`,
+asserts both collector observations, records a real 15-second core heartbeat,
+and compares the new event state with the unmodified `1879de1` collector's
+output for the same API/CLI fixtures. It then measures both watch collectors
+for at least 60 seconds against the same quiet private core. All temporary
+processes and directories are cleaned up; no owner data is used.
+
+The fake Unix-core tests cover snapshot/deltas, labels, missed snapshots,
+sequence fences, batching/fragmentation, EOF/reconnect, RPC errors and gaps,
+unchanged-output suppression, the 3-second heartbeat, missing socket with hc
+present, numeric/machine ordering and LIMIT. Deterministic clock tests cover
+the 30-second backoff cap and both silent-core deadlines. Fixture parity also
+checks the state after status/label events, empty app, Unicode/truncation,
+unknown status and argv fallback. All 46 Python tests pass. Model, Corgi and
+flavor Node checks pass; Desktop.qml qmllint exits 0 with its existing eight
+unqualified-access warnings.
+
+The private reload harness starts headless Umbriel with `env -i`, private
+HOME/XDG paths and GLES `renderD129`, then a minimal real Quickshell Loader
+hosting the unchanged Desktop.qml. It changes between immutable source URLs:
+the first collector PID ends, a new collector uses the second generation's
+script path, and unloading leaves no collector. The shell's
+`syncPanelEntries()` removes/recreates panel entries on a changed sourceUrl;
+`Island.qml` owns Desktop.qml. Together these establish that the normal
+publish/rescan URL change replaces the collector without restarting the shell.
+
+Not exercised: installation/rescan in the owner's running shell, a full-shell
+rescan roundtrip in the private fixture, physical displays, real remote cores,
+or native backpressure sufficient to induce `missed`. Remote/missed behavior
+is tested with the fake core. The default owner core was not queried.
+
+### Install and rollback — Claude in the owner's session
+
+These are integrator instructions; they were not run live. No shell restart
+or flavor/options change is required:
+
+```bash
+cd ~/Data/Development/projects/tusche-island-looks-20261107
+./dev-install.sh
+omarchy-shell tusche-island state
+```
+
+The installer should report generation `edffac8c736634c7`. Publishing changes
+the immutable entry-point URLs and rescans plugins, replacing the collector.
+The state should report herdr-core availability/count matching the running
+core. A quiet collector continues printing a line every 3 seconds.
+
+To restore the live generation from before this strand, use a fresh detached
+worktree directory on the data partition (do not reset this working branch):
+
+```bash
+cd ~/Data/Development/projects/tusche-island-looks-20261107
+git worktree add --detach ~/Data/Development/projects/tusche-island-before-events-20261108 1879de1
+cd ~/Data/Development/projects/tusche-island-before-events-20261108
+./dev-install.sh
+```
+
+That payload was independently hashed as `e353b258a04e93a7`. It restores the
+polling collector and keeps the existing flavors/settings. No shell restart
+is needed for rollback either.

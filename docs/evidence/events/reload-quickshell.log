@@ -1,0 +1,6 @@
+[32m  INFO[0m: Launching config: "/tmp/island-events-reload-s1qe2yf2/shell.qml"
+[32m  INFO[0m: Shell ID: "0e2c79d0732901a2df74da147b99efe0" Path ID "0e2c79d0732901a2df74da147b99efe0"
+[32m  INFO[0m: Saving logs to "/tmp/island-events-reload-s1qe2yf2/run/quickshell/by-id/iauh2t4b6ot/log.qslog"
+[32m  INFO[0m: Configuration Loaded
+[34m DEBUG[97m qml[0m: REPLACE_GENERATION
+[34m DEBUG[97m qml[0m: UNLOADED

@@ -1,0 +1,51 @@
+test_bounds (test_corgi_status.StatusTests.test_bounds) ... ok
+test_failures_are_unavailable (test_corgi_status.StatusTests.test_failures_are_unavailable) ... ok
+test_focus_handles_updated_lowercase_terminal_title (test_corgi_status.StatusTests.test_focus_handles_updated_lowercase_terminal_title) ... ok
+test_focus_literal_and_unique (test_corgi_status.StatusTests.test_focus_literal_and_unique) ... ok
+test_focus_raises_the_terminal_on_umbriel (test_corgi_status.StatusTests.test_focus_raises_the_terminal_on_umbriel) ... ok
+test_focus_rejects_closed_or_malformed (test_corgi_status.StatusTests.test_focus_rejects_closed_or_malformed) ... ok
+test_invalid_and_closed (test_corgi_status.StatusTests.test_invalid_and_closed) ... ok
+test_states_and_current_panes_only (test_corgi_status.StatusTests.test_states_and_current_panes_only) ... ok
+test_bad_input (test_herdr_core_status.HerdrCoreStatus.test_bad_input) ... ok
+test_cli_parity (test_herdr_core_status.HerdrCoreStatus.test_cli_parity) ... ok
+test_deltas_and_sequence_fence (test_herdr_core_status.HerdrCoreStatus.test_deltas_and_sequence_fence) ... ok
+test_endpoint_resolution (test_herdr_core_status.HerdrCoreStatus.test_endpoint_resolution) ... ok
+test_focus_rejects_odd_address (test_herdr_core_status.HerdrCoreStatus.test_focus_rejects_odd_address) ... ok
+test_labels_record_and_missed (test_herdr_core_status.HerdrCoreStatus.test_labels_record_and_missed) ... ok
+test_limit_and_creation_order (test_herdr_core_status.HerdrCoreStatus.test_limit_and_creation_order) ... ok
+test_remote_groups_follow_cli_machine_order (test_herdr_core_status.HerdrCoreStatus.test_remote_groups_follow_cli_machine_order) ... ok
+test_retry_backoff_caps_at_thirty_seconds (test_herdr_core_status.HerdrCoreStatus.test_retry_backoff_caps_at_thirty_seconds) ... ok
+test_silent_core_deadlines (test_herdr_core_status.HerdrCoreStatus.test_silent_core_deadlines) ... ok
+test_snapshot (test_herdr_core_status.HerdrCoreStatus.test_snapshot) ... ok
+test_unrelated_events_and_gaps (test_herdr_core_status.HerdrCoreStatus.test_unrelated_events_and_gaps) ... ok
+test_bad_response_and_sequence_gap_reconnect (test_herdr_core_status.SocketWatch.test_bad_response_and_sequence_gap_reconnect) ... ok
+test_missing_socket_keeps_heartbeat_without_cli (test_herdr_core_status.SocketWatch.test_missing_socket_keeps_heartbeat_without_cli) ... ok
+test_remote_machine_metadata_is_read_only_on_topology_change (test_herdr_core_status.SocketWatch.test_remote_machine_metadata_is_read_only_on_topology_change) ... ok
+test_stream_heartbeat_missed_and_reconnect (test_herdr_core_status.SocketWatch.test_stream_heartbeat_missed_and_reconnect) ... ok
+test_concluded_turn_emits_one_idle_snapshot_then_disappears (test_hermes_status.HermesStatusTests.test_concluded_turn_emits_one_idle_snapshot_then_disappears) ... ok
+test_dead_unknown_and_stale_writers_never_work_or_complete (test_hermes_status.HermesStatusTests.test_dead_unknown_and_stale_writers_never_work_or_complete) ... ok
+test_linux_writer_identity_rejects_reused_pid_and_unknown_start (test_hermes_status.HermesStatusTests.test_linux_writer_identity_rejects_reused_pid_and_unknown_start) ... ok
+test_missing_title_database_is_optional_and_never_created (test_hermes_status.HermesStatusTests.test_missing_title_database_is_optional_and_never_created) ... ok
+test_unreadable_marker_drops_state_without_a_completion (test_hermes_status.HermesStatusTests.test_unreadable_marker_drops_state_without_a_completion) ... ok
+test_watch_cli_reads_real_marker_and_observes_its_removal (test_hermes_status.HermesStatusTests.test_watch_cli_reads_real_marker_and_observes_its_removal) ... ok
+test_working_turn_uses_only_title_and_never_writes_hermes_state (test_hermes_status.HermesStatusTests.test_working_turn_uses_only_title_and_never_writes_hermes_state) ... ok
+test_a_path_out_of_the_folder_is_left_alone (test_install_generation.InstallTests.test_a_path_out_of_the_folder_is_left_alone) ... ok
+test_the_island_moves_only_its_own_module_urls (test_install_generation.InstallTests.test_the_island_moves_only_its_own_module_urls) ... ok
+test_server_sent_events (test_opencode_status.EventTests.test_server_sent_events) ... ok
+test_its_own_window_else_the_only_one (test_opencode_status.FocusTests.test_its_own_window_else_the_only_one) ... ok
+test_never_guesses_or_runs_untrusted_ids (test_opencode_status.FocusTests.test_never_guesses_or_runs_untrusted_ids) ... ok
+test_local_service_with_basic_auth (test_opencode_status.RegistrationTests.test_local_service_with_basic_auth) ... ok
+test_missing_broken_or_dead (test_opencode_status.RegistrationTests.test_missing_broken_or_dead) ... ok
+test_never_sends_the_password_elsewhere (test_opencode_status.RegistrationTests.test_never_sends_the_password_elsewhere) ... ok
+test_stream_from_a_local_service (test_opencode_status.ServiceTests.test_stream_from_a_local_service) ... ok
+test_a_run_and_its_end (test_opencode_status.TrackerTests.test_a_run_and_its_end) ... ok
+test_finished_sessions_leave_and_come_back (test_opencode_status.TrackerTests.test_finished_sessions_leave_and_come_back) ... ok
+test_reconnect_takes_what_runs_now (test_opencode_status.TrackerTests.test_reconnect_takes_what_runs_now) ... ok
+test_unavailable_until_connected (test_opencode_status.TrackerTests.test_unavailable_until_connected) ... ok
+test_unknown_sessions_appear_only_by_starting_or_asking (test_opencode_status.TrackerTests.test_unknown_sessions_appear_only_by_starting_or_asking) ... ok
+test_waiting_for_the_user_counts_for_the_top_session (test_opencode_status.TrackerTests.test_waiting_for_the_user_counts_for_the_top_session) ... ok
+
+----------------------------------------------------------------------
+Ran 46 tests in 10.818s
+
+OK

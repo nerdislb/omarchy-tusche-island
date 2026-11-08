@@ -1,0 +1,13 @@
+{
+  "private_root": "/tmp/island-events-reload-s1qe2yf2",
+  "private_root_removed": true,
+  "owned_pids": [
+    4191453,
+    4191642
+  ],
+  "collector_pids": [
+    4191668,
+    4191719
+  ],
+  "processes_reaped": true
+}

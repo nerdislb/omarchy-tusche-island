@@ -1,0 +1,604 @@
+{
+  "base_commit": "1879de1",
+  "private_root": "/tmp/island-events-9ktigutw",
+  "session": "islandtest",
+  "environment": {
+    "HOME": "/tmp/island-events-9ktigutw/home",
+    "PATH": "/usr/bin:/bin:/home/nerdi/.local/bin",
+    "LANG": "C.UTF-8",
+    "USER": "nerdi",
+    "HC_SESSION": "islandtest",
+    "XDG_RUNTIME_DIR": "/tmp/island-events-9ktigutw/run",
+    "XDG_STATE_HOME": "/tmp/island-events-9ktigutw/state",
+    "XDG_CONFIG_HOME": "/tmp/island-events-9ktigutw/config",
+    "XDG_CACHE_HOME": "/tmp/island-events-9ktigutw/cache",
+    "XDG_DATA_HOME": "/tmp/island-events-9ktigutw/data",
+    "PYTHONDONTWRITEBYTECODE": "1"
+  },
+  "core_version": "hc 0.1.18",
+  "collector_sha256": "629f4678196bd07f084f378fd68dc3183bbc76c00d04dedfa251b0096b5bb3c8",
+  "core_heartbeat": {
+    "seconds": 15.0006,
+    "message": {
+      "jsonrpc": "2.0",
+      "method": "heartbeat",
+      "params": {
+        "seq": 5
+      }
+    }
+  },
+  "smoke": {
+    "address": "t1",
+    "working": {
+      "seconds": 0.1384,
+      "value": {
+        "agents": [
+          {
+            "agent": "island-fixture",
+            "directory": "/home/nerdi/Data/Development/projects/tusche-island-looks-20261107",
+            "pane": "hc:t1",
+            "source": "herdr-core",
+            "status": "working",
+            "title": "Island fixture"
+          }
+        ],
+        "available": true
+      }
+    },
+    "done": {
+      "seconds": 1.3384,
+      "value": {
+        "agents": [
+          {
+            "agent": "island-fixture",
+            "directory": "/home/nerdi/Data/Development/projects/tusche-island-looks-20261107",
+            "pane": "hc:t1",
+            "source": "herdr-core",
+            "status": "idle",
+            "title": "Island fixture"
+          }
+        ],
+        "available": true
+      }
+    },
+    "observations": [
+      {
+        "seconds": 0.1064,
+        "value": {
+          "agents": [],
+          "available": true
+        }
+      },
+      {
+        "seconds": 0.1213,
+        "value": {
+          "agents": [
+            {
+              "agent": "python3",
+              "directory": "/home/nerdi/Data/Development/projects/tusche-island-looks-20261107",
+              "pane": "hc:t1",
+              "source": "herdr-core",
+              "status": "unknown",
+              "title": "Island fixture"
+            }
+          ],
+          "available": true
+        }
+      },
+      {
+        "seconds": 0.1384,
+        "value": {
+          "agents": [
+            {
+              "agent": "island-fixture",
+              "directory": "/home/nerdi/Data/Development/projects/tusche-island-looks-20261107",
+              "pane": "hc:t1",
+              "source": "herdr-core",
+              "status": "working",
+              "title": "Island fixture"
+            }
+          ],
+          "available": true
+        }
+      },
+      {
+        "seconds": 1.3384,
+        "value": {
+          "agents": [
+            {
+              "agent": "island-fixture",
+              "directory": "/home/nerdi/Data/Development/projects/tusche-island-looks-20261107",
+              "pane": "hc:t1",
+              "source": "herdr-core",
+              "status": "idle",
+              "title": "Island fixture"
+            }
+          ],
+          "available": true
+        }
+      },
+      {
+        "seconds": 4.3411,
+        "value": {
+          "agents": [
+            {
+              "agent": "island-fixture",
+              "directory": "/home/nerdi/Data/Development/projects/tusche-island-looks-20261107",
+              "pane": "hc:t1",
+              "source": "herdr-core",
+              "status": "idle",
+              "title": "Island fixture"
+            }
+          ],
+          "available": true
+        }
+      },
+      {
+        "seconds": 7.3441,
+        "value": {
+          "agents": [
+            {
+              "agent": "island-fixture",
+              "directory": "/home/nerdi/Data/Development/projects/tusche-island-looks-20261107",
+              "pane": "hc:t1",
+              "source": "herdr-core",
+              "status": "idle",
+              "title": "Island fixture"
+            }
+          ],
+          "available": true
+        }
+      },
+      {
+        "seconds": 10.3473,
+        "value": {
+          "agents": [
+            {
+              "agent": "island-fixture",
+              "directory": "/home/nerdi/Data/Development/projects/tusche-island-looks-20261107",
+              "pane": "hc:t1",
+              "source": "herdr-core",
+              "status": "idle",
+              "title": "Island fixture"
+            }
+          ],
+          "available": true
+        }
+      },
+      {
+        "seconds": 13.3501,
+        "value": {
+          "agents": [
+            {
+              "agent": "island-fixture",
+              "directory": "/home/nerdi/Data/Development/projects/tusche-island-looks-20261107",
+              "pane": "hc:t1",
+              "source": "herdr-core",
+              "status": "idle",
+              "title": "Island fixture"
+            }
+          ],
+          "available": true
+        }
+      }
+    ]
+  },
+  "polling_sha256": "9ebc3d0294c9c56129933122a47857f652b0eb4fe81dcafcd59a88d66f45c22f",
+  "parity": {
+    "byte_equal": true,
+    "polling_line": "{\"agents\":[{\"agent\":\"island-fixture\",\"directory\":\"/home/nerdi/Data/Development/projects/tusche-island-looks-20261107\",\"pane\":\"hc:t1\",\"source\":\"herdr-core\",\"status\":\"idle\",\"title\":\"Island fixture\"}],\"available\":true}",
+    "event_line": "{\"agents\":[{\"agent\":\"island-fixture\",\"directory\":\"/home/nerdi/Data/Development/projects/tusche-island-looks-20261107\",\"pane\":\"hc:t1\",\"source\":\"herdr-core\",\"status\":\"idle\",\"title\":\"Island fixture\"}],\"available\":true}",
+    "cli_fixture": {
+      "hidden_finished": 0,
+      "terminals": [
+        {
+          "address": "t1",
+          "agent": "island-fixture",
+          "cwd": "/home/nerdi/Data/Development/projects/tusche-island-looks-20261107",
+          "name": "island-fixture",
+          "state": "live",
+          "status": "done",
+          "turn": 1,
+          "where": "Island fixture"
+        }
+      ]
+    },
+    "api_fixture": {
+      "id": 1,
+      "jsonrpc": "2.0",
+      "result": {
+        "channel": null,
+        "seq": 5,
+        "terminals": [
+          {
+            "address": "t1",
+            "argv": [
+              "/usr/bin/python3",
+              "/tmp/island-events-9ktigutw/agent.py"
+            ],
+            "cols": 200,
+            "created_ms": 1794124093611,
+            "cwd": "/home/nerdi/Data/Development/projects/tusche-island-looks-20261107",
+            "die_with_parent": false,
+            "exit_code": null,
+            "finished_ms": null,
+            "foreground": {
+              "argv": [
+                "/usr/bin/python3",
+                "/tmp/island-events-9ktigutw/agent.py"
+              ],
+              "cwd": "/home/nerdi/Data/Development/projects/tusche-island-looks-20261107",
+              "name": "python3",
+              "pid": 4186168
+            },
+            "identity": "ghostty",
+            "keep": false,
+            "labels": {
+              "where": "Island fixture"
+            },
+            "name": "island-fixture",
+            "notify": false,
+            "parent": null,
+            "pid": 4186168,
+            "reason": null,
+            "reported": true,
+            "rm": false,
+            "rows": 120,
+            "screen": "exact",
+            "signal": null,
+            "state": "live",
+            "status": {
+              "app": "island-fixture",
+              "state": "done"
+            },
+            "status_ms": 1794124094829,
+            "template": null,
+            "title": "",
+            "turn": 1
+          }
+        ]
+      }
+    }
+  },
+  "polling": {
+    "seconds": 60.14869873999851,
+    "collector_cpu_seconds": 0.171472,
+    "child_cpu_seconds": 0.10998,
+    "total_cpu_seconds": 0.28145200000000004,
+    "total_one_cpu_percent": 0.46792699741787797,
+    "process_starts": 40,
+    "starts": [
+      {
+        "seconds": 0.05274801499035675,
+        "argv": [
+          "/home/nerdi/.local/bin/hc",
+          "ls",
+          "--json"
+        ]
+      },
+      {
+        "seconds": 1.5562873989983927,
+        "argv": [
+          "/home/nerdi/.local/bin/hc",
+          "ls",
+          "--json"
+        ]
+      },
+      {
+        "seconds": 3.0616248119913507,
+        "argv": [
+          "/home/nerdi/.local/bin/hc",
+          "ls",
+          "--json"
+        ]
+      },
+      {
+        "seconds": 4.566765832001693,
+        "argv": [
+          "/home/nerdi/.local/bin/hc",
+          "ls",
+          "--json"
+        ]
+      },
+      {
+        "seconds": 6.069627104996471,
+        "argv": [
+          "/home/nerdi/.local/bin/hc",
+          "ls",
+          "--json"
+        ]
+      },
+      {
+        "seconds": 7.5754276660009054,
+        "argv": [
+          "/home/nerdi/.local/bin/hc",
+          "ls",
+          "--json"
+        ]
+      },
+      {
+        "seconds": 9.079438204993494,
+        "argv": [
+          "/home/nerdi/.local/bin/hc",
+          "ls",
+          "--json"
+        ]
+      },
+      {
+        "seconds": 10.581618680997053,
+        "argv": [
+          "/home/nerdi/.local/bin/hc",
+          "ls",
+          "--json"
+        ]
+      },
+      {
+        "seconds": 12.08438031100377,
+        "argv": [
+          "/home/nerdi/.local/bin/hc",
+          "ls",
+          "--json"
+        ]
+      },
+      {
+        "seconds": 13.58986124600051,
+        "argv": [
+          "/home/nerdi/.local/bin/hc",
+          "ls",
+          "--json"
+        ]
+      },
+      {
+        "seconds": 15.092470827992656,
+        "argv": [
+          "/home/nerdi/.local/bin/hc",
+          "ls",
+          "--json"
+        ]
+      },
+      {
+        "seconds": 16.59500849599135,
+        "argv": [
+          "/home/nerdi/.local/bin/hc",
+          "ls",
+          "--json"
+        ]
+      },
+      {
+        "seconds": 18.097412247996544,
+        "argv": [
+          "/home/nerdi/.local/bin/hc",
+          "ls",
+          "--json"
+        ]
+      },
+      {
+        "seconds": 19.600024408995523,
+        "argv": [
+          "/home/nerdi/.local/bin/hc",
+          "ls",
+          "--json"
+        ]
+      },
+      {
+        "seconds": 21.102547706992482,
+        "argv": [
+          "/home/nerdi/.local/bin/hc",
+          "ls",
+          "--json"
+        ]
+      },
+      {
+        "seconds": 22.60465626299265,
+        "argv": [
+          "/home/nerdi/.local/bin/hc",
+          "ls",
+          "--json"
+        ]
+      },
+      {
+        "seconds": 24.106966790990555,
+        "argv": [
+          "/home/nerdi/.local/bin/hc",
+          "ls",
+          "--json"
+        ]
+      },
+      {
+        "seconds": 25.609111796991783,
+        "argv": [
+          "/home/nerdi/.local/bin/hc",
+          "ls",
+          "--json"
+        ]
+      },
+      {
+        "seconds": 27.111261472004117,
+        "argv": [
+          "/home/nerdi/.local/bin/hc",
+          "ls",
+          "--json"
+        ]
+      },
+      {
+        "seconds": 28.613526877001277,
+        "argv": [
+          "/home/nerdi/.local/bin/hc",
+          "ls",
+          "--json"
+        ]
+      },
+      {
+        "seconds": 30.11585122499673,
+        "argv": [
+          "/home/nerdi/.local/bin/hc",
+          "ls",
+          "--json"
+        ]
+      },
+      {
+        "seconds": 31.618078625993803,
+        "argv": [
+          "/home/nerdi/.local/bin/hc",
+          "ls",
+          "--json"
+        ]
+      },
+      {
+        "seconds": 33.121521998997196,
+        "argv": [
+          "/home/nerdi/.local/bin/hc",
+          "ls",
+          "--json"
+        ]
+      },
+      {
+        "seconds": 34.626780197999324,
+        "argv": [
+          "/home/nerdi/.local/bin/hc",
+          "ls",
+          "--json"
+        ]
+      },
+      {
+        "seconds": 36.13210469100159,
+        "argv": [
+          "/home/nerdi/.local/bin/hc",
+          "ls",
+          "--json"
+        ]
+      },
+      {
+        "seconds": 37.637549641993246,
+        "argv": [
+          "/home/nerdi/.local/bin/hc",
+          "ls",
+          "--json"
+        ]
+      },
+      {
+        "seconds": 39.14541601599194,
+        "argv": [
+          "/home/nerdi/.local/bin/hc",
+          "ls",
+          "--json"
+        ]
+      },
+      {
+        "seconds": 40.65061569699901,
+        "argv": [
+          "/home/nerdi/.local/bin/hc",
+          "ls",
+          "--json"
+        ]
+      },
+      {
+        "seconds": 42.156130938994465,
+        "argv": [
+          "/home/nerdi/.local/bin/hc",
+          "ls",
+          "--json"
+        ]
+      },
+      {
+        "seconds": 43.66149950399995,
+        "argv": [
+          "/home/nerdi/.local/bin/hc",
+          "ls",
+          "--json"
+        ]
+      },
+      {
+        "seconds": 45.167140481004026,
+        "argv": [
+          "/home/nerdi/.local/bin/hc",
+          "ls",
+          "--json"
+        ]
+      },
+      {
+        "seconds": 46.67258880200097,
+        "argv": [
+          "/home/nerdi/.local/bin/hc",
+          "ls",
+          "--json"
+        ]
+      },
+      {
+        "seconds": 48.17780504999973,
+        "argv": [
+          "/home/nerdi/.local/bin/hc",
+          "ls",
+          "--json"
+        ]
+      },
+      {
+        "seconds": 49.683116483996855,
+        "argv": [
+          "/home/nerdi/.local/bin/hc",
+          "ls",
+          "--json"
+        ]
+      },
+      {
+        "seconds": 51.188276326996856,
+        "argv": [
+          "/home/nerdi/.local/bin/hc",
+          "ls",
+          "--json"
+        ]
+      },
+      {
+        "seconds": 52.69342869699176,
+        "argv": [
+          "/home/nerdi/.local/bin/hc",
+          "ls",
+          "--json"
+        ]
+      },
+      {
+        "seconds": 54.19907372399757,
+        "argv": [
+          "/home/nerdi/.local/bin/hc",
+          "ls",
+          "--json"
+        ]
+      },
+      {
+        "seconds": 55.7042387649999,
+        "argv": [
+          "/home/nerdi/.local/bin/hc",
+          "ls",
+          "--json"
+        ]
+      },
+      {
+        "seconds": 57.21031069399032,
+        "argv": [
+          "/home/nerdi/.local/bin/hc",
+          "ls",
+          "--json"
+        ]
+      },
+      {
+        "seconds": 58.71556595400034,
+        "argv": [
+          "/home/nerdi/.local/bin/hc",
+          "ls",
+          "--json"
+        ]
+      }
+    ],
+    "output_lines": 20
+  },
+  "events": {
+    "seconds": 60.08613986999262,
+    "collector_cpu_seconds": 0.095105,
+    "child_cpu_seconds": 0.0,
+    "total_cpu_seconds": 0.095105,
+    "total_one_cpu_percent": 0.1582810947845495,
+    "process_starts": 0,
+    "starts": [],
+    "output_lines": 20
+  }
+}

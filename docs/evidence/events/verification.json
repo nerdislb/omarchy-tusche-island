@@ -1,0 +1,32 @@
+{
+  "model": {
+    "command": [
+      "node",
+      "tests/model.cjs"
+    ],
+    "exit_code": 0
+  },
+  "corgi": {
+    "command": [
+      "node",
+      "tests/corgi.cjs"
+    ],
+    "exit_code": 0
+  },
+  "flavor": {
+    "command": [
+      "node",
+      "tests/flavor.cjs"
+    ],
+    "exit_code": 0
+  },
+  "qmllint": {
+    "command": [
+      "/usr/lib/qt6/bin/qmllint",
+      "--ignore-settings",
+      "sources/Desktop.qml"
+    ],
+    "exit_code": 0
+  },
+  "focus_unchanged": true
+}

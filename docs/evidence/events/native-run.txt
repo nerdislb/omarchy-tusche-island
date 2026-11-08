@@ -1,0 +1,21 @@
+Private OSC working/done and byte parity passed; measuring both collectors for 60 seconds.
+{
+  "polling": {
+    "seconds": 60.14869873999851,
+    "collector_cpu_seconds": 0.171472,
+    "child_cpu_seconds": 0.10998,
+    "total_cpu_seconds": 0.28145200000000004,
+    "total_one_cpu_percent": 0.46792699741787797,
+    "process_starts": 40,
+    "output_lines": 20
+  },
+  "events": {
+    "seconds": 60.08613986999262,
+    "collector_cpu_seconds": 0.095105,
+    "child_cpu_seconds": 0.0,
+    "total_cpu_seconds": 0.095105,
+    "total_one_cpu_percent": 0.1582810947845495,
+    "process_starts": 0,
+    "output_lines": 20
+  }
+}

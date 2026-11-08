@@ -1,0 +1,1 @@
+Corgi merge, focus, lifecycle, geometry and plain text tests ok

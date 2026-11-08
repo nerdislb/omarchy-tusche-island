@@ -1,0 +1,11 @@
+{
+  "private_roots": [
+    "/tmp/island-events-9ktigutw",
+    "/tmp/island-events-reload-s1qe2yf2"
+  ],
+  "all_private_roots_removed": true,
+  "remaining_processes_with_private_paths": [],
+  "measured_and_reload_collector_sha256_match": true,
+  "owner_default_core_queried": false,
+  "live_install_performed": false
+}

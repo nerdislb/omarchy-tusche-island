@@ -1,0 +1,11 @@
+{
+  "private_root": "/tmp/island-events-9ktigutw",
+  "private_root_removed": true,
+  "owned_pids": [
+    4186148,
+    4186151,
+    4186874,
+    4186877
+  ],
+  "processes_reaped": true
+}
