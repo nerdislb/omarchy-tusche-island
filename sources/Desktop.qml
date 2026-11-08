@@ -11,7 +11,7 @@ import "../IslandModel.js" as Model
 //   Omarchy agent usage       subscription limits close to running out
 //   Hermes turn markers      live Desktop/TUI turns (read-only, one home)
 //   Corgi, OpenCode          their agents' and sessions' states (read-only)
-//   Herdr desktop app        its agents, from herdr-core (hc ls; read-only)
+//   Herdr desktop app        its agents, from herdr-core (event subscription; read-only)
 //
 // No chat bodies or credentials leave Hermes. Flux only receives "subscribe".
 Item {
@@ -219,8 +219,8 @@ Item {
     }
   }
 
-  // Herdr desktop app: its agents run in herdr-core (`hc ls`), which Flux
-  // doesn't read. bin/herdr-core-status.py lists live agent terminals, names
+  // Herdr desktop app: its agents run in herdr-core, which Flux
+  // doesn't read. bin/herdr-core-status.py subscribes to live agent terminals, names
   // and states only; it repeats a snapshot every few seconds as a heartbeat.
   readonly property bool herdrCoreEnabled: agentsEnabled && on("herdrCore")
   readonly property string herdrCoreScript: decodeURIComponent(Qt.resolvedUrl("../bin/herdr-core-status.py").toString().replace(/^file:\/\//, ""))
