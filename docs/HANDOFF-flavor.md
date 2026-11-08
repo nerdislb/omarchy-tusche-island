@@ -287,3 +287,53 @@ cd ~/Data/Development/projects/tusche-island-before-events-20261108
 That payload was independently hashed as `e353b258a04e93a7`. It restores the
 polling collector and keeps the existing flavors/settings. No shell restart
 is needed for rollback either.
+
+## Strand L — letter-bearing core addresses (08 November 2026)
+
+Collector and focus validation now accept core's `t[1-9]` plus its digit/consonant
+alphabet, bounded to 12 symbols after `t`, with an optional 1–40 character machine
+prefix. Both reject `.`/`..` machine components, nested paths and trailing
+newlines. Focus preserves `box/t1z` as one literal argument. Repository searches
+also found decimal conversion in local/remote event ordering: it now sorts by
+ID length, then core's ASCII-ordered alphabet, preserving CLI creation order.
+
+Validation: 48 Python unit tests (`PYTHONDONTWRITEBYTECODE=1 python3 -m unittest discover -s tests -p 'test_*.py'`) and all four `tests/*.cjs` suites pass. Shared
+address fixtures exercise CLI filtering, event snapshots/creation/label records,
+mocked Python focus and JS focus, including alphabet, length and path boundaries;
+local/remote ordering covers `t1z`, `t9z`, `t100`, `t9zz`. The pre-existing Hermes
+suite expected the former Hyprland-only focus command; its assertions now cover
+the existing Umbriel selection and Hyprland fallback without changing behavior.
+The HANDOFF lint command above plus `IslandModel.js` exits 0 with exactly the
+same 116 warnings as `16bbe40` (diagnostics compared against a private archive).
+
+All four Qt suites (`motion_runtime.py`, `dynamic_runtime.py`,
+`flavor_runtime.py`, `flavor_default_pixels.py`) pass with a clean environment,
+private HOME/XDG directories under `/tmp/strand-l-qt-*`, and
+`OMARCHY_PATH=~/Data/Development/projects/omarchy-umbriel-pixel-20261104`,
+`QT_QPA_PLATFORMTHEME=basic`. They use offscreen Qt or private Xvfb/software GL;
+the default flavor remains pixel-identical to `d3dd40d` in all four scenes.
+Temporary directories and test processes were cleaned up.
+
+No live install, core query, terminal focus or shell rescan was performed. Real
+live counting/click-through and remote machine focus remain integrator checks.
+
+### Install and rollback — Claude in the owner's session
+
+```bash
+cd ~/Data/Development/projects/tusche-island-looks-20261107
+./dev-install.sh
+omarchy-shell tusche-island state
+```
+
+Expected generation: `311bdea09e90b3e0`. Compare the island count with `hc ls`,
+confirm `t1z` appears and clicking it focuses the intended terminal. Check a
+machine-prefixed terminal if available. No shell restart is required.
+
+Rollback to the preceding live generation `edffac8c736634c7`, using a new path:
+
+```bash
+cd ~/Data/Development/projects/tusche-island-looks-20261107
+git worktree add --detach ~/Data/Development/projects/tusche-island-before-addresses-20261108 16bbe40
+cd ~/Data/Development/projects/tusche-island-before-addresses-20261108
+./dev-install.sh
+```

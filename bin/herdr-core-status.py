@@ -29,7 +29,8 @@ import sys
 import time
 from pathlib import Path
 
-ADDRESS = re.compile(r'^(?:[A-Za-z0-9._-]{1,40}/)?t[0-9]{1,12}$')
+# Match core's id_shaped alphabet, capped at 12 symbols after t.
+ADDRESS = re.compile(r'^(?!(?:\.|\.\.)/)(?:[A-Za-z0-9._-]{1,40}/)?t[1-9][0123456789bcdfghjkmnpqrstvwxyz]{0,11}\Z')
 STATUS = {'working': 'working', 'blocked': 'blocked', 'error': 'blocked', 'idle': 'idle', 'done': 'idle'}
 HEARTBEAT = 3.0   # repeat an unchanged snapshot at least this often
 CORE_TIMEOUT = 45.0  # three missing core heartbeats invalidate a connection
@@ -221,13 +222,19 @@ class EventState:
         # Local records are a u32 BTreeMap in core; creation events must insert
         # before remote records, including after LIMIT was already reached.
         local = sorted((r for a, r in self.terminals.items() if '/' not in a),
-                       key=lambda r: int(r['address'][1:]))
+                       key=lambda r: address_order(r['address']))
         remote = [r for a, r in self.terminals.items() if '/' in a]
         if machines is not None:
             rank = {name: index for index, name in enumerate(machines)}
             remote.sort(key=lambda r: (rank.get(r['address'].split('/')[0], len(rank)),
-                                       int(r['address'].split('/')[1][1:])))
+                                       address_order(r['address'])))
         return agent_snapshot([cli_record(r) for r in local + remote])
+
+
+def address_order(address):
+    # Core counts by length, then by its ASCII-ordered digit alphabet.
+    local = address.rsplit('/', 1)[-1]
+    return len(local), local
 
 
 def encode(snap):

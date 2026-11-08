@@ -1,0 +1,42 @@
+{
+  "valid": [
+    "t1",
+    "t9",
+    "t10",
+    "t1z",
+    "t9z",
+    "t100",
+    "t9zz",
+    "box/t1z",
+    "node-1.example/t1b",
+    "t1zzzzzzzzzzz",
+    "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx/t1z"
+  ],
+  "invalid": [
+    "t0",
+    "t01",
+    "ta",
+    "tl",
+    "t1a",
+    "t1e",
+    "t1l",
+    "",
+    "../t1z",
+    "./t1z",
+    "/t1z",
+    "box/../t1z",
+    "box//t1z",
+    "box/t1z/..",
+    "box\\t1z",
+    "box/t0",
+    "box/t1a",
+    "t1z\n",
+    "box/t1z\r\n",
+    "t1z\u0000",
+    " t1z",
+    "t1z ",
+    "t1z; id",
+    "t1zzzzzzzzzzzz",
+    "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx/t1z"
+  ]
+}

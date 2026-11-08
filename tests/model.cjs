@@ -112,6 +112,13 @@ assert.ok(!done({}).includes('--exec'), 'preview has no focus action');
   assert.deepEqual(plainList(ctx.desktopAgents({}, {}, true, false, false, {}, false, {}, false, hc, false)), []);
   assert.deepEqual(plainList(ctx.desktopAgents({}, {}, true, false, false, {}, false, {}, false, { available: false, agents: hc.agents }, true)), []);
   const helper = '/plugins/island/generations/g/bin/corgi-status.py';
+  const addresses = JSON.parse(fs.readFileSync(path.join(__dirname, 'herdr-addresses.json'), 'utf8'));
+  for (const address of addresses.valid)
+    assert.deepEqual(Array.from(ctx.agentFocusCommand({ ...hc.agents[0], pane: 'hc:' + address }, helper)),
+      ['python3', '/plugins/island/generations/g/bin/herdr-core-status.py', '--focus', address], address);
+  for (const address of addresses.invalid)
+    assert.deepEqual(Array.from(ctx.agentFocusCommand({ ...hc.agents[0], pane: 'hc:' + address }, helper)), [], address);
+
   assert.deepEqual(Array.from(ctx.agentFocusCommand(hc.agents[0], helper)),
     ['python3', '/plugins/island/generations/g/bin/herdr-core-status.py', '--focus', 't13']);
   for (const [agent, script] of [[hc.agents[0], ''], [{ ...hc.agents[0], source: 'corgi' }, helper],

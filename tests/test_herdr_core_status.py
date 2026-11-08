@@ -15,6 +15,8 @@ from unittest.mock import patch
 spec = importlib.util.spec_from_file_location("hcs", Path(__file__).resolve().parent.parent / "bin/herdr-core-status.py")
 hcs = importlib.util.module_from_spec(spec); spec.loader.exec_module(hcs)
 
+ADDRESSES = json.loads(Path(__file__).with_name("herdr-addresses.json").read_text())
+
 LS = {"terminals": [
     {"address": "t4", "agent": "pi", "cwd": "/home/x", "state": "live", "status": "done", "where": "~ / Codex"},
     {"address": "t13", "agent": "claude", "cwd": "/p", "state": "live", "status": "working", "where": "p / 2"},
@@ -83,6 +85,43 @@ def send(peer, *messages):
 
 
 class HerdrCoreStatus(unittest.TestCase):
+    def test_address_grammar_across_cli_events_and_focus(self):
+        for valid, addresses in ((True, ADDRESSES['valid']), (False, ADDRESSES['invalid'])):
+            for address in addresses:
+                with self.subTest(address=address, valid=valid):
+                    expected = ['hc:' + address] if valid else []
+                    cli = hcs.snapshot(json.dumps({'terminals': [dict(
+                        address=address, agent='pi', state='live', status='working')]}))
+                    self.assertEqual([a['pane'] for a in cli['agents']], expected)
+                    state = hcs.EventState()
+                    state.feed(initial([terminal(address)]))
+                    self.assertEqual([a['pane'] for a in state.snapshot(['box'])['agents']], expected)
+                    state.feed(event(11, 'removed', {}, address))
+                    state.feed(event(12, 'created', terminal(address), address))
+                    self.assertEqual([a['pane'] for a in state.snapshot(['box'])['agents']], expected)
+                    state.feed(event(13, 'removed', {}, address))
+                    state.feed(event(14, 'labels', {'record': terminal(address)}, address))
+                    self.assertEqual([a['pane'] for a in state.snapshot(['box'])['agents']], expected)
+                    with patch.object(hcs.shutil, 'which', return_value='/fake/herdr-app'), \
+                         patch.dict(os.environ, {}, clear=True), \
+                         patch.object(hcs.subprocess, 'run') as run:
+                        run.return_value.returncode = 0
+                        self.assertEqual(hcs.focus(address), 0 if valid else 2)
+                        if valid:
+                            run.assert_called_once_with(
+                                ['/fake/herdr-app', 'do', 'agent.focus', '--terminal', address],
+                                capture_output=True, timeout=10)
+                        else:
+                            run.assert_not_called()
+
+    def test_letter_ids_follow_core_order_locally_and_remotely(self):
+        addresses = ['t1', 't9', 't10', 't1z', 't9z', 't100', 't9zz']
+        expected = addresses + ['box/' + a for a in addresses] + ['other/t1z']
+        state = hcs.EventState()
+        state.feed(initial([terminal(a) for a in reversed(expected)]))
+        self.assertEqual([a['pane'] for a in state.snapshot(['box', 'other'])['agents']],
+                         ['hc:' + a for a in expected])
+
     def test_snapshot(self):
         snap = hcs.snapshot(json.dumps(LS))
         self.assertTrue(snap["available"])

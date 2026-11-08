@@ -38,7 +38,8 @@ function agentFocusCommand(agent, corgiScript) {
   // Herdr desktop app (herdr-core): show the terminal in the app
   if (pane.indexOf("hc:") === 0) {
     var hcHelper = siblingScript(corgiScript, "herdr-core-status.py")
-    return /^hc:t[0-9]{1,12}$/.test(pane) && agent.source === "herdr-core" && hcHelper
+    // Keep the collector's address grammar and bounds; require the true end.
+    return /^hc:(?!(?:\.|\.\.)\/)(?:[A-Za-z0-9._-]{1,40}\/)?t[1-9][0123456789bcdfghjkmnpqrstvwxyz]{0,11}(?![\s\S])/.test(pane) && agent.source === "herdr-core" && hcHelper
       ? ["python3", hcHelper, "--focus", pane.slice(3)] : []
   }
   // Hermes' window, by its app id: through Umbriel's window list there, else Hyprland.

@@ -14,8 +14,14 @@ assert.deepEqual(plain(model.desktopAgents({}, hermes, true, false, true)), herm
 assert.deepEqual(plain(model.desktopAgents(flux, hermes, true, true, false)), flux.herdr.agents);
 assert.deepEqual(plain(model.desktopAgents(flux, hermes, false, true, true)), []);
 assert.deepEqual(plain(model.desktopAgents({}, {available:false, agents:hermes.agents}, true, true, true)), []);
-assert.deepEqual(plain(model.agentFocusCommand(hermes.agents[0])), ['hyprctl','dispatch','hl.dsp.focus({ window = "class:^com[.]nousresearch[.]hermes$" })']);
-assert.deepEqual(plain(model.agentDoneCommand(hermes.agents[0])).slice(-4), ['--exec','hyprctl','dispatch','hl.dsp.focus({ window = "class:^com[.]nousresearch[.]hermes$" })']);
+const focus = plain(model.agentFocusCommand(hermes.agents[0]));
+assert.deepEqual(focus.slice(0, 2), ['sh', '-c']);
+assert.match(focus[2], /if \[ -n "\$UMBRIEL_SOCKET" \]/);
+assert.ok(focus[2].includes('select(.app_id == "com.nousresearch.hermes")'));
+assert.ok(focus[2].includes('exec umbriel msg "window-focus:$id"'));
+assert.ok(focus[2].includes('else exec hyprctl dispatch'));
+assert.ok(focus[2].includes('class:^com[.]nousresearch[.]hermes$'));
+assert.deepEqual(plain(model.agentDoneCommand(hermes.agents[0])).slice(-4), ['--exec', ...focus]);
 assert.deepEqual(plain(model.agentFocusCommand({pane:'oc:literal'})), ['xdg-open','http://127.0.0.1:18789/']);
 assert.deepEqual(plain(model.agentFocusCommand({pane:'pane with spaces; $(touch NOT_ALLOWED)'})), ['herdr','agent','focus','pane with spaces; $(touch NOT_ALLOWED)']);
 assert.deepEqual(plain(model.agentFocusCommand({})), []);
